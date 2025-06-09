@@ -49,32 +49,50 @@ class NewsPortal {
             }
         });
 
-        // AI interaction buttons
-        document.getElementById('autoSummaryBtn').addEventListener('click', () => {
-            this.askAI('', true); // Auto summary
-        });
+        // AI interaction buttons with error handling
+        const autoSummaryBtn = document.getElementById('autoSummaryBtn');
+        const autoDebateBtn = document.getElementById('autoDebateBtn');
+        const askBtn = document.getElementById('askBtn');
+        const debateBtn = document.getElementById('debateBtn');
 
-        document.getElementById('autoDebateBtn').addEventListener('click', () => {
-            this.debateAI('', true); // Auto debate
-        });
+        if (autoSummaryBtn) {
+            autoSummaryBtn.addEventListener('click', () => {
+                console.log('Auto summary button clicked');
+                this.askAI('', true); // Auto summary
+            });
+        }
 
-        document.getElementById('askBtn').addEventListener('click', () => {
-            const question = document.getElementById('aiInput').value.trim();
-            this.askAI(question);
-        });
+        if (autoDebateBtn) {
+            autoDebateBtn.addEventListener('click', () => {
+                console.log('Auto debate button clicked');  
+                this.debateAI('', true); // Auto debate
+            });
+        }
 
-        document.getElementById('debateBtn').addEventListener('click', () => {
-            const topic = document.getElementById('aiInput').value.trim();
-            this.debateAI(topic);
-        });
+        if (askBtn) {
+            askBtn.addEventListener('click', () => {
+                const question = document.getElementById('aiInput').value.trim();
+                this.askAI(question);
+            });
+        }
+
+        if (debateBtn) {
+            debateBtn.addEventListener('click', () => {
+                const topic = document.getElementById('aiInput').value.trim();
+                this.debateAI(topic);
+            });
+        }
 
         // Enter key for AI input
-        document.getElementById('aiInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                const input = e.target.value.trim();
-                this.askAI(input);
-            }
-        });
+        const aiInput = document.getElementById('aiInput');
+        if (aiInput) {
+            aiInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    const input = e.target.value.trim();
+                    this.askAI(input);
+                }
+            });
+        }
 
         // Floating action buttons
         document.getElementById('refreshBtn').addEventListener('click', () => {
@@ -268,12 +286,19 @@ class NewsPortal {
         const askBtn = document.getElementById('askBtn');
         const autoSummaryBtn = document.getElementById('autoSummaryBtn');
 
+        if (!aiResponse) {
+            console.error('AI Response element not found');
+            return;
+        }
+
         try {
             // Show loading state
             const activeBtn = autoSummary ? autoSummaryBtn : askBtn;
-            const originalText = activeBtn.textContent;
-            activeBtn.textContent = '⏳ Đang xử lý...';
-            activeBtn.disabled = true;
+            if (activeBtn) {
+                const originalText = activeBtn.textContent;
+                activeBtn.textContent = '⏳ Đang xử lý...';
+                activeBtn.disabled = true;
+            }
 
             aiResponse.style.display = 'block';
             aiResponse.innerHTML = `
@@ -306,21 +331,28 @@ class NewsPortal {
 
             // Clear input if not auto summary
             if (!autoSummary) {
-                document.getElementById('aiInput').value = '';
+                const aiInput = document.getElementById('aiInput');
+                if (aiInput) {
+                    aiInput.value = '';
+                }
             }
 
         } catch (error) {
             console.error('Error asking AI:', error);
             aiResponse.innerHTML = `
-                <div class="ai-error">
+                <div class="ai-error" style="color: #ef4444; padding: 1rem; background: #fef2f2; border-radius: 0.5rem; border: 1px solid #fecaca;">
                     ❌ Lỗi khi kết nối với AI: ${error.message}
                 </div>
             `;
         } finally {
             // Restore button state
-            const activeBtn = autoSummary ? autoSummaryBtn : askBtn;
-            activeBtn.textContent = autoSummary ? '📋 Tóm tắt' : '💭 Hỏi';
-            activeBtn.disabled = false;
+            if (autoSummary && autoSummaryBtn) {
+                autoSummaryBtn.textContent = '📋 Tóm tắt';
+                autoSummaryBtn.disabled = false;
+            } else if (askBtn) {
+                askBtn.textContent = '💭 Hỏi';
+                askBtn.disabled = false;
+            }
         }
     }
 
@@ -329,12 +361,19 @@ class NewsPortal {
         const debateBtn = document.getElementById('debateBtn');
         const autoDebateBtn = document.getElementById('autoDebateBtn');
 
+        if (!aiResponse) {
+            console.error('AI Response element not found');
+            return;
+        }
+
         try {
             // Show loading state
             const activeBtn = autoDebate ? autoDebateBtn : debateBtn;
-            const originalText = activeBtn.textContent;
-            activeBtn.textContent = '⏳ Đang xử lý...';
-            activeBtn.disabled = true;
+            if (activeBtn) {
+                const originalText = activeBtn.textContent;
+                activeBtn.textContent = '⏳ Đang xử lý...';
+                activeBtn.disabled = true;
+            }
 
             aiResponse.style.display = 'block';
             aiResponse.innerHTML = `
@@ -367,21 +406,28 @@ class NewsPortal {
 
             // Clear input if not auto debate
             if (!autoDebate) {
-                document.getElementById('aiInput').value = '';
+                const aiInput = document.getElementById('aiInput');
+                if (aiInput) {
+                    aiInput.value = '';
+                }
             }
 
         } catch (error) {
             console.error('Error debating AI:', error);
             aiResponse.innerHTML = `
-                <div class="ai-error">
+                <div class="ai-error" style="color: #ef4444; padding: 1rem; background: #fef2f2; border-radius: 0.5rem; border: 1px solid #fecaca;">
                     ❌ Lỗi khi kết nối với AI: ${error.message}
                 </div>
             `;
         } finally {
             // Restore button state
-            const activeBtn = autoDebate ? autoDebateBtn : debateBtn;
-            activeBtn.textContent = autoDebate ? '🎭 Bàn luận' : '🗣️ Bàn luận';
-            activeBtn.disabled = false;
+            if (autoDebate && autoDebateBtn) {
+                autoDebateBtn.textContent = '🎭 Bàn luận';
+                autoDebateBtn.disabled = false;
+            } else if (debateBtn) {
+                debateBtn.textContent = '🗣️ Bàn luận';
+                debateBtn.disabled = false;
+            }
         }
     }
 
@@ -600,12 +646,23 @@ if ('serviceWorker' in navigator) {
 let newsPortal;
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing NewsPortal...');
+    
     newsPortal = new NewsPortalEnhanced();
     
     // Add some visual feedback for loading
     document.body.classList.add('loaded');
     
     console.log('📰 News Portal initialized successfully!');
+    
+    // Debug: Check if AI buttons exist
+    const autoSummaryBtn = document.getElementById('autoSummaryBtn');
+    const autoDebateBtn = document.getElementById('autoDebateBtn');
+    
+    console.log('AI buttons found:', {
+        autoSummary: !!autoSummaryBtn,
+        autoDebate: !!autoDebateBtn
+    });
 });
 
 // Error boundary
