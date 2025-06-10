@@ -1140,6 +1140,21 @@ async def ai_debate():
         print(f"❌ AI Debate Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/test')
+def test_route():
+    """Simple test route"""
+    return "Flask app is working!"
+
+@app.route('/api/status')
+def api_status():
+    """Simple API status check"""
+    return jsonify({
+        'status': 'OK',
+        'message': 'API is working',
+        'gemini_available': gemini_engine.available if 'gemini_engine' in globals() else False,
+        'timestamp': get_current_datetime_str()
+    })
+
 @app.route('/api/debug')
 def debug_status():
     """Debug endpoint to check system status"""
