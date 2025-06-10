@@ -2,13 +2,12 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- RENDER.COM OPTIMIZED: Enhanced mobile viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>📊 E-con News - AI-Powered Financial News</title>
+    <title>📊 E-con News - VietStock Style Financial Portal</title>
     
     <!-- SEO & Social Meta -->
-    <meta name="description" content="E-con News - AI-powered financial news portal with real-time updates and AI analysis. Modern colorful interface with glassmorphism design.">
-    <meta name="keywords" content="AI news, financial news, E-con, colorful theme, modern UI, news portal">
+    <meta name="description" content="E-con News - Professional financial news portal with VietStock-style interface, 3D particles, and AI analysis.">
+    <meta name="keywords" content="VietStock, financial news, stock market, AI analysis, Vietnam finance">
     <meta name="author" content="E-con News Portal">
     <meta name="robots" content="index, follow">
     
@@ -17,11 +16,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="E-con News">
-    <meta name="theme-color" content="#667eea">
-    <meta name="msapplication-navbutton-color" content="#667eea">
-    
-    <!-- Prevent auto-zoom on iOS -->
-    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="msapplication-navbutton-color" content="#1e3a8a">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,93 +27,311 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="{{ url_for('static', filename='script.js') }}" as="script">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    
     <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    
+    <style>
+        /* Additional 3D particles animation */
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            25% { transform: translateY(-15px) rotate(90deg); opacity: 1; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.8; }
+            75% { transform: translateY(-15px) rotate(270deg); opacity: 1; }
+        }
+        
+        .particle-large {
+            width: 4px;
+            height: 4px;
+            background: #06b6d4;
+            border-radius: 50%;
+            position: absolute;
+            animation: particleFloat 12s ease-in-out infinite;
+            box-shadow: 0 0 10px #06b6d4;
+        }
+        
+        .particle-medium {
+            width: 3px;
+            height: 3px;
+            background: #3b82f6;
+            border-radius: 50%;
+            position: absolute;
+            animation: particleFloat 8s ease-in-out infinite;
+            box-shadow: 0 0 8px #3b82f6;
+        }
+    </style>
 </head>
 <body>
-    <!-- Skip to main content for accessibility -->
-    <a href="#econ-main-content" class="sr-only sr-only-focusable">Bỏ qua để đến nội dung chính</a>
-    
+    <!-- 3D Particles Background -->
+    <div class="particles-container">
+        <!-- Regular particles -->
+        <div class="particle" style="left: 5%; top: 15%;"></div>
+        <div class="particle" style="left: 15%; top: 75%;"></div>
+        <div class="particle" style="left: 25%; top: 35%;"></div>
+        <div class="particle" style="left: 35%; top: 55%;"></div>
+        <div class="particle" style="left: 45%; top: 25%;"></div>
+        <div class="particle" style="left: 55%; top: 65%;"></div>
+        <div class="particle" style="left: 65%; top: 45%;"></div>
+        <div class="particle" style="left: 75%; top: 85%;"></div>
+        <div class="particle" style="left: 85%; top: 15%;"></div>
+        <div class="particle" style="left: 95%; top: 45%;"></div>
+        
+        <!-- Large particles -->
+        <div class="particle-large" style="left: 20%; top: 60%;"></div>
+        <div class="particle-large" style="left: 60%; top: 20%;"></div>
+        <div class="particle-large" style="left: 80%; top: 70%;"></div>
+        
+        <!-- Medium particles -->
+        <div class="particle-medium" style="left: 10%; top: 40%;"></div>
+        <div class="particle-medium" style="left: 40%; top: 80%;"></div>
+        <div class="particle-medium" style="left: 70%; top: 10%;"></div>
+        <div class="particle-medium" style="left: 90%; top: 60%;"></div>
+    </div>
+
     <!-- E-con App Container -->
     <div class="econ-app">
-        <!-- Header Navigation -->
-        <header class="econ-header" role="banner">
-            <nav class="econ-nav">
-                <!-- Logo -->
-                <a href="/" class="econ-logo" aria-label="E-con News Portal - Trang chủ">
-                    <div class="econ-logo-icon" role="img" aria-label="Logo E-con">📊</div>
-                    <h1 class="econ-logo-text">E-con News</h1>
-                </a>
-                
-                <!-- Navigation Pills -->
-                <div class="econ-nav-pills" role="navigation" aria-label="Loại tin tức">
-                    <button class="econ-nav-pill active" data-type="all" aria-pressed="true" aria-label="Tất cả tin tức">
-                        <span class="econ-nav-pill-icon" role="img" aria-hidden="true">🌍</span>
-                        <span class="econ-nav-pill-text">Tất cả</span>
-                    </button>
-                    <button class="econ-nav-pill" data-type="domestic" aria-pressed="false" aria-label="Tin tức trong nước">
-                        <span class="econ-nav-pill-icon" role="img" aria-hidden="true">🇻🇳</span>
-                        <span class="econ-nav-pill-text">Trong nước</span>
-                    </button>
-                    <button class="econ-nav-pill" data-type="international" aria-pressed="false" aria-label="Tin tức quốc tế">
-                        <span class="econ-nav-pill-icon" role="img" aria-hidden="true">🌐</span>
-                        <span class="econ-nav-pill-text">Quốc tế</span>
-                    </button>
+        <!-- Header -->
+        <header class="econ-header">
+            <!-- Top Market Data Bar -->
+            <div class="econ-header-top">
+                <div class="container">
+                    <div class="econ-market-data">
+                        <div class="econ-market-item">
+                            <span class="econ-market-label">VN-Index:</span>
+                            <span class="econ-market-value">1,316.23</span>
+                            <span class="econ-market-change positive">+0.43%</span>
+                        </div>
+                        <div class="econ-market-item">
+                            <span class="econ-market-label">HNX-Index:</span>
+                            <span class="econ-market-value">226.40</span>
+                            <span class="econ-market-change negative">-0.04%</span>
+                        </div>
+                        <div class="econ-market-item">
+                            <span class="econ-market-label">VN30:</span>
+                            <span class="econ-market-value">1,404.82</span>
+                            <span class="econ-market-change positive">+0.59%</span>
+                        </div>
+                        <div class="econ-market-item">
+                            <span class="econ-market-label">USD/VND:</span>
+                            <span class="econ-market-value">24,992</span>
+                            <span class="econ-market-change positive">+0.02%</span>
+                        </div>
+                    </div>
+                    <div class="econ-header-time">
+                        <span id="currentTime">10:37 - 10/06/2025</span>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Status Indicator -->
-                <div class="econ-status" role="status" aria-live="polite">
-                    <div class="econ-status-dot" aria-hidden="true"></div>
-                    <span class="econ-status-text">Live</span>
+            <!-- Main Navigation -->
+            <nav class="econ-nav">
+                <div class="container">
+                    <a href="/" class="econ-logo">
+                        <div class="econ-logo-icon">📊</div>
+                        <span class="econ-logo-text">E-con News</span>
+                    </a>
+
+                    <div class="econ-nav-menu">
+                        <a href="#" class="econ-nav-item active" data-category="all">Trang chủ</a>
+                        <a href="#" class="econ-nav-item" data-category="stocks">Chứng khoán</a>
+                        <a href="#" class="econ-nav-item" data-category="business">Doanh nghiệp</a>
+                        <a href="#" class="econ-nav-item" data-category="real-estate">Bất động sản</a>
+                        <a href="#" class="econ-nav-item" data-category="finance">Tài chính</a>
+                        <a href="#" class="econ-nav-item" data-category="macro">Vĩ mô</a>
+                        <a href="#" class="econ-nav-item" data-category="world">Thế giới</a>
+                    </div>
+
+                    <div class="econ-search-container" style="display: flex; align-items: center; gap: 1rem;">
+                        <input type="search" placeholder="Tìm kiếm..." style="padding: 0.5rem; border: 1px solid var(--vs-border); border-radius: var(--vs-radius-md); background: white;">
+                        <button style="padding: 0.5rem 1rem; background: var(--vs-primary); color: white; border: none; border-radius: var(--vs-radius-md); cursor: pointer;">🔍</button>
+                    </div>
                 </div>
             </nav>
         </header>
 
-        <!-- Main Content -->
-        <main class="econ-main" id="econ-main-content" role="main">
-            <!-- Loading State -->
-            <div class="econ-loading" id="econLoadingContainer" role="status" aria-live="polite" aria-label="Đang tải tin tức">
-                <div class="econ-spinner" aria-hidden="true">
-                    <div class="econ-spinner-ring"></div>
-                    <div class="econ-spinner-ring"></div>
-                    <div class="econ-spinner-ring"></div>
+        <!-- Main Layout -->
+        <div class="econ-layout">
+            <!-- Sidebar - Panel theo Lĩnh vực -->
+            <aside class="econ-sidebar">
+                <!-- Chứng khoán -->
+                <div class="econ-sidebar-section">
+                    <h3 class="econ-sidebar-title">📈 Chứng khoán</h3>
+                    <ul class="econ-category-list">
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link active" data-category="all">
+                                <span class="econ-category-icon">🌍</span>
+                                <span>Tất cả tin tức</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="domestic">
+                                <span class="econ-category-icon">🇻🇳</span>
+                                <span>Thị trường trong nước</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="international">
+                                <span class="econ-category-icon">🌐</span>
+                                <span>Thị trường quốc tế</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="derivatives">
+                                <span class="econ-category-icon">📊</span>
+                                <span>Phái sinh</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="analysis">
+                                <span class="econ-category-icon">🔍</span>
+                                <span>Phân tích</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <p class="econ-loading-text">Đang tải tin tức với AI...</p>
-            </div>
 
-            <!-- News Grid -->
-            <div class="econ-grid" id="econNewsGrid" style="display: none;" role="grid" aria-label="Danh sách tin tức">
-                <!-- News items will be dynamically loaded here -->
-            </div>
-
-            <!-- Pagination -->
-            <nav class="econ-pagination" id="econPaginationContainer" style="display: none;" role="navigation" aria-label="Phân trang tin tức">
-                <button class="econ-pagination-btn" id="econPrevPageBtn" aria-label="Trang trước">
-                    <span>← Trước</span>
-                </button>
-                <div class="econ-pagination-info" id="econPaginationInfo" role="status" aria-live="polite">
-                    <span class="econ-pagination-current">1</span>
-                    <span class="econ-pagination-separator">/</span>
-                    <span class="econ-pagination-total">1</span>
+                <!-- Doanh nghiệp -->
+                <div class="econ-sidebar-section">
+                    <h3 class="econ-sidebar-title">🏢 Doanh nghiệp</h3>
+                    <ul class="econ-category-list">
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="companies">
+                                <span class="econ-category-icon">🏭</span>
+                                <span>Tin doanh nghiệp</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="earnings">
+                                <span class="econ-category-icon">💰</span>
+                                <span>Kết quả kinh doanh</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="mergers">
+                                <span class="econ-category-icon">🤝</span>
+                                <span>M&A</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <button class="econ-pagination-btn" id="econNextPageBtn" aria-label="Trang sau">
-                    <span>Sau →</span>
-                </button>
-            </nav>
-        </main>
 
-        <!-- Article Detail Modal (Desktop/Tablet) -->
+                <!-- Tài chính -->
+                <div class="econ-sidebar-section">
+                    <h3 class="econ-sidebar-title">💳 Tài chính</h3>
+                    <ul class="econ-category-list">
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="banking">
+                                <span class="econ-category-icon">🏦</span>
+                                <span>Ngân hàng</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="fintech">
+                                <span class="econ-category-icon">💻</span>
+                                <span>Fintech</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="crypto">
+                                <span class="econ-category-icon">₿</span>
+                                <span>Tiền số</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Bất động sản -->
+                <div class="econ-sidebar-section">
+                    <h3 class="econ-sidebar-title">🏠 Bất động sản</h3>
+                    <ul class="econ-category-list">
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="real-estate">
+                                <span class="econ-category-icon">🏘️</span>
+                                <span>Thị trường BĐS</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" data-category="projects">
+                                <span class="econ-category-icon">🏗️</span>
+                                <span>Dự án</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Công cụ nhanh -->
+                <div class="econ-sidebar-section">
+                    <h3 class="econ-sidebar-title">⚡ Công cụ</h3>
+                    <ul class="econ-category-list">
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" onclick="vietStockPortal.openChatWindow(); return false;">
+                                <span class="econ-category-icon">🤖</span>
+                                <span>AI Phân tích</span>
+                            </a>
+                        </li>
+                        <li class="econ-category-item">
+                            <a href="#" class="econ-category-link" onclick="vietStockPortal.loadNews(vietStockPortal.currentCategory, 1); return false;">
+                                <span class="econ-category-icon">🔄</span>
+                                <span>Làm mới</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="econ-main-content">
+                <!-- Content Header -->
+                <div class="econ-content-header">
+                    <h1 class="econ-content-title">Tin tức tài chính - chứng khoán</h1>
+                    <p class="econ-content-subtitle">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="econ-filter-tabs">
+                    <a href="#" class="econ-filter-tab active" data-type="all">Tất cả</a>
+                    <a href="#" class="econ-filter-tab" data-type="domestic">Trong nước</a>
+                    <a href="#" class="econ-filter-tab" data-type="international">Quốc tế</a>
+                    <a href="#" class="econ-filter-tab" data-type="hot">Nổi bật</a>
+                    <a href="#" class="econ-filter-tab" data-type="analysis">Phân tích</a>
+                </div>
+
+                <!-- News Content -->
+                <div class="econ-news-content">
+                    <!-- Loading State -->
+                    <div class="econ-loading" id="econLoadingContainer">
+                        <div class="econ-spinner"></div>
+                        <p class="econ-loading-text">Đang tải tin tức...</p>
+                    </div>
+
+                    <!-- News Grid -->
+                    <div class="econ-news-grid" id="econNewsGrid" style="display: none;">
+                        <!-- News items will be dynamically loaded here -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="econ-pagination" id="econPaginationContainer" style="display: none;">
+                        <button class="econ-pagination-btn" id="econPrevPageBtn">
+                            ← Trang trước
+                        </button>
+                        <div class="econ-pagination-info">
+                            <span class="econ-pagination-current">1</span>
+                            <span>/</span>
+                            <span class="econ-pagination-total">1</span>
+                        </div>
+                        <button class="econ-pagination-btn" id="econNextPageBtn">
+                            Trang sau →
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- iPad-style Article Modal -->
         <div class="econ-article-modal" id="econArticleModal" style="display: none;">
-            <div class="econ-article-panel">
+            <div class="econ-article-container">
                 <div class="econ-article-header">
                     <h2 class="econ-article-title" id="econArticleTitle"></h2>
-                    <button class="econ-close-btn" id="econCloseBtn" aria-label="Đóng bài viết">×</button>
+                    <button class="econ-close-btn" id="econCloseBtn">×</button>
                 </div>
                 
                 <div class="econ-article-meta">
@@ -134,45 +348,42 @@
             </div>
         </div>
 
-        <!-- Floating Chat Widget -->
+        <!-- iPhone-style Floating Chat Widget -->
         <div class="econ-floating-chat" id="econFloatingChat">
-            <!-- Minimized State -->
+            <!-- Chat Bubble (Minimized State) -->
             <div class="econ-chat-bubble" id="econChatBubble">
                 <div class="econ-chat-bubble-avatar">
-                    <span class="econ-chat-bubble-icon">🤖</span>
+                    <span>🤖</span>
                     <div class="econ-chat-bubble-pulse"></div>
                 </div>
                 <div class="econ-chat-bubble-text">
                     <div class="econ-chat-bubble-title">AI Assistant</div>
                     <div class="econ-chat-bubble-subtitle">Hỏi tôi về bài báo!</div>
                 </div>
-                <button class="econ-chat-bubble-close" id="econChatBubbleClose">×</button>
             </div>
 
-            <!-- Maximized Chat Window -->
+            <!-- Chat Window (Maximized State) -->
             <div class="econ-chat-window" id="econChatWindow" style="display: none;">
                 <!-- Chat Header -->
                 <div class="econ-chat-header">
                     <div class="econ-chat-avatar">🤖</div>
                     <div class="econ-chat-info">
-                        <h3 class="econ-chat-title">AI Assistant</h3>
-                        <span class="econ-chat-status">Online</span>
+                        <div class="econ-chat-title">AI Assistant</div>
+                        <div class="econ-chat-status">Online</div>
                     </div>
                     <div class="econ-chat-actions">
-                        <button class="econ-chat-minimize" id="econChatMinimize" aria-label="Thu nhỏ">−</button>
-                        <button class="econ-chat-close" id="econChatClose" aria-label="Đóng">×</button>
+                        <button class="econ-chat-minimize" id="econChatMinimize">−</button>
+                        <button class="econ-chat-close" id="econChatClose">×</button>
                     </div>
                 </div>
 
                 <!-- Chat Messages -->
                 <div class="econ-chat-messages" id="econChatMessages">
-                    <div class="econ-welcome-message">
-                        <div class="econ-message econ-message-ai">
-                            <div class="econ-message-bubble">
-                                Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về bài báo hoặc sử dụng các nút bên dưới! 🤖✨
-                            </div>
-                            <div class="econ-message-time">Bây giờ</div>
+                    <div class="econ-message econ-message-ai">
+                        <div class="econ-message-bubble">
+                            Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về tin tức tài chính hoặc sử dụng các nút bên dưới! 🤖✨
                         </div>
+                        <div class="econ-message-time">Bây giờ</div>
                     </div>
                 </div>
 
@@ -197,171 +408,82 @@
                                 placeholder="Tin nhắn..."
                                 rows="1"
                             ></textarea>
-                            <button class="econ-send-btn" id="econSendBtn" aria-label="Gửi tin nhắn">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
-                                </svg>
-                            </button>
                         </div>
+                        <button class="econ-send-btn" id="econSendBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Floating Action Buttons -->
-        <div class="econ-fab-container" role="group" aria-label="Chức năng nhanh">
-            <button class="econ-fab" id="econRefreshBtn" title="Làm mới tin tức" aria-label="Làm mới tin tức">
-                🔄
-            </button>
-            <button class="econ-fab econ-fab-secondary" id="econScrollTopBtn" title="Lên đầu trang" aria-label="Cuộn lên đầu trang">
-                ⬆️
-            </button>
-        </div>
-
         <!-- Toast Notifications -->
-        <div class="econ-toast-container" id="econToastContainer" role="region" aria-live="assertive" aria-label="Thông báo">
+        <div class="econ-toast-container" id="econToastContainer">
             <!-- Toast messages will appear here -->
         </div>
     </div>
 
-    <!-- Enhanced Error Handling Script -->
+    <!-- Enhanced JavaScript for performance -->
     <script>
-        // RENDER.COM OPTIMIZED: Enhanced error handling and debugging
+        // Real-time clock update
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            const timeEl = document.getElementById('currentTime');
+            if (timeEl) {
+                timeEl.textContent = timeStr.replace(',', ' -');
+            }
+        }
+        
+        // Update time every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Enhanced error handling
         window.addEventListener('error', function(e) {
-            console.error('🚨 Global JavaScript Error:', {
+            console.error('🚨 Global VietStock Error:', {
                 message: e.message,
                 filename: e.filename,
                 lineno: e.lineno,
-                colno: e.colno,
-                error: e.error,
-                stack: e.error?.stack,
-                timestamp: new Date().toISOString()
+                error: e.error
             });
         });
 
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('🚨 Unhandled Promise Rejection:', {
-                reason: e.reason,
-                promise: e.promise,
-                timestamp: new Date().toISOString()
-            });
-        });
-
-        // RENDER.COM OPTIMIZED: Connection status monitoring
-        function updateEconConnectionStatus() {
-            const statusIndicator = document.querySelector('.econ-status');
-            const statusText = document.querySelector('.econ-status-text');
-            const statusDot = document.querySelector('.econ-status-dot');
-            
-            if (navigator.onLine) {
-                statusText.textContent = 'Live';
-                statusDot.style.background = 'var(--econ-accent-success)';
-                statusIndicator.style.opacity = '1';
-            } else {
-                statusText.textContent = 'Offline';
-                statusDot.style.background = 'var(--econ-accent-danger)';
-                statusIndicator.style.opacity = '0.7';
-            }
-        }
-
-        window.addEventListener('online', updateEconConnectionStatus);
-        window.addEventListener('offline', updateEconConnectionStatus);
-
-        // RENDER.COM OPTIMIZED: Enhanced mobile viewport handling
-        function handleEconViewportChanges() {
-            // Update CSS custom property for actual viewport height
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-            // Handle iOS Safari bottom bar and notch
-            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                document.documentElement.style.setProperty('--safe-area-inset-bottom', 'env(safe-area-inset-bottom)');
-                document.documentElement.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top)');
-            }
-        }
-
-        window.addEventListener('resize', handleEconViewportChanges);
-        window.addEventListener('orientationchange', function() {
-            setTimeout(handleEconViewportChanges, 100);
-        });
-
-        // Initialize viewport handling
-        handleEconViewportChanges();
-
-        // RENDER.COM OPTIMIZED: Performance monitoring
+        // Performance monitoring
         window.addEventListener('load', function() {
             if ('performance' in window) {
                 const perfData = performance.getEntriesByType('navigation')[0];
-                console.log('📊 E-con Page Load Performance:', {
+                console.log('📊 VietStock Page Performance:', {
                     loadTime: Math.round(performance.now()),
                     domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
-                    resources: performance.getEntriesByType('resource').length,
-                    firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime || 'N/A',
-                    firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 'N/A'
+                    resources: performance.getEntriesByType('resource').length
                 });
             }
         });
 
-        // RENDER.COM OPTIMIZED: Lightweight service worker registration
-        if ('serviceWorker' in navigator && location.protocol === 'https:') {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/static/sw.js')
-                    .then(function(registration) {
-                        console.log('✅ E-con ServiceWorker registered:', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('❌ E-con ServiceWorker registration failed:', error);
-                    });
-            });
+        // Viewport handling for mobile
+        function handleViewportChanges() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
         }
 
-        // RENDER.COM OPTIMIZED: Memory management for low-resource environments
-        function econMemoryCleanup() {
-            // Clear old toast notifications
-            const toastContainer = document.getElementById('econToastContainer');
-            if (toastContainer && toastContainer.children.length > 3) {
-                const oldToasts = Array.from(toastContainer.children).slice(0, -2);
-                oldToasts.forEach(toast => toast.remove());
-            }
-            
-            // Clear old chat messages if too many
-            const chatMessages = document.getElementById('econChatMessages');
-            if (chatMessages && chatMessages.children.length > 20) {
-                const oldMessages = Array.from(chatMessages.children).slice(0, -15);
-                oldMessages.forEach(msg => msg.remove());
-            }
-        }
-
-        // Run memory cleanup every 3 minutes
-        setInterval(econMemoryCleanup, 3 * 60 * 1000);
-
-        // RENDER.COM OPTIMIZED: Focus management for better UX
-        document.addEventListener('keydown', function(e) {
-            // Escape key to close split view
-            if (e.key === 'Escape') {
-                const splitContainer = document.getElementById('econSplitContainer');
-                if (splitContainer && splitContainer.style.display !== 'none') {
-                    splitContainer.style.display = 'none';
-                    document.querySelector('.econ-main').style.display = 'block';
-                }
-            }
-            
-            // Enter key in chat input
-            if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'econChatInput') {
-                e.preventDefault();
-                const sendBtn = document.getElementById('econSendBtn');
-                if (sendBtn) {
-                    sendBtn.click();
-                }
-            }
+        window.addEventListener('resize', handleViewportChanges);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(handleViewportChanges, 100);
         });
+        handleViewportChanges();
 
-        // Initialize connection status
-        updateEconConnectionStatus();
-
-        console.log('🚀 E-con News Portal initialized successfully!');
-        console.log('🎨 Theme: Colorful Rainbow with Glassmorphism');
-        console.log('📱 Optimized for Render.com free tier');
+        console.log('🚀 VietStock News Portal HTML loaded successfully!');
+        console.log('🎨 Theme: VietStock Professional with 3D Particles');
+        console.log('📱 Optimized for all devices with 0.5s animations');
     </script>
 
     <!-- Main Application Script -->
