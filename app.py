@@ -115,19 +115,20 @@ RSS_FEEDS = {
         
         # ✅ FREE NEWS RSS FEEDS (NO PAYWALL - Verified 2025)
         'cnn_money': 'http://rss.cnn.com/rss/money_topstories.rss',
-        'marketwatch': 'http://feeds.marketwatch.com/marketwatch/topstories/',
+        'marketwatch_latest': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
         'business_insider': 'http://feeds2.feedburner.com/businessinsider',
         'cnbc': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
         'investing_com': 'https://www.investing.com/rss/news.rss',
-        'investopedia': 'https://www.investopedia.com/feedbuilder/feed/getfeed/?feedName=rss_headline',
+        'reuters_business': 'https://feeds.reuters.com/reuters/businessNews',
         'bbc_business': 'http://feeds.bbci.co.uk/news/business/rss.xml',
         'guardian_business': 'https://www.theguardian.com/business/economics/rss',
         'coindesk': 'https://feeds.feedburner.com/CoinDesk',
         'nasdaq_news': 'http://articlefeeds.nasdaq.com/nasdaq/categories?category=Investing+Ideas',
         
-        # ✅ FREE ALTERNATIVE SOURCES (Removed problematic ones)
+        # ✅ FREE ALTERNATIVE SOURCES (Working 2025)
         'seeking_alpha': 'https://seekingalpha.com/feed.xml',
         'benzinga': 'https://www.benzinga.com/feed',
+        'motley_fool': 'https://www.fool.com/feeds/index.aspx?format=rsslink&culture=en-us',
     }
 }
 
@@ -275,11 +276,11 @@ def get_enhanced_headers(url=None):
     return headers
 
 def is_international_source(source_name):
-    """Check if source is international - FIXED for removed sources"""
+    """Check if source is international - UPDATED for new sources"""
     international_sources = [
-        'yahoo_finance', 'cnn_money', 'marketwatch', 'business_insider',
-        'cnbc', 'investing_com', 'investopedia', 'bbc_business',
-        'guardian_business', 'coindesk', 'nasdaq_news', 'seeking_alpha', 'benzinga'
+        'yahoo_finance', 'cnn_money', 'marketwatch_latest', 'business_insider',
+        'cnbc', 'investing_com', 'reuters_business', 'bbc_business',
+        'guardian_business', 'coindesk', 'nasdaq_news', 'seeking_alpha', 'benzinga', 'motley_fool'
     ]
     return any(source in source_name for source in international_sources)
 
@@ -300,6 +301,8 @@ def create_fallback_content(url, source_name, error_msg=""):
                 source_display = "CNBC"
             elif 'bbc' in source_name:
                 source_display = "BBC Business"
+            elif 'motley_fool' in source_name:
+                source_display = "Motley Fool"
             
             return f"""**{source_display} Financial News:**
 
@@ -316,18 +319,34 @@ def create_fallback_content(url, source_name, error_msg=""):
 
 {f'**Technical Error:** {error_msg}' if error_msg else ''}"""
         else:
+            # Enhanced fallback for CafeF with more details
             return f"""**Tin tức kinh tế CafeF:**
 
 📰 **Thông tin kinh tế:** Bài viết cung cấp thông tin kinh tế, tài chính từ CafeF.
 
 📊 **Nội dung chuyên sâu:**
-• Phân tích thị trường chứng khoán Việt Nam
+• Phân tích thị trường chứng khoán Việt Nam  
 • Tin tức kinh tế vĩ mô và chính sách
 • Báo cáo doanh nghiệp và tài chính
 • Bất động sản và đầu tư
 
+**🔍 Chi tiết bài viết:**
+Đây là bài viết từ {source_name.replace('cafef_', 'CafeF ')} với nhiều thông tin hữu ích về thị trường tài chính Việt Nam. 
+
+**💡 Nội dung bao gồm:**
+- Phân tích chuyên sâu từ các chuyên gia
+- Số liệu và biểu đồ cập nhật
+- Dự báo xu hướng thị trường
+- Khuyến nghị đầu tư
+
+**📱 Lưu ý:** Để đọc đầy đủ bài viết với hình ảnh và biểu đồ, vui lòng truy cập link gốc bên dưới.
+
 **Mã bài viết:** {article_id}
-**Lưu ý:** Để đọc đầy đủ, vui lòng truy cập link gốc.
+
+{f'**Thông tin kỹ thuật:** {error_msg}' if error_msg else ''}"""
+        
+    except Exception as e:
+        return f"Nội dung từ {source_name}. Vui lòng truy cập link gốc để đọc đầy đủ."y đủ, vui lòng truy cập link gốc.
 
 {f'**Lỗi:** {error_msg}' if error_msg else ''}"""
         
@@ -750,7 +769,7 @@ class GeminiAIEngine:
     async def ask_question(self, question: str, context: str = ""):
         """Gemini AI question answering with context"""
         if not self.available:
-            return "⚠️ Gemini AI không khả dụng."
+            return "⚠️ Gemini AI không khả dụng. Vui lòng kiểm tra GEMINI_API_KEY."
         
         try:
             current_date_str = get_current_date_str()
@@ -779,6 +798,8 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
                 max_output_tokens=1500,
             )
             
+            print(f"🤖 Calling Gemini API for question: {question[:50]}...")
+            
             response = await asyncio.wait_for(
                 asyncio.to_thread(
                     model.generate_content,
@@ -788,17 +809,20 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
                 timeout=15
             )
             
+            print("✅ Gemini API response received")
             return response.text.strip()
             
         except asyncio.TimeoutError:
+            print("⏰ Gemini API timeout")
             return "⚠️ Gemini AI timeout. Vui lòng thử lại."
         except Exception as e:
+            print(f"❌ Gemini API error: {str(e)}")
             return f"⚠️ Lỗi Gemini AI: {str(e)}"
     
     async def debate_perspectives(self, topic: str):
         """Multi-perspective debate system"""
         if not self.available:
-            return "⚠️ Gemini AI không khả dụng."
+            return "⚠️ Gemini AI không khả dụng. Vui lòng kiểm tra GEMINI_API_KEY."
         
         try:
             prompt = f"""Tổ chức cuộc tranh luận về: {topic}
@@ -822,6 +846,8 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
                 max_output_tokens=1500,
             )
             
+            print(f"🎭 Calling Gemini API for debate: {topic[:50]}...")
+            
             response = await asyncio.wait_for(
                 asyncio.to_thread(
                     model.generate_content,
@@ -831,11 +857,14 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
                 timeout=20
             )
             
+            print("✅ Gemini API debate response received")
             return response.text.strip()
             
         except asyncio.TimeoutError:
+            print("⏰ Gemini API debate timeout")
             return "⚠️ Gemini AI timeout."
         except Exception as e:
+            print(f"❌ Gemini API debate error: {str(e)}")
             return f"⚠️ Lỗi Gemini AI: {str(e)}"
     
     async def analyze_article(self, article_content: str, question: str = ""):
@@ -899,14 +928,15 @@ source_names = {
     'cafef_chungkhoan': 'CafeF CK', 'cafef_batdongsan': 'CafeF BĐS',
     'cafef_taichinh': 'CafeF TC', 'cafef_vimo': 'CafeF VM', 'cafef_doanhnghiep': 'CafeF DN',
     
-    # FREE international sources
+    # FREE international sources - UPDATED
     'yahoo_finance_main': 'Yahoo RSS', 'yahoo_finance_headlines': 'Yahoo Headlines',
     'yahoo_finance_rss': 'Yahoo Finance', 'cnn_money': 'CNN Money', 
-    'marketwatch': 'MarketWatch', 'business_insider': 'Business Insider',
+    'marketwatch_latest': 'MarketWatch', 'business_insider': 'Business Insider',
     'cnbc': 'CNBC', 'investing_com': 'Investing.com', 
-    'investopedia': 'Investopedia', 'bbc_business': 'BBC Business', 
+    'reuters_business': 'Reuters Business', 'bbc_business': 'BBC Business', 
     'guardian_business': 'The Guardian', 'coindesk': 'CoinDesk', 
-    'nasdaq_news': 'Nasdaq', 'seeking_alpha': 'Seeking Alpha', 'benzinga': 'Benzinga'
+    'nasdaq_news': 'Nasdaq', 'seeking_alpha': 'Seeking Alpha', 'benzinga': 'Benzinga',
+    'motley_fool': 'Motley Fool'
 }
 
 emoji_map = {
@@ -914,12 +944,12 @@ emoji_map = {
     'cafef_chungkhoan': '📈', 'cafef_batdongsan': '🏢', 'cafef_taichinh': '💰', 
     'cafef_vimo': '📊', 'cafef_doanhnghiep': '🏭',
     
-    # FREE international sources
+    # FREE international sources - UPDATED
     'yahoo_finance_main': '💼', 'yahoo_finance_headlines': '📰', 'yahoo_finance_rss': '💼',
-    'cnn_money': '📺', 'marketwatch': '📊', 'business_insider': '💼', 
-    'cnbc': '📺', 'investing_com': '💹', 'investopedia': '📚',
+    'cnn_money': '📺', 'marketwatch_latest': '📊', 'business_insider': '💼', 
+    'cnbc': '📺', 'investing_com': '💹', 'reuters_business': '🌍',
     'bbc_business': '🇬🇧', 'guardian_business': '🛡️', 'coindesk': '₿',
-    'nasdaq_news': '📈', 'seeking_alpha': '🔍', 'benzinga': '🚀'
+    'nasdaq_news': '📈', 'seeking_alpha': '🔍', 'benzinga': '🚀', 'motley_fool': '🤡'
 }
 
 # Flask Routes
@@ -1029,8 +1059,13 @@ async def ai_ask():
     """AI ask endpoint"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+            
         question = data.get('question', '')
         user_id = get_or_create_user_session()
+        
+        print(f"🤖 AI Ask - User: {user_id}, Question: '{question}'")
         
         # Check for recent article context
         context = ""
@@ -1046,19 +1081,24 @@ async def ai_ask():
                 
                 if article_content:
                     context = f"BÀI BÁO LIÊN QUAN:\nTiêu đề: {article['title']}\nNguồn: {article['source']}\nNội dung: {article_content[:1500]}"
+                    print(f"📄 Found article context: {article['title'][:50]}...")
         
         # Get AI response
         if context and not question:
             # Auto-summarize if no question provided
+            print("🔄 Auto-summarizing article")
             response = await gemini_engine.analyze_article(context, "Hãy tóm tắt các ý chính của bài báo này")
         elif context:
+            print("❓ Answering question with context")
             response = await gemini_engine.analyze_article(context, question)
         else:
+            print("💭 General question without context")
             response = await gemini_engine.ask_question(question, context)
         
         return jsonify({'response': response})
         
     except Exception as e:
+        print(f"❌ AI Ask Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/ai/debate', methods=['POST'])
@@ -1066,8 +1106,13 @@ async def ai_debate():
     """AI debate endpoint"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+            
         topic = data.get('topic', '')
         user_id = get_or_create_user_session()
+        
+        print(f"🎭 AI Debate - User: {user_id}, Topic: '{topic}'")
         
         # Check for context if no topic provided
         if not topic:
@@ -1078,15 +1123,35 @@ async def ai_debate():
                 if time_diff.total_seconds() < 1800:
                     article = last_detail['article']
                     topic = f"Bài báo: {article['title']}"
+                    print(f"📄 Using article as debate topic: {topic[:50]}...")
                 else:
-                    return jsonify({'error': 'Không có chủ đề để bàn luận'}), 400
+                    print("⏰ No recent article context")
+                    return jsonify({'error': 'Không có chủ đề để bàn luận và không có bài báo gần đây'}), 400
             else:
-                return jsonify({'error': 'Cần nhập chủ đề để bàn luận'}), 400
+                print("❌ No topic and no article context")
+                return jsonify({'error': 'Cần nhập chủ đề để bàn luận hoặc xem bài báo trước'}), 400
         
+        print(f"🚀 Starting debate with topic: {topic}")
         response = await gemini_engine.debate_perspectives(topic)
         
         return jsonify({'response': response})
         
+    except Exception as e:
+        print(f"❌ AI Debate Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/debug')
+def debug_status():
+    """Debug endpoint to check system status"""
+    try:
+        return jsonify({
+            'gemini_available': gemini_engine.available,
+            'gemini_api_key_set': bool(GEMINI_API_KEY),
+            'gemini_api_key_preview': GEMINI_API_KEY[:10] + "..." if GEMINI_API_KEY else None,
+            'current_time': get_current_datetime_str(),
+            'total_sources': len(RSS_FEEDS['domestic']) + len(RSS_FEEDS['international']),
+            'cache_size': len(global_seen_articles)
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
