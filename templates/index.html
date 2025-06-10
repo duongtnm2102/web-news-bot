@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <!-- RENDER.COM OPTIMIZED: Enhanced mobile viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>📰 NeoAI News Portal - AI-Powered Financial News</title>
+    <title>📊 E-con News - AI-Powered Financial News</title>
     
     <!-- SEO & Social Meta -->
-    <meta name="description" content="NeoAI-powered financial news portal with real-time updates and AI analysis. Modern purple-themed interface with glassmorphism design.">
-    <meta name="keywords" content="AI news, financial news, NeoAI, purple theme, modern UI, news portal">
-    <meta name="author" content="NeoAI News Portal">
+    <meta name="description" content="E-con News - AI-powered financial news portal with real-time updates and AI analysis. Modern colorful interface with glassmorphism design.">
+    <meta name="keywords" content="AI news, financial news, E-con, colorful theme, modern UI, news portal">
+    <meta name="author" content="E-con News Portal">
     <meta name="robots" content="index, follow">
     
     <!-- Mobile App Experience -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NeoAI News">
+    <meta name="apple-mobile-web-app-title" content="E-con News">
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-navbutton-color" content="#667eea">
     
@@ -38,185 +38,188 @@
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
     <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
 <body>
     <!-- Skip to main content for accessibility -->
-    <a href="#neo-main-content" class="sr-only sr-only-focusable">Bỏ qua để đến nội dung chính</a>
+    <a href="#econ-main-content" class="sr-only sr-only-focusable">Bỏ qua để đến nội dung chính</a>
     
-    <!-- NeoAI App Container -->
-    <div class="neo-app">
+    <!-- E-con App Container -->
+    <div class="econ-app">
         <!-- Header Navigation -->
-        <header class="neo-header" role="banner">
-            <nav class="neo-nav">
+        <header class="econ-header" role="banner">
+            <nav class="econ-nav">
                 <!-- Logo -->
-                <a href="/" class="neo-logo" aria-label="NeoAI News Portal - Trang chủ">
-                    <div class="neo-logo-icon" role="img" aria-label="Logo NeoAI">📰</div>
-                    <h1 class="neo-logo-text">NeoAI News</h1>
+                <a href="/" class="econ-logo" aria-label="E-con News Portal - Trang chủ">
+                    <div class="econ-logo-icon" role="img" aria-label="Logo E-con">📊</div>
+                    <h1 class="econ-logo-text">E-con News</h1>
                 </a>
                 
                 <!-- Navigation Pills -->
-                <div class="neo-nav-pills" role="navigation" aria-label="Loại tin tức">
-                    <button class="neo-nav-pill active" data-type="all" aria-pressed="true" aria-label="Tất cả tin tức">
-                        <span class="neo-nav-pill-icon" role="img" aria-hidden="true">🌍</span>
-                        <span class="neo-nav-pill-text">Tất cả</span>
+                <div class="econ-nav-pills" role="navigation" aria-label="Loại tin tức">
+                    <button class="econ-nav-pill active" data-type="all" aria-pressed="true" aria-label="Tất cả tin tức">
+                        <span class="econ-nav-pill-icon" role="img" aria-hidden="true">🌍</span>
+                        <span class="econ-nav-pill-text">Tất cả</span>
                     </button>
-                    <button class="neo-nav-pill" data-type="domestic" aria-pressed="false" aria-label="Tin tức trong nước">
-                        <span class="neo-nav-pill-icon" role="img" aria-hidden="true">🇻🇳</span>
-                        <span class="neo-nav-pill-text">Trong nước</span>
+                    <button class="econ-nav-pill" data-type="domestic" aria-pressed="false" aria-label="Tin tức trong nước">
+                        <span class="econ-nav-pill-icon" role="img" aria-hidden="true">🇻🇳</span>
+                        <span class="econ-nav-pill-text">Trong nước</span>
                     </button>
-                    <button class="neo-nav-pill" data-type="international" aria-pressed="false" aria-label="Tin tức quốc tế">
-                        <span class="neo-nav-pill-icon" role="img" aria-hidden="true">🌐</span>
-                        <span class="neo-nav-pill-text">Quốc tế</span>
+                    <button class="econ-nav-pill" data-type="international" aria-pressed="false" aria-label="Tin tức quốc tế">
+                        <span class="econ-nav-pill-icon" role="img" aria-hidden="true">🌐</span>
+                        <span class="econ-nav-pill-text">Quốc tế</span>
                     </button>
                 </div>
 
                 <!-- Status Indicator -->
-                <div class="neo-status" role="status" aria-live="polite">
-                    <div class="neo-status-dot" aria-hidden="true"></div>
-                    <span class="neo-status-text">Live</span>
+                <div class="econ-status" role="status" aria-live="polite">
+                    <div class="econ-status-dot" aria-hidden="true"></div>
+                    <span class="econ-status-text">Live</span>
                 </div>
             </nav>
         </header>
 
         <!-- Main Content -->
-        <main class="neo-main" id="neo-main-content" role="main">
+        <main class="econ-main" id="econ-main-content" role="main">
             <!-- Loading State -->
-            <div class="neo-loading" id="neoLoadingContainer" role="status" aria-live="polite" aria-label="Đang tải tin tức">
-                <div class="neo-spinner" aria-hidden="true">
-                    <div class="neo-spinner-ring"></div>
-                    <div class="neo-spinner-ring"></div>
-                    <div class="neo-spinner-ring"></div>
+            <div class="econ-loading" id="econLoadingContainer" role="status" aria-live="polite" aria-label="Đang tải tin tức">
+                <div class="econ-spinner" aria-hidden="true">
+                    <div class="econ-spinner-ring"></div>
+                    <div class="econ-spinner-ring"></div>
+                    <div class="econ-spinner-ring"></div>
                 </div>
-                <p class="neo-loading-text">Đang tải tin tức với AI...</p>
+                <p class="econ-loading-text">Đang tải tin tức với AI...</p>
             </div>
 
             <!-- News Grid -->
-            <div class="neo-grid" id="neoNewsGrid" style="display: none;" role="grid" aria-label="Danh sách tin tức">
+            <div class="econ-grid" id="econNewsGrid" style="display: none;" role="grid" aria-label="Danh sách tin tức">
                 <!-- News items will be dynamically loaded here -->
             </div>
 
             <!-- Pagination -->
-            <nav class="neo-pagination" id="neoPaginationContainer" style="display: none;" role="navigation" aria-label="Phân trang tin tức">
-                <button class="neo-pagination-btn" id="neoPrevPageBtn" aria-label="Trang trước">
+            <nav class="econ-pagination" id="econPaginationContainer" style="display: none;" role="navigation" aria-label="Phân trang tin tức">
+                <button class="econ-pagination-btn" id="econPrevPageBtn" aria-label="Trang trước">
                     <span>← Trước</span>
                 </button>
-                <div class="neo-pagination-info" id="neoPaginationInfo" role="status" aria-live="polite">
-                    <span class="neo-pagination-current">1</span>
-                    <span class="neo-pagination-separator">/</span>
-                    <span class="neo-pagination-total">1</span>
+                <div class="econ-pagination-info" id="econPaginationInfo" role="status" aria-live="polite">
+                    <span class="econ-pagination-current">1</span>
+                    <span class="econ-pagination-separator">/</span>
+                    <span class="econ-pagination-total">1</span>
                 </div>
-                <button class="neo-pagination-btn" id="neoNextPageBtn" aria-label="Trang sau">
+                <button class="econ-pagination-btn" id="econNextPageBtn" aria-label="Trang sau">
                     <span>Sau →</span>
                 </button>
             </nav>
         </main>
 
-        <!-- Article Detail Modal -->
-        <div class="neo-modal" id="neoArticleModal" role="dialog" aria-modal="true" aria-labelledby="neoModalTitle" aria-hidden="true">
-            <div class="neo-modal-container">
-                <!-- Modal Header -->
-                <div class="neo-modal-header">
-                    <h2 class="neo-modal-title" id="neoModalTitle"></h2>
-                    <button class="neo-modal-close" id="neoModalClose" aria-label="Đóng bài viết" type="button">×</button>
+        <!-- Article Detail Modal (Desktop/Tablet) -->
+        <div class="econ-article-modal" id="econArticleModal" style="display: none;">
+            <div class="econ-article-panel">
+                <div class="econ-article-header">
+                    <h2 class="econ-article-title" id="econArticleTitle"></h2>
+                    <button class="econ-close-btn" id="econCloseBtn" aria-label="Đóng bài viết">×</button>
                 </div>
                 
-                <!-- Modal Content -->
-                <div class="neo-modal-content">
-                    <!-- Article Meta -->
-                    <div class="neo-article-meta">
-                        <span class="neo-article-source" id="neoArticleSource"></span>
-                        <span class="neo-article-time" id="neoArticleTime"></span>
-                        <a href="#" class="neo-article-link" id="neoArticleLink" target="_blank" rel="noopener noreferrer" aria-label="Đọc bài viết gốc (mở tab mới)">
-                            🔗 Đọc bài gốc
-                        </a>
+                <div class="econ-article-meta">
+                    <span class="econ-article-source" id="econArticleSource"></span>
+                    <span class="econ-article-time" id="econArticleTime"></span>
+                    <a href="#" class="econ-article-link" id="econArticleLink" target="_blank" rel="noopener noreferrer">
+                        🔗 Đọc bài gốc
+                    </a>
+                </div>
+                
+                <div class="econ-article-content" id="econArticleContent">
+                    <!-- Article content will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Chat Widget -->
+        <div class="econ-floating-chat" id="econFloatingChat">
+            <!-- Minimized State -->
+            <div class="econ-chat-bubble" id="econChatBubble">
+                <div class="econ-chat-bubble-avatar">
+                    <span class="econ-chat-bubble-icon">🤖</span>
+                    <div class="econ-chat-bubble-pulse"></div>
+                </div>
+                <div class="econ-chat-bubble-text">
+                    <div class="econ-chat-bubble-title">AI Assistant</div>
+                    <div class="econ-chat-bubble-subtitle">Hỏi tôi về bài báo!</div>
+                </div>
+                <button class="econ-chat-bubble-close" id="econChatBubbleClose">×</button>
+            </div>
+
+            <!-- Maximized Chat Window -->
+            <div class="econ-chat-window" id="econChatWindow" style="display: none;">
+                <!-- Chat Header -->
+                <div class="econ-chat-header">
+                    <div class="econ-chat-avatar">🤖</div>
+                    <div class="econ-chat-info">
+                        <h3 class="econ-chat-title">AI Assistant</h3>
+                        <span class="econ-chat-status">Online</span>
                     </div>
-                    
-                    <!-- Article Content -->
-                    <div class="neo-article-content" id="neoArticleContent" role="article">
-                        <!-- Article content will be loaded here -->
+                    <div class="econ-chat-actions">
+                        <button class="econ-chat-minimize" id="econChatMinimize" aria-label="Thu nhỏ">−</button>
+                        <button class="econ-chat-close" id="econChatClose" aria-label="Đóng">×</button>
                     </div>
                 </div>
 
-                <!-- AI Interaction Panel -->
-                <div class="neo-ai-panel" role="complementary" aria-labelledby="neoAiTitle">
-                    <!-- AI Header -->
-                    <div class="neo-ai-header">
-                        <h3 class="neo-ai-title" id="neoAiTitle">🤖 NeoAI Assistant</h3>
-                        <div class="neo-ai-quick-actions" role="group" aria-label="Chức năng AI nhanh">
-                            <button class="neo-ai-quick-btn" id="neoAutoSummaryBtn" type="button" aria-describedby="neo-auto-summary-desc">
-                                📋 Tóm tắt
-                            </button>
-                            <button class="neo-ai-quick-btn" id="neoAutoDebateBtn" type="button" aria-describedby="neo-auto-debate-desc">
-                                🎭 Bàn luận
-                            </button>
+                <!-- Chat Messages -->
+                <div class="econ-chat-messages" id="econChatMessages">
+                    <div class="econ-welcome-message">
+                        <div class="econ-message econ-message-ai">
+                            <div class="econ-message-bubble">
+                                Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về bài báo hoặc sử dụng các nút bên dưới! 🤖✨
+                            </div>
+                            <div class="econ-message-time">Bây giờ</div>
                         </div>
                     </div>
-                    
-                    <!-- AI Input Area -->
-                    <form class="neo-ai-input-area" onsubmit="return false;" role="form" aria-labelledby="neo-ai-input-label">
-                        <label for="neoAiInput" id="neo-ai-input-label" class="sr-only">Đặt câu hỏi hoặc nhập chủ đề bàn luận</label>
-                        <textarea 
-                            class="neo-ai-input" 
-                            id="neoAiInput" 
-                            placeholder="Đặt câu hỏi về bài báo hoặc nhập chủ đề bàn luận với NeoAI..."
-                            rows="3"
-                            aria-label="Đặt câu hỏi về bài báo hoặc nhập chủ đề bàn luận"
-                            aria-describedby="neo-ai-input-help"
-                            autocomplete="off"
-                            spellcheck="true"
-                        ></textarea>
-                        
-                        <!-- Hidden help text for screen readers -->
-                        <div id="neo-ai-input-help" class="sr-only">
-                            Nhập câu hỏi hoặc chủ đề, sau đó chọn nút Hỏi hoặc Bàn luận. Hoặc nhấn Ctrl+Enter để gửi câu hỏi.
-                        </div>
-                        <div id="neo-auto-summary-desc" class="sr-only">
-                            Tự động tóm tắt nội dung bài báo hiện tại với NeoAI
-                        </div>
-                        <div id="neo-auto-debate-desc" class="sr-only">
-                            Tạo cuộc tranh luận đa góc nhìn về bài báo hiện tại với NeoAI
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="neo-ai-actions" role="group" aria-label="Chức năng AI chi tiết">
-                            <button class="neo-ai-action-btn ask" id="neoAskBtn" type="button" aria-describedby="neo-ask-btn-desc">
-                                💭 Hỏi NeoAI
-                            </button>
-                            <button class="neo-ai-action-btn debate" id="neoDebateBtn" type="button" aria-describedby="neo-debate-btn-desc">
-                                🗣️ Bàn luận
+                </div>
+
+                <!-- Chat Input Area -->
+                <div class="econ-chat-input-area">
+                    <!-- Quick Action Buttons -->
+                    <div class="econ-quick-actions">
+                        <button class="econ-quick-btn econ-summary-btn" id="econSummaryBtn">
+                            📋 Tóm tắt
+                        </button>
+                        <button class="econ-quick-btn econ-debate-btn" id="econDebateBtn">
+                            🎭 Bàn luận
+                        </button>
+                    </div>
+
+                    <!-- Input Row -->
+                    <div class="econ-input-row">
+                        <div class="econ-input-container">
+                            <textarea 
+                                class="econ-chat-input" 
+                                id="econChatInput" 
+                                placeholder="Tin nhắn..."
+                                rows="1"
+                            ></textarea>
+                            <button class="econ-send-btn" id="econSendBtn" aria-label="Gửi tin nhắn">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                                </svg>
                             </button>
                         </div>
-                        
-                        <!-- Hidden descriptions for screen readers -->
-                        <div id="neo-ask-btn-desc" class="sr-only">
-                            Đặt câu hỏi với NeoAI về nội dung đã nhập
-                        </div>
-                        <div id="neo-debate-btn-desc" class="sr-only">
-                            Tạo cuộc tranh luận với NeoAI về chủ đề đã nhập
-                        </div>
-                    </form>
-                    
-                    <!-- AI Response -->
-                    <div class="neo-ai-response" id="neoAiResponse" style="display: none;" role="region" aria-live="polite" aria-label="Phản hồi từ NeoAI">
-                        <!-- AI responses will appear here -->
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Floating Action Buttons -->
-        <div class="neo-fab-container" role="group" aria-label="Chức năng nhanh">
-            <button class="neo-fab" id="neoRefreshBtn" title="Làm mới tin tức" aria-label="Làm mới tin tức" type="button">
+        <div class="econ-fab-container" role="group" aria-label="Chức năng nhanh">
+            <button class="econ-fab" id="econRefreshBtn" title="Làm mới tin tức" aria-label="Làm mới tin tức">
                 🔄
             </button>
-            <button class="neo-fab secondary" id="neoScrollTopBtn" title="Lên đầu trang" aria-label="Cuộn lên đầu trang" type="button">
+            <button class="econ-fab econ-fab-secondary" id="econScrollTopBtn" title="Lên đầu trang" aria-label="Cuộn lên đầu trang">
                 ⬆️
             </button>
         </div>
 
         <!-- Toast Notifications -->
-        <div class="neo-toast-container" id="neoToastContainer" role="region" aria-live="assertive" aria-label="Thông báo">
+        <div class="econ-toast-container" id="econToastContainer" role="region" aria-live="assertive" aria-label="Thông báo">
             <!-- Toast messages will appear here -->
         </div>
     </div>
@@ -245,27 +248,27 @@
         });
 
         // RENDER.COM OPTIMIZED: Connection status monitoring
-        function updateNeoConnectionStatus() {
-            const statusIndicator = document.querySelector('.neo-status');
-            const statusText = document.querySelector('.neo-status-text');
-            const statusDot = document.querySelector('.neo-status-dot');
+        function updateEconConnectionStatus() {
+            const statusIndicator = document.querySelector('.econ-status');
+            const statusText = document.querySelector('.econ-status-text');
+            const statusDot = document.querySelector('.econ-status-dot');
             
             if (navigator.onLine) {
                 statusText.textContent = 'Live';
-                statusDot.style.background = 'var(--neo-accent-success)';
+                statusDot.style.background = 'var(--econ-accent-success)';
                 statusIndicator.style.opacity = '1';
             } else {
                 statusText.textContent = 'Offline';
-                statusDot.style.background = 'var(--neo-accent-danger)';
+                statusDot.style.background = 'var(--econ-accent-danger)';
                 statusIndicator.style.opacity = '0.7';
             }
         }
 
-        window.addEventListener('online', updateNeoConnectionStatus);
-        window.addEventListener('offline', updateNeoConnectionStatus);
+        window.addEventListener('online', updateEconConnectionStatus);
+        window.addEventListener('offline', updateEconConnectionStatus);
 
         // RENDER.COM OPTIMIZED: Enhanced mobile viewport handling
-        function handleNeoViewportChanges() {
+        function handleEconViewportChanges() {
             // Update CSS custom property for actual viewport height
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -277,19 +280,19 @@
             }
         }
 
-        window.addEventListener('resize', handleNeoViewportChanges);
+        window.addEventListener('resize', handleEconViewportChanges);
         window.addEventListener('orientationchange', function() {
-            setTimeout(handleNeoViewportChanges, 100);
+            setTimeout(handleEconViewportChanges, 100);
         });
 
         // Initialize viewport handling
-        handleNeoViewportChanges();
+        handleEconViewportChanges();
 
         // RENDER.COM OPTIMIZED: Performance monitoring
         window.addEventListener('load', function() {
             if ('performance' in window) {
                 const perfData = performance.getEntriesByType('navigation')[0];
-                console.log('📊 NeoAI Page Load Performance:', {
+                console.log('📊 E-con Page Load Performance:', {
                     loadTime: Math.round(performance.now()),
                     domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
                     resources: performance.getEntriesByType('resource').length,
@@ -304,84 +307,60 @@
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/static/sw.js')
                     .then(function(registration) {
-                        console.log('✅ NeoAI ServiceWorker registered:', registration.scope);
+                        console.log('✅ E-con ServiceWorker registered:', registration.scope);
                     })
                     .catch(function(error) {
-                        console.log('❌ NeoAI ServiceWorker registration failed:', error);
+                        console.log('❌ E-con ServiceWorker registration failed:', error);
                     });
             });
         }
 
         // RENDER.COM OPTIMIZED: Memory management for low-resource environments
-        function neoMemoryCleanup() {
+        function econMemoryCleanup() {
             // Clear old toast notifications
-            const toastContainer = document.getElementById('neoToastContainer');
-            if (toastContainer && toastContainer.children.length > 5) {
-                const oldToasts = Array.from(toastContainer.children).slice(0, -3);
+            const toastContainer = document.getElementById('econToastContainer');
+            if (toastContainer && toastContainer.children.length > 3) {
+                const oldToasts = Array.from(toastContainer.children).slice(0, -2);
                 oldToasts.forEach(toast => toast.remove());
             }
             
-            // Clear browser cache if needed (for development)
-            if (window.caches && Math.random() < 0.1) { // 10% chance
-                caches.keys().then(function(cacheNames) {
-                    if (cacheNames.length > 3) {
-                        return Promise.all(
-                            cacheNames.slice(0, -2).map(function(cacheName) {
-                                return caches.delete(cacheName);
-                            })
-                        );
-                    }
-                });
+            // Clear old chat messages if too many
+            const chatMessages = document.getElementById('econChatMessages');
+            if (chatMessages && chatMessages.children.length > 20) {
+                const oldMessages = Array.from(chatMessages.children).slice(0, -15);
+                oldMessages.forEach(msg => msg.remove());
             }
         }
 
-        // Run memory cleanup every 5 minutes
-        setInterval(neoMemoryCleanup, 5 * 60 * 1000);
-
-        // RENDER.COM OPTIMIZED: Warm-up ping to prevent sleep (for free tier)
-        function neoWarmUpPing() {
-            if (document.visibilityState === 'visible') {
-                fetch('/api/news/all?page=1&limit=1')
-                    .then(response => {
-                        if (response.ok) {
-                            console.log('🔥 NeoAI warm-up ping successful');
-                        }
-                    })
-                    .catch(error => {
-                        console.log('🧊 NeoAI warm-up ping failed:', error);
-                    });
-            }
-        }
-
-        // Ping every 10 minutes to prevent Render free tier sleep
-        setInterval(neoWarmUpPing, 10 * 60 * 1000);
+        // Run memory cleanup every 3 minutes
+        setInterval(econMemoryCleanup, 3 * 60 * 1000);
 
         // RENDER.COM OPTIMIZED: Focus management for better UX
         document.addEventListener('keydown', function(e) {
-            // Escape key to close modal
+            // Escape key to close split view
             if (e.key === 'Escape') {
-                const modal = document.getElementById('neoArticleModal');
-                if (modal && modal.classList.contains('active')) {
-                    modal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
+                const splitContainer = document.getElementById('econSplitContainer');
+                if (splitContainer && splitContainer.style.display !== 'none') {
+                    splitContainer.style.display = 'none';
+                    document.querySelector('.econ-main').style.display = 'block';
                 }
             }
             
-            // Enter key in AI input
-            if (e.key === 'Enter' && e.ctrlKey && e.target.id === 'neoAiInput') {
+            // Enter key in chat input
+            if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'econChatInput') {
                 e.preventDefault();
-                const askBtn = document.getElementById('neoAskBtn');
-                if (askBtn && !askBtn.disabled) {
-                    askBtn.click();
+                const sendBtn = document.getElementById('econSendBtn');
+                if (sendBtn) {
+                    sendBtn.click();
                 }
             }
         });
 
         // Initialize connection status
-        updateNeoConnectionStatus();
+        updateEconConnectionStatus();
 
-        console.log('🚀 NeoAI News Portal initialized successfully!');
-        console.log('🎨 Theme: Purple Gradient with Glassmorphism');
+        console.log('🚀 E-con News Portal initialized successfully!');
+        console.log('🎨 Theme: Colorful Rainbow with Glassmorphism');
         console.log('📱 Optimized for Render.com free tier');
     </script>
 
