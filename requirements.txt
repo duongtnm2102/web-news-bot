@@ -1,9 +1,8 @@
-# VietStock-style E-con News Portal - Enhanced Requirements
-# Optimized for production deployment with enhanced features
+# VietStock-style E-con News Portal - Essential Requirements
+# Minimal dependencies for reliable deployment
 
 # === CORE FLASK FRAMEWORK ===
 Flask[async]==3.0.3
-Werkzeug==3.0.1
 
 # === RSS & FEED PROCESSING ===
 feedparser==6.0.11
@@ -12,8 +11,6 @@ pytz==2024.1
 
 # === ASYNC HTTP & NETWORKING ===
 aiohttp==3.12.2
-aiofiles==24.1.0
-httpx==0.26.0
 
 # === CONTENT EXTRACTION & PARSING ===
 trafilatura==1.12.2
@@ -21,78 +18,16 @@ newspaper3k==0.2.8
 beautifulsoup4==4.12.3
 lxml==5.3.0
 html5lib==1.1
-justext==3.0.1
 
 # === AI & MACHINE LEARNING ===
 google-generativeai==0.8.5
-openai==1.12.0
 
 # === TEXT PROCESSING ===
 chardet==5.2.0
 dateparser==1.2.0
-langdetect==1.0.9
-textstat==0.7.3
-
-# === DATA PROCESSING ===
-pandas==2.1.4
-numpy==1.24.4
-requests==2.31.0
-
-# === CACHING & PERFORMANCE ===
-redis==5.0.1
-flask-caching==2.1.0
-flask-compress==1.14
-
-# === SECURITY & VALIDATION ===
-flask-cors==4.0.0
-flask-limiter==3.5.0
-validators==0.22.0
-
-# === DATABASE (Optional) ===
-SQLAlchemy==2.0.25
-flask-sqlalchemy==3.1.1
 
 # === DEPLOYMENT & PRODUCTION ===
 gunicorn==22.0.0
-eventlet==0.33.3
-gevent==23.9.1
-
-# === MONITORING & LOGGING ===
-flask-monitoring-dashboard==3.1.0
-python-json-logger==2.0.7
-
-# === DEVELOPMENT & TESTING ===
-pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-flask==1.3.0
 
 # === UTILITY LIBRARIES ===
-python-dotenv==1.0.0
-click==8.1.7
-colorama==0.4.6
-
-# === WEB SCRAPING ENHANCEMENTS ===
-selenium==4.16.0
-playwright==1.40.0
-
-# === IMAGE PROCESSING (Optional) ===
-Pillow==10.1.0
-opencv-python-headless==4.8.1.78
-
-# === OPTIONAL: Advanced NLP ===
-spacy==3.7.2
-nltk==3.8.1
-
-# === OPTIONAL: Database Alternatives ===
-pymongo==4.6.1
-psycopg2-binary==2.9.9
-
-# === PRODUCTION OPTIMIZATIONS ===
-flask-assets==2.1.0
-cssmin==0.2.0
-jsmin==3.0.1
-
-# Version constraints for stability
-urllib3>=1.26.0,<2.0.0
-setuptools>=65.0.0
-wheel>=0.38.0
+requests==2.31.0
