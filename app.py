@@ -46,7 +46,7 @@ except ImportError:
 
 # Flask app configuration
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
 
 # 🔒 ENVIRONMENT VARIABLES
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -825,16 +825,25 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
             return "⚠️ Gemini AI không khả dụng. Vui lòng kiểm tra GEMINI_API_KEY."
         
         try:
+            # Use safe string formatting to avoid emoji syntax errors
+            emoji_corrupt = "\U0001F4B8"  # 💸
+            emoji_teacher = "\U0001F468\u200D\U0001F3EB"  # 👨‍🏫  
+            emoji_worker = "\U0001F4BC"  # 💼
+            emoji_angry = "\U0001F620"  # 😠
+            emoji_rich_selfish = "\U0001F911"  # 🤑
+            emoji_rich_wise = "\U0001F9E0"  # 🧠
+            emoji_robot = "\U0001F916"  # 🤖
+            
             prompt = f"""Tổ chức cuộc tranh luận về: {topic}
 
 6 quan điểm khác nhau:
-💸 **Nhà KT Tham Nhũng:** [ích kỷ, bóp méo số liệu]
-👨‍🏫 **GS Chính Trực:** [học thuật, đạo đức cao]  
-💼 **Nhân Viên Ham Tiền:** [chỉ quan tâm lương]
-😠 **Người Nghèo:** [đổ lỗi, thiếu hiểu biết]
-🤑 **Người Giàu Ích Kỷ:** [chỉ tìm lợi nhuận]
-🧠 **Người Giàu Thông Thái:** [tầm nhìn xa]
-🤖 **Tổng Kết:** [phân tích khách quan]
+{emoji_corrupt} **Nhà KT Tham Nhũng:** [ích kỷ, bóp méo số liệu]
+{emoji_teacher} **GS Chính Trực:** [học thuật, đạo đức cao]  
+{emoji_worker} **Nhân Viên Ham Tiền:** [chỉ quan tâm lương]
+{emoji_angry} **Người Nghèo:** [đổ lỗi, thiếu hiểu biết]
+{emoji_rich_selfish} **Người Giàu Ích Kỷ:** [chỉ tìm lợi nhuận]
+{emoji_rich_wise} **Người Giàu Thông Thái:** [tầm nhìn xa]
+{emoji_robot} **Tổng Kết:** [phân tích khách quan]
 
 Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
 
