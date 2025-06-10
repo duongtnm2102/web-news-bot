@@ -46,7 +46,7 @@ except ImportError:
 
 # Flask app configuration
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
+app.secret_key = os.getenv('SECRET_KEY')
 
 # 🔒 ENVIRONMENT VARIABLES
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
