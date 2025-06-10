@@ -1,62 +1,62 @@
 {
-  "name": "NeoAI News Portal - AI-Powered Financial News",
-  "short_name": "NeoAI News",
-  "description": "Modern AI-powered financial news portal with purple gradient theme and glassmorphism design",
-  "version": "1.0.0",
+  "name": "E-con News Portal - AI-Powered Financial News",
+  "short_name": "E-con News",
+  "description": "Modern AI-powered financial news portal with colorful rainbow theme and glassmorphism design",
+  "version": "2.0.0",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#667eea",
-  "background_color": "#0F0520",
+  "theme_color": "#4ecdc4",
+  "background_color": "#0a0a0f",
   "scope": "/",
   "categories": ["news", "finance", "business", "ai"],
   "lang": "vi",
   "dir": "ltr",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='20'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='20'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "72x72",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='20'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='20'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "96x96",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='15'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='15'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "128x128",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='15'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='15'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "144x144",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='15'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='15'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "152x152",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='12'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='12'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='10'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='10'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "384x384",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='8'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📰</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:1' /></linearGradient></defs><rect width='100' height='100' fill='url(%23grad)' rx='8'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>📊</text></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -64,25 +64,25 @@
   ],
   "screenshots": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:0.1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:0.1' /></linearGradient></defs><rect width='1280' height='720' fill='%230F0520'/><rect width='1280' height='720' fill='url(%23bg)'/><text x='640' y='360' font-size='48' text-anchor='middle' fill='%23667eea' font-family='Arial'>NeoAI News Portal - Desktop</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:0.1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:0.1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:0.1' /></linearGradient></defs><rect width='1280' height='720' fill='%230a0a0f'/><rect width='1280' height='720' fill='url(%23bg)'/><text x='640' y='360' font-size='48' text-anchor='middle' fill='%234ecdc4' font-family='Arial'>E-con News Portal - Desktop</text></svg>",
       "sizes": "1280x720",
       "type": "image/svg+xml",
       "platform": "wide",
-      "label": "NeoAI News Portal Desktop View"
+      "label": "E-con News Portal Desktop View"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:0.1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:0.1' /></linearGradient></defs><rect width='390' height='844' fill='%230F0520'/><rect width='390' height='844' fill='url(%23bg)'/><text x='195' y='422' font-size='24' text-anchor='middle' fill='%23667eea' font-family='Arial'>NeoAI News</text><text x='195' y='456' font-size='24' text-anchor='middle' fill='%23667eea' font-family='Arial'>Mobile View</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234ecdc4;stop-opacity:0.1' /><stop offset='50%' style='stop-color:%23ff6b6b;stop-opacity:0.1' /><stop offset='100%' style='stop-color:%2345b7d1;stop-opacity:0.1' /></linearGradient></defs><rect width='390' height='844' fill='%230a0a0f'/><rect width='390' height='844' fill='url(%23bg)'/><text x='195' y='422' font-size='24' text-anchor='middle' fill='%234ecdc4' font-family='Arial'>E-con News</text><text x='195' y='456' font-size='24' text-anchor='middle' fill='%234ecdc4' font-family='Arial'>Mobile View</text></svg>",
       "sizes": "390x844",
       "type": "image/svg+xml",
       "platform": "narrow",
-      "label": "NeoAI News Portal Mobile View"
+      "label": "E-con News Portal Mobile View"
     }
   ],
   "shortcuts": [
     {
       "name": "Tin tức trong nước",
       "short_name": "Trong nước",
-      "description": "Xem tin tức kinh tế trong nước với NeoAI",
+      "description": "Xem tin tức kinh tế trong nước với AI",
       "url": "/?type=domestic",
       "icons": [
         {
@@ -95,7 +95,7 @@
     {
       "name": "Tin tức quốc tế",
       "short_name": "Quốc tế",
-      "description": "Xem tin tức kinh tế quốc tế với NeoAI",
+      "description": "Xem tin tức kinh tế quốc tế với AI",
       "url": "/?type=international",
       "icons": [
         {
@@ -106,9 +106,9 @@
       ]
     },
     {
-      "name": "NeoAI Analysis",
+      "name": "AI Analysis",
       "short_name": "AI",
-      "description": "Phân tích tin tức với NeoAI",
+      "description": "Phân tích tin tức với AI",
       "url": "/?feature=ai",
       "icons": [
         {
@@ -126,12 +126,6 @@
   "launch_handler": {
     "client_mode": "navigate-new"
   },
-  "protocol_handlers": [
-    {
-      "protocol": "web+neoai-news",
-      "url": "/article?url=%s"
-    }
-  ],
   "share_target": {
     "action": "/share",
     "method": "POST",
@@ -145,7 +139,7 @@
   "related_applications": [
     {
       "platform": "webapp",
-      "url": "https://your-neoai-news.onrender.com"
+      "url": "https://your-econ-news.onrender.com"
     }
   ],
   "permissions": [
@@ -165,7 +159,7 @@
   ],
   "scope_extensions": [
     {
-      "origin": "https://your-neoai-news.onrender.com"
+      "origin": "https://your-econ-news.onrender.com"
     }
   ],
   "file_handlers": [
