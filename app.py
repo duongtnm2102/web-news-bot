@@ -276,11 +276,11 @@ def get_enhanced_headers(url=None):
     return headers
 
 def is_international_source(source_name):
-    """Check if source is international - UPDATED for new sources"""
+    """Check if source is international - FIXED for removed sources"""
     international_sources = [
-        'yahoo_finance', 'cnn_money', 'marketwatch_latest', 'business_insider',
-        'cnbc', 'investing_com', 'reuters_business', 'bbc_business',
-        'guardian_business', 'coindesk', 'nasdaq_news', 'seeking_alpha', 'benzinga', 'motley_fool'
+        'yahoo_finance', 'cnn_money', 'marketwatch', 'business_insider',
+        'cnbc', 'investing_com', 'investopedia', 'bbc_business',
+        'guardian_business', 'coindesk', 'nasdaq_news', 'seeking_alpha', 'benzinga'
     ]
     return any(source in source_name for source in international_sources)
 
@@ -301,8 +301,6 @@ def create_fallback_content(url, source_name, error_msg=""):
                 source_display = "CNBC"
             elif 'bbc' in source_name:
                 source_display = "BBC Business"
-            elif 'motley_fool' in source_name:
-                source_display = "Motley Fool"
             
             return f"""**{source_display} Financial News:**
 
@@ -902,15 +900,14 @@ source_names = {
     'cafef_chungkhoan': 'CafeF CK', 'cafef_batdongsan': 'CafeF BĐS',
     'cafef_taichinh': 'CafeF TC', 'cafef_vimo': 'CafeF VM', 'cafef_doanhnghiep': 'CafeF DN',
     
-    # FREE international sources - UPDATED
+    # FREE international sources
     'yahoo_finance_main': 'Yahoo RSS', 'yahoo_finance_headlines': 'Yahoo Headlines',
     'yahoo_finance_rss': 'Yahoo Finance', 'cnn_money': 'CNN Money', 
-    'marketwatch_latest': 'MarketWatch', 'business_insider': 'Business Insider',
+    'marketwatch': 'MarketWatch', 'business_insider': 'Business Insider',
     'cnbc': 'CNBC', 'investing_com': 'Investing.com', 
-    'reuters_business': 'Reuters Business', 'bbc_business': 'BBC Business', 
+    'investopedia': 'Investopedia', 'bbc_business': 'BBC Business', 
     'guardian_business': 'The Guardian', 'coindesk': 'CoinDesk', 
-    'nasdaq_news': 'Nasdaq', 'seeking_alpha': 'Seeking Alpha', 'benzinga': 'Benzinga',
-    'motley_fool': 'Motley Fool'
+    'nasdaq_news': 'Nasdaq', 'seeking_alpha': 'Seeking Alpha', 'benzinga': 'Benzinga'
 }
 
 emoji_map = {
@@ -918,12 +915,12 @@ emoji_map = {
     'cafef_chungkhoan': '📈', 'cafef_batdongsan': '🏢', 'cafef_taichinh': '💰', 
     'cafef_vimo': '📊', 'cafef_doanhnghiep': '🏭',
     
-    # FREE international sources - UPDATED
+    # FREE international sources
     'yahoo_finance_main': '💼', 'yahoo_finance_headlines': '📰', 'yahoo_finance_rss': '💼',
-    'cnn_money': '📺', 'marketwatch_latest': '📊', 'business_insider': '💼', 
-    'cnbc': '📺', 'investing_com': '💹', 'reuters_business': '🌍',
+    'cnn_money': '📺', 'marketwatch': '📊', 'business_insider': '💼', 
+    'cnbc': '📺', 'investing_com': '💹', 'investopedia': '📚',
     'bbc_business': '🇬🇧', 'guardian_business': '🛡️', 'coindesk': '₿',
-    'nasdaq_news': '📈', 'seeking_alpha': '🔍', 'benzinga': '🚀', 'motley_fool': '🤡'
+    'nasdaq_news': '📈', 'seeking_alpha': '🔍', 'benzinga': '🚀'
 }
 
 # Flask Routes
