@@ -1,11 +1,12 @@
-// NeoAI News Portal - JavaScript (Render.com Optimized) 2025
-class NeoAINewsPortal {
+// E-con News Portal - JavaScript (Render.com Optimized) 2025
+class EconNewsPortal {
     constructor() {
         this.currentPage = 1;
         this.currentNewsType = 'all';
         this.isLoading = false;
         this.currentArticle = null;
         this.aiRequestInProgress = false;
+        this.chatMessages = [];
         this.performanceMetrics = {
             loadTimes: [],
             errors: [],
@@ -15,14 +16,14 @@ class NeoAINewsPortal {
         // Render.com optimizations
         this.memoryUsage = { 
             newsCache: new Map(),
-            maxCacheSize: 50 // Limited for low memory
+            maxCacheSize: 30 // Reduced for memory optimization
         };
         
         this.init();
     }
 
     async init() {
-        console.log('🚀 Initializing NeoAI News Portal...');
+        console.log('🚀 Initializing E-con News Portal...');
         
         try {
             this.bindEvents();
@@ -34,16 +35,16 @@ class NeoAINewsPortal {
             // Load initial news
             await this.loadNews('all', 1);
             
-            console.log('✅ NeoAI News Portal initialized successfully!');
+            console.log('✅ E-con News Portal initialized successfully!');
         } catch (error) {
-            console.error('❌ Failed to initialize NeoAI News Portal:', error);
+            console.error('❌ Failed to initialize E-con News Portal:', error);
             this.showToast('Lỗi khởi tạo ứng dụng: ' + error.message, 'error');
         }
     }
 
     bindEvents() {
         // Navigation buttons
-        document.querySelectorAll('.neo-nav-pill').forEach(btn => {
+        document.querySelectorAll('.econ-nav-pill').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const newsType = e.currentTarget.dataset.type;
                 this.switchNewsType(newsType);
@@ -51,8 +52,8 @@ class NeoAINewsPortal {
         });
 
         // Pagination
-        const prevBtn = document.getElementById('neoPrevPageBtn');
-        const nextBtn = document.getElementById('neoNextPageBtn');
+        const prevBtn = document.getElementById('econPrevPageBtn');
+        const nextBtn = document.getElementById('econNextPageBtn');
         
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
@@ -64,35 +65,25 @@ class NeoAINewsPortal {
 
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
-                const totalPages = parseInt(document.querySelector('.neo-pagination-total')?.textContent || '1');
+                const totalPages = parseInt(document.querySelector('.econ-pagination-total')?.textContent || '1');
                 if (this.currentPage < totalPages) {
                     this.loadNews(this.currentNewsType, this.currentPage + 1);
                 }
             });
         }
 
-        // Modal events
-        const modalClose = document.getElementById('neoModalClose');
-        const modal = document.getElementById('neoArticleModal');
-        
-        if (modalClose) {
-            modalClose.addEventListener('click', () => this.closeModal());
-        }
-        
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) {
-                    this.closeModal();
-                }
-            });
+        // Article modal close button
+        const closeBtn = document.getElementById('econCloseBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closeArticleModal());
         }
 
-        // AI interaction buttons
-        this.setupAIButtons();
+        // Floating Chat Widget functionality
+        this.setupFloatingChat();
 
         // Floating action buttons
-        const refreshBtn = document.getElementById('neoRefreshBtn');
-        const scrollTopBtn = document.getElementById('neoScrollTopBtn');
+        const refreshBtn = document.getElementById('econRefreshBtn');
+        const scrollTopBtn = document.getElementById('econScrollTopBtn');
         
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => this.refreshNews());
@@ -103,107 +94,175 @@ class NeoAINewsPortal {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
+    }
 
-        // AI input keyboard shortcuts
-        const aiInput = document.getElementById('neoAiInput');
-        if (aiInput) {
-            aiInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    e.preventDefault();
-                    const input = e.target.value.trim();
-                    if (input && !this.aiRequestInProgress) {
-                        this.askAI(input);
-                    }
-                }
+    setupFloatingChat() {
+        const chatBubble = document.getElementById('econChatBubble');
+        const chatWindow = document.getElementById('econChatWindow');
+        const chatMinimize = document.getElementById('econChatMinimize');
+        const chatClose = document.getElementById('econChatClose');
+        const chatBubbleClose = document.getElementById('econChatBubbleClose');
+
+        // Show chat bubble initially
+        if (chatBubble) {
+            setTimeout(() => {
+                chatBubble.style.opacity = '1';
+                chatBubble.style.transform = 'translateY(0)';
+            }, 2000); // Show after 2 seconds
+        }
+
+        // Open chat window when clicking bubble
+        if (chatBubble) {
+            chatBubble.addEventListener('click', (e) => {
+                if (e.target.closest('.econ-chat-bubble-close')) return;
+                this.openChatWindow();
             });
+        }
+
+        // Minimize chat window
+        if (chatMinimize) {
+            chatMinimize.addEventListener('click', () => {
+                this.minimizeChatWindow();
+            });
+        }
+
+        // Close chat completely
+        if (chatClose) {
+            chatClose.addEventListener('click', () => {
+                this.closeChatCompletely();
+            });
+        }
+
+        // Close chat bubble
+        if (chatBubbleClose) {
+            chatBubbleClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.closeChatCompletely();
+            });
+        }
+
+        // Setup chat functionality
+        this.setupChatEvents();
+
+        console.log('✅ Floating chat setup completed');
+    }
+
+    openChatWindow() {
+        const chatBubble = document.getElementById('econChatBubble');
+        const chatWindow = document.getElementById('econChatWindow');
+        
+        if (chatBubble && chatWindow) {
+            chatBubble.style.display = 'none';
+            chatWindow.style.display = 'flex';
+            
+            // Reset chat if needed
+            this.resetChat();
+            
+            // Focus on input
+            setTimeout(() => {
+                const chatInput = document.getElementById('econChatInput');
+                if (chatInput) {
+                    chatInput.focus();
+                }
+            }, 300);
         }
     }
 
-    setupAIButtons() {
-        const autoSummaryBtn = document.getElementById('neoAutoSummaryBtn');
-        const autoDebateBtn = document.getElementById('neoAutoDebateBtn');
-        const askBtn = document.getElementById('neoAskBtn');
-        const debateBtn = document.getElementById('neoDebateBtn');
+    minimizeChatWindow() {
+        const chatBubble = document.getElementById('econChatBubble');
+        const chatWindow = document.getElementById('econChatWindow');
+        
+        if (chatBubble && chatWindow) {
+            chatWindow.style.display = 'none';
+            chatBubble.style.display = 'flex';
+        }
+    }
 
-        if (autoSummaryBtn) {
-            autoSummaryBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                console.log('🤖 NeoAI Auto summary clicked');
+    closeChatCompletely() {
+        const floatingChat = document.getElementById('econFloatingChat');
+        
+        if (floatingChat) {
+            floatingChat.style.opacity = '0';
+            floatingChat.style.transform = 'translateY(20px) scale(0.8)';
+            
+            setTimeout(() => {
+                floatingChat.style.display = 'none';
+            }, 300);
+        }
+        
+        // Clear chat data
+        this.chatMessages = [];
+    }
+
+    setupChatEvents() {
+        const summaryBtn = document.getElementById('econSummaryBtn');
+        const debateBtn = document.getElementById('econDebateBtn');
+        const sendBtn = document.getElementById('econSendBtn');
+        const chatInput = document.getElementById('econChatInput');
+
+        if (summaryBtn) {
+            summaryBtn.addEventListener('click', async () => {
                 await this.handleAIAction(() => this.askAI('', true), 'tóm tắt');
-            });
-        } else {
-            console.warn('❌ neoAutoSummaryBtn not found!');
-        }
-
-        if (autoDebateBtn) {
-            autoDebateBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                console.log('🎭 NeoAI Auto debate clicked');
-                await this.handleAIAction(() => this.debateAI('', true), 'bàn luận');
-            });
-        } else {
-            console.warn('❌ neoAutoDebateBtn not found!');
-        }
-
-        if (askBtn) {
-            askBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const question = document.getElementById('neoAiInput').value.trim();
-                if (question) {
-                    await this.handleAIAction(() => this.askAI(question), 'hỏi đáp');
-                } else {
-                    this.showToast('Vui lòng nhập câu hỏi', 'error');
-                }
             });
         }
 
         if (debateBtn) {
-            debateBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const topic = document.getElementById('neoAiInput').value.trim();
-                if (topic) {
-                    await this.handleAIAction(() => this.debateAI(topic), 'bàn luận');
-                } else {
-                    this.showToast('Vui lòng nhập chủ đề', 'error');
+            debateBtn.addEventListener('click', async () => {
+                await this.handleAIAction(() => this.debateAI('', true), 'bàn luận');
+            });
+        }
+
+        if (sendBtn) {
+            sendBtn.addEventListener('click', async () => {
+                const message = chatInput.value.trim();
+                if (message && !this.aiRequestInProgress) {
+                    await this.sendChatMessage(message);
                 }
             });
         }
 
-        console.log('✅ NeoAI buttons setup completed:', {
-            autoSummary: !!autoSummaryBtn,
-            autoDebate: !!autoDebateBtn,
-            ask: !!askBtn,
-            debate: !!debateBtn
-        });
+        if (chatInput) {
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const message = e.target.value.trim();
+                    if (message && !this.aiRequestInProgress) {
+                        this.sendChatMessage(message);
+                    }
+                }
+            });
+
+            // Auto-resize textarea
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+            });
+        }
+
+        console.log('✅ Chat events setup completed');
     }
 
     async handleAIAction(actionFunction, actionName) {
         if (this.aiRequestInProgress) {
-            this.showToast('NeoAI đang xử lý yêu cầu khác, vui lòng đợi...', 'info');
+            this.showToast('AI đang xử lý yêu cầu khác, vui lòng đợi...', 'info');
             return;
         }
 
         try {
             this.aiRequestInProgress = true;
             this.performanceMetrics.aiRequests++;
-            console.log(`🔄 Starting NeoAI action: ${actionName}`);
+            console.log(`🔄 Starting AI action: ${actionName}`);
             
             const startTime = performance.now();
             await actionFunction();
             const endTime = performance.now();
             
             this.performanceMetrics.loadTimes.push(endTime - startTime);
-            console.log(`✅ NeoAI action completed: ${actionName} (${Math.round(endTime - startTime)}ms)`);
+            console.log(`✅ AI action completed: ${actionName} (${Math.round(endTime - startTime)}ms)`);
         } catch (error) {
-            console.error(`❌ NeoAI action failed: ${actionName}`, error);
+            console.error(`❌ AI action failed: ${actionName}`, error);
             this.performanceMetrics.errors.push({ action: actionName, error: error.message, timestamp: Date.now() });
-            this.showToast(`Lỗi NeoAI khi ${actionName}: ${error.message}`, 'error');
-            
-            // Clear AI response on error
-            const aiResponse = document.getElementById('neoAiResponse');
-            if (aiResponse) {
-                aiResponse.style.display = 'none';
-            }
+            this.showToast(`Lỗi AI khi ${actionName}: ${error.message}`, 'error');
         } finally {
             this.aiRequestInProgress = false;
         }
@@ -228,7 +287,7 @@ class NeoAINewsPortal {
 
     setupErrorHandling() {
         window.addEventListener('error', (e) => {
-            console.error('🚨 Global NeoAI Error:', e.error);
+            console.error('🚨 Global E-con Error:', e.error);
             this.performanceMetrics.errors.push({
                 type: 'global',
                 message: e.message,
@@ -237,7 +296,7 @@ class NeoAINewsPortal {
         });
 
         window.addEventListener('unhandledrejection', (e) => {
-            console.error('🚨 NeoAI Promise Rejection:', e.reason);
+            console.error('🚨 E-con Promise Rejection:', e.reason);
             this.performanceMetrics.errors.push({
                 type: 'promise',
                 reason: e.reason,
@@ -257,9 +316,9 @@ class NeoAINewsPortal {
                 keepEntries.forEach(([key, value]) => {
                     this.memoryUsage.newsCache.set(key, value);
                 });
-                console.log('🧹 NeoAI memory cache cleaned');
+                console.log('🧹 E-con memory cache cleaned');
             }
-        }, 60000); // Every minute
+        }, 120000); // Every 2 minutes
     }
 
     setupRenderOptimizations() {
@@ -269,14 +328,14 @@ class NeoAINewsPortal {
                 fetch('/api/news/all?page=1&limit=1')
                     .then(response => {
                         if (response.ok) {
-                            console.log('🔥 NeoAI warm-up successful');
+                            console.log('🔥 E-con warm-up successful');
                         }
                     })
                     .catch(() => {
-                        console.log('🧊 NeoAI warm-up failed');
+                        console.log('🧊 E-con warm-up failed');
                     });
             }
-        }, 12 * 60 * 1000); // Every 12 minutes
+        }, 10 * 60 * 1000); // Every 10 minutes
 
         // Clear interval when page is hidden to save resources
         document.addEventListener('visibilitychange', () => {
@@ -293,8 +352,8 @@ class NeoAINewsPortal {
     async switchNewsType(newsType) {
         if (this.isLoading || newsType === this.currentNewsType) return;
 
-        // Update active button with NeoAI styling
-        document.querySelectorAll('.neo-nav-pill').forEach(btn => {
+        // Update active button
+        document.querySelectorAll('.econ-nav-pill').forEach(btn => {
             btn.classList.remove('active');
             btn.setAttribute('aria-pressed', 'false');
         });
@@ -319,7 +378,7 @@ class NeoAINewsPortal {
         const cacheKey = `${newsType}-${page}`;
         if (this.memoryUsage.newsCache.has(cacheKey)) {
             const cachedData = this.memoryUsage.newsCache.get(cacheKey);
-            if (Date.now() - cachedData.timestamp < 5 * 60 * 1000) { // 5 minutes
+            if (Date.now() - cachedData.timestamp < 3 * 60 * 1000) { // 3 minutes
                 this.renderNews(cachedData.news);
                 this.updatePagination(cachedData.page, cachedData.total_pages);
                 this.isLoading = false;
@@ -350,10 +409,10 @@ class NeoAINewsPortal {
             
             this.renderNews(data.news);
             this.updatePagination(data.page, data.total_pages);
-            this.showToast(`🤖 NeoAI đã tải ${data.news.length} tin tức`, 'success');
+            this.showToast(`📊 E-con đã tải ${data.news.length} tin tức`, 'success');
 
         } catch (error) {
-            console.error('❌ NeoAI news loading error:', error);
+            console.error('❌ E-con news loading error:', error);
             this.showToast('Lỗi khi tải tin tức: ' + error.message, 'error');
             this.renderError();
         } finally {
@@ -363,16 +422,16 @@ class NeoAINewsPortal {
     }
 
     renderNews(newsItems) {
-        const newsGrid = document.getElementById('neoNewsGrid');
+        const newsGrid = document.getElementById('econNewsGrid');
         if (!newsGrid) return;
 
         newsGrid.innerHTML = '';
 
         if (newsItems.length === 0) {
             newsGrid.innerHTML = `
-                <div class="neo-no-news">
-                    <p style="text-align: center; color: var(--neo-text-secondary); font-size: var(--neo-font-size-lg);">
-                        📰 Không có tin tức nào được tìm thấy
+                <div class="econ-no-news">
+                    <p style="text-align: center; color: var(--econ-text-secondary); font-size: var(--econ-font-size-lg);">
+                        📊 Không có tin tức nào được tìm thấy
                     </p>
                 </div>
             `;
@@ -383,16 +442,16 @@ class NeoAINewsPortal {
             const newsCard = this.createNewsCard(news, index);
             newsGrid.appendChild(newsCard);
             
-            // Optimized animation for Render.com
+            // Optimized animation for Render.com - faster timing
             requestAnimationFrame(() => {
                 newsCard.style.opacity = '0';
-                newsCard.style.transform = 'translateY(20px)';
+                newsCard.style.transform = 'translateY(15px)';
                 
                 setTimeout(() => {
-                    newsCard.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    newsCard.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
                     newsCard.style.opacity = '1';
                     newsCard.style.transform = 'translateY(0)';
-                }, index * 50);
+                }, index * 30); // Reduced from 50ms to 30ms
             });
 
             if (this.cardObserver) {
@@ -405,19 +464,19 @@ class NeoAINewsPortal {
 
     createNewsCard(news, index) {
         const card = document.createElement('div');
-        card.className = 'neo-card';
+        card.className = 'econ-card';
         card.dataset.articleId = news.id;
         card.setAttribute('role', 'gridcell');
         card.setAttribute('tabindex', '0');
         
         card.innerHTML = `
-            <div class="neo-card-header">
-                <span class="neo-card-emoji" role="img" aria-hidden="true">${news.emoji}</span>
-                <span class="neo-card-source">${this.escapeHtml(news.source)}</span>
-                <span class="neo-card-time">${this.escapeHtml(news.published)}</span>
+            <div class="econ-card-header">
+                <span class="econ-card-emoji" role="img" aria-hidden="true">${news.emoji}</span>
+                <span class="econ-card-source">${this.escapeHtml(news.source)}</span>
+                <span class="econ-card-time">${this.escapeHtml(news.published)}</span>
             </div>
-            <h3 class="neo-card-title">${this.escapeHtml(news.title)}</h3>
-            <p class="neo-card-description">${this.escapeHtml(news.description)}</p>
+            <h3 class="econ-card-title">${this.escapeHtml(news.title)}</h3>
+            <p class="econ-card-description">${this.escapeHtml(news.description)}</p>
         `;
 
         // Event listeners
@@ -433,11 +492,11 @@ class NeoAINewsPortal {
         // Hover effects (optimized for mobile)
         if (window.matchMedia('(hover: hover)').matches) {
             card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-8px)';
+                card.style.transform = 'translateY(-8px) scale(1.02)';
             });
 
             card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0)';
+                card.style.transform = 'translateY(0) scale(1)';
             });
         }
 
@@ -446,23 +505,27 @@ class NeoAINewsPortal {
 
     async showArticleDetail(articleId) {
         try {
-            this.showToast('🤖 NeoAI đang tải chi tiết bài viết...', 'info');
+            this.showToast('📊 E-con đang tải chi tiết bài viết...', 'info');
 
             const response = await fetch(`/api/article/${articleId}`);
             
             if (!response.ok) {
+                if (response.status === 404) {
+                    this.showToast('Không tìm thấy bài viết. Vui lòng thử lại.', 'error');
+                    return;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const article = await response.json();
             this.currentArticle = article;
 
-            // Update modal content
-            const titleEl = document.getElementById('neoModalTitle');
-            const sourceEl = document.getElementById('neoArticleSource');
-            const timeEl = document.getElementById('neoArticleTime');
-            const linkEl = document.getElementById('neoArticleLink');
-            const contentEl = document.getElementById('neoArticleContent');
+            // Update article modal content
+            const titleEl = document.getElementById('econArticleTitle');
+            const sourceEl = document.getElementById('econArticleSource');
+            const timeEl = document.getElementById('econArticleTime');
+            const linkEl = document.getElementById('econArticleLink');
+            const contentEl = document.getElementById('econArticleContent');
 
             if (titleEl) titleEl.textContent = article.title;
             if (sourceEl) sourceEl.textContent = article.source;
@@ -470,64 +533,184 @@ class NeoAINewsPortal {
             if (linkEl) linkEl.href = article.link;
             if (contentEl) contentEl.textContent = article.content;
 
-            // Clear AI response
-            const aiResponse = document.getElementById('neoAiResponse');
-            if (aiResponse) {
-                aiResponse.style.display = 'none';
-                aiResponse.innerHTML = '';
-            }
+            // Show article modal
+            this.showArticleModal();
 
-            // Clear AI input
-            const aiInput = document.getElementById('neoAiInput');
-            if (aiInput) {
-                aiInput.value = '';
-            }
-
-            this.openModal();
+            // Reset chat and show chat bubble with context
+            this.resetChat();
+            this.showChatBubbleWithContext();
 
         } catch (error) {
-            console.error('❌ NeoAI article loading error:', error);
+            console.error('❌ E-con article loading error:', error);
             this.showToast('Lỗi khi tải chi tiết bài viết: ' + error.message, 'error');
         }
     }
 
-    async askAI(question, autoSummary = false) {
-        const aiResponse = document.getElementById('neoAiResponse');
-        const askBtn = document.getElementById('neoAskBtn');
-        const autoSummaryBtn = document.getElementById('neoAutoSummaryBtn');
+    showArticleModal() {
+        const modal = document.getElementById('econArticleModal');
+        const mainContent = document.querySelector('.econ-main');
+        
+        if (modal && mainContent) {
+            mainContent.style.display = 'none';
+            modal.style.display = 'flex';
+            
+            // Animate modal
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+            
+            requestAnimationFrame(() => {
+                modal.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                modal.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            });
+        }
+    }
 
-        if (!aiResponse) {
-            console.error('❌ NeoAI Response element not found');
-            this.showToast('Lỗi: Không tìm thấy element AI response', 'error');
-            return;
+    closeArticleModal() {
+        const modal = document.getElementById('econArticleModal');
+        const mainContent = document.querySelector('.econ-main');
+        
+        if (modal && mainContent) {
+            modal.style.display = 'none';
+            mainContent.style.display = 'block';
+            this.currentArticle = null;
+        }
+    }
+
+    showChatBubbleWithContext() {
+        const floatingChat = document.getElementById('econFloatingChat');
+        const chatBubble = document.getElementById('econChatBubble');
+        const bubbleTitle = chatBubble?.querySelector('.econ-chat-bubble-title');
+        const bubbleSubtitle = chatBubble?.querySelector('.econ-chat-bubble-subtitle');
+        
+        if (floatingChat && chatBubble) {
+            // Update bubble text for context
+            if (bubbleTitle) bubbleTitle.textContent = 'AI Assistant';
+            if (bubbleSubtitle) bubbleSubtitle.textContent = 'Sẵn sàng phân tích bài báo!';
+            
+            // Show floating chat
+            floatingChat.style.display = 'block';
+            setTimeout(() => {
+                floatingChat.style.opacity = '1';
+                floatingChat.style.transform = 'translateY(0) scale(1)';
+            }, 100);
+            
+            // Add attention animation
+            chatBubble.style.animation = 'econBounce 0.6s ease-in-out 3';
+        }
+    }
+
+    resetChat() {
+        const chatMessages = document.getElementById('econChatMessages');
+        if (chatMessages) {
+            chatMessages.innerHTML = `
+                <div class="econ-welcome-message">
+                    <div class="econ-message econ-message-ai">
+                        <div class="econ-message-bubble">
+                            Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về bài báo này hoặc nhấn các nút bên dưới! 🤖✨
+                        </div>
+                        <div class="econ-message-time">Bây giờ</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Clear input
+        const chatInput = document.getElementById('econChatInput');
+        if (chatInput) {
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+        }
+        
+        this.chatMessages = [];
+    }
+
+    async sendChatMessage(message) {
+        if (!message.trim() || this.aiRequestInProgress) return;
+
+        // Add user message to chat
+        this.addChatMessage(message, 'user');
+        
+        // Clear input
+        const chatInput = document.getElementById('econChatInput');
+        if (chatInput) {
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
         }
 
-        const activeBtn = autoSummary ? autoSummaryBtn : askBtn;
-        let originalBtnText = '';
+        // Send to AI
+        await this.askAI(message, false);
+    }
+
+    addChatMessage(content, sender = 'ai', animate = true) {
+        const chatMessages = document.getElementById('econChatMessages');
+        if (!chatMessages) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `econ-message econ-message-${sender}`;
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('vi-VN', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+
+        messageDiv.innerHTML = `
+            <div class="econ-message-bubble">${this.escapeHtml(content)}</div>
+            <div class="econ-message-time">${timeStr}</div>
+        `;
+
+        if (animate) {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(20px) scale(0.9)';
+        }
+
+        chatMessages.appendChild(messageDiv);
+
+        if (animate) {
+            requestAnimationFrame(() => {
+                messageDiv.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                messageDiv.style.opacity = '1';
+                messageDiv.style.transform = 'translateY(0) scale(1)';
+            });
+        }
+
+        // Scroll to bottom
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+
+        // Store message
+        this.chatMessages.push({ content, sender, timestamp: now });
+    }
+
+    async askAI(question, autoSummary = false) {
+        if (this.aiRequestInProgress) return;
 
         try {
-            // Show loading state
-            if (activeBtn) {
-                originalBtnText = activeBtn.textContent;
-                activeBtn.textContent = '⏳ NeoAI đang xử lý...';
-                activeBtn.disabled = true;
-            }
+            this.aiRequestInProgress = true;
 
-            aiResponse.style.display = 'block';
-            aiResponse.innerHTML = `
-                <div class="neo-ai-loading">
-                    <div class="neo-spinner">
-                        <div class="neo-spinner-ring"></div>
-                        <div class="neo-spinner-ring"></div>
-                        <div class="neo-spinner-ring"></div>
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'econ-message econ-message-ai';
+            typingDiv.id = 'econ-typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="econ-message-bubble">
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: econTyping 1s infinite;"></div>
+                        <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: econTyping 1s infinite 0.2s;"></div>
+                        <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: econTyping 1s infinite 0.4s;"></div>
                     </div>
-                    <p style="text-align: center; color: var(--neo-text-secondary); margin-top: var(--neo-space-md);">
-                        🤖 NeoAI đang phân tích...
-                    </p>
                 </div>
             `;
 
-            console.log('🚀 Sending NeoAI request:', { question, autoSummary });
+            const chatMessages = document.getElementById('econChatMessages');
+            if (chatMessages) {
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            console.log('🚀 Sending AI request:', { question, autoSummary });
 
             const response = await fetch('/api/ai/ask', {
                 method: 'POST',
@@ -539,7 +722,11 @@ class NeoAINewsPortal {
                 })
             });
 
-            console.log('📡 NeoAI Response received:', response.status, response.statusText);
+            // Remove typing indicator
+            const typingIndicator = document.getElementById('econ-typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -547,84 +734,52 @@ class NeoAINewsPortal {
             }
 
             const data = await response.json();
-            console.log('✅ NeoAI Data parsed successfully');
-
+            
             if (data.error) {
                 throw new Error(data.error);
             }
 
-            // Show response with typing effect
-            this.typewriterEffect(aiResponse, data.response);
-
-            // Clear input if not auto summary
-            if (!autoSummary) {
-                const aiInput = document.getElementById('neoAiInput');
-                if (aiInput) {
-                    aiInput.value = '';
-                }
-            }
-
-            this.showToast('🤖 NeoAI đã trả lời thành công', 'success');
+            // Add AI response to chat
+            this.addChatMessage(data.response, 'ai');
+            this.showToast('🤖 AI đã trả lời thành công', 'success');
 
         } catch (error) {
-            console.error('❌ Error in NeoAI askAI:', error);
-            aiResponse.innerHTML = `
-                <div style="color: var(--neo-accent-danger); padding: var(--neo-space-lg); background: rgba(239, 68, 68, 0.1); border-radius: var(--neo-radius-lg); border: 1px solid rgba(239, 68, 68, 0.2); text-align: center;">
-                    <h4 style="margin-bottom: var(--neo-space-sm); font-size: var(--neo-font-size-lg);">❌ Lỗi kết nối NeoAI</h4>
-                    <p style="margin-bottom: var(--neo-space-sm); font-size: var(--neo-font-size-sm);"><strong>Chi tiết:</strong> ${error.message}</p>
-                    <p style="margin-bottom: var(--neo-space-sm); font-size: var(--neo-font-size-sm);"><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</p>
-                    <button onclick="neoAIPortal.closeAIResponse()" style="margin-top: var(--neo-space-md); padding: var(--neo-space-sm) var(--neo-space-md); background: var(--neo-accent-danger); color: white; border: none; border-radius: var(--neo-radius-md); cursor: pointer; transition: all var(--neo-transition-fast);">
-                        Đóng
-                    </button>
-                </div>
-            `;
-            this.showToast('Lỗi NeoAI: ' + error.message, 'error');
-        } finally {
-            // Restore button state
-            if (activeBtn && originalBtnText) {
-                activeBtn.textContent = originalBtnText;
-                activeBtn.disabled = false;
+            console.error('❌ Error in AI askAI:', error);
+            
+            // Remove typing indicator if exists
+            const typingIndicator = document.getElementById('econ-typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
             }
+            
+            this.addChatMessage(`❌ Lỗi: ${error.message}`, 'ai');
+            this.showToast('Lỗi AI: ' + error.message, 'error');
+        } finally {
+            this.aiRequestInProgress = false;
         }
     }
 
     async debateAI(topic, autoDebate = false) {
-        const aiResponse = document.getElementById('neoAiResponse');
-        const debateBtn = document.getElementById('neoDebateBtn');
-        const autoDebateBtn = document.getElementById('neoAutoDebateBtn');
-
-        if (!aiResponse) {
-            console.error('❌ NeoAI Response element not found');
-            this.showToast('Lỗi: Không tìm thấy element AI response', 'error');
-            return;
-        }
-
-        const activeBtn = autoDebate ? autoDebateBtn : debateBtn;
-        let originalBtnText = '';
+        if (this.aiRequestInProgress) return;
 
         try {
-            // Show loading state
-            if (activeBtn) {
-                originalBtnText = activeBtn.textContent;
-                activeBtn.textContent = '⏳ NeoAI đang xử lý...';
-                activeBtn.disabled = true;
-            }
+            this.aiRequestInProgress = true;
 
-            aiResponse.style.display = 'block';
-            aiResponse.innerHTML = `
-                <div class="neo-ai-loading">
-                    <div class="neo-spinner">
-                        <div class="neo-spinner-ring"></div>
-                        <div class="neo-spinner-ring"></div>
-                        <div class="neo-spinner-ring"></div>
-                    </div>
-                    <p style="text-align: center; color: var(--neo-text-secondary); margin-top: var(--neo-space-md);">
-                        🎭 NeoAI đang tổ chức cuộc tranh luận...
-                    </p>
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'econ-message econ-message-ai';
+            typingDiv.id = 'econ-typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="econ-message-bubble">
+                    🎭 Đang tổ chức cuộc tranh luận...
                 </div>
             `;
 
-            console.log('🚀 Sending NeoAI debate request:', { topic, autoDebate });
+            const chatMessages = document.getElementById('econChatMessages');
+            if (chatMessages) {
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
 
             const response = await fetch('/api/ai/debate', {
                 method: 'POST',
@@ -636,7 +791,11 @@ class NeoAINewsPortal {
                 })
             });
 
-            console.log('📡 NeoAI Debate Response received:', response.status, response.statusText);
+            // Remove typing indicator
+            const typingIndicator = document.getElementById('econ-typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -644,118 +803,37 @@ class NeoAINewsPortal {
             }
 
             const data = await response.json();
-            console.log('✅ NeoAI Debate Data parsed successfully');
-
+            
             if (data.error) {
                 throw new Error(data.error);
             }
 
-            // Show response with typing effect
-            this.typewriterEffect(aiResponse, data.response);
-
-            // Clear input if not auto debate
-            if (!autoDebate) {
-                const aiInput = document.getElementById('neoAiInput');
-                if (aiInput) {
-                    aiInput.value = '';
-                }
-            }
-
-            this.showToast('🎭 NeoAI đã tổ chức cuộc tranh luận thành công', 'success');
+            // Add debate response to chat
+            this.addChatMessage(data.response, 'ai');
+            this.showToast('🎭 AI đã tổ chức cuộc tranh luận thành công', 'success');
 
         } catch (error) {
-            console.error('❌ Error in NeoAI debateAI:', error);
-            aiResponse.innerHTML = `
-                <div style="color: var(--neo-accent-danger); padding: var(--neo-space-lg); background: rgba(239, 68, 68, 0.1); border-radius: var(--neo-radius-lg); border: 1px solid rgba(239, 68, 68, 0.2); text-align: center;">
-                    <h4 style="margin-bottom: var(--neo-space-sm); font-size: var(--neo-font-size-lg);">❌ Lỗi khi tổ chức tranh luận</h4>
-                    <p style="margin-bottom: var(--neo-space-sm); font-size: var(--neo-font-size-sm);"><strong>Chi tiết:</strong> ${error.message}</p>
-                    <p style="margin-bottom: var(--neo-space-sm); font-size: var(--neo-font-size-sm);"><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</p>
-                    <button onclick="neoAIPortal.closeAIResponse()" style="margin-top: var(--neo-space-md); padding: var(--neo-space-sm) var(--neo-space-md); background: var(--neo-accent-danger); color: white; border: none; border-radius: var(--neo-radius-md); cursor: pointer; transition: all var(--neo-transition-fast);">
-                        Đóng
-                    </button>
-                </div>
-            `;
-            this.showToast('Lỗi NeoAI Debate: ' + error.message, 'error');
+            console.error('❌ Error in AI debateAI:', error);
+            
+            // Remove typing indicator if exists
+            const typingIndicator = document.getElementById('econ-typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+            
+            this.addChatMessage(`❌ Lỗi tranh luận: ${error.message}`, 'ai');
+            this.showToast('Lỗi AI Debate: ' + error.message, 'error');
         } finally {
-            // Restore button state
-            if (activeBtn && originalBtnText) {
-                activeBtn.textContent = originalBtnText;
-                activeBtn.disabled = false;
-            }
+            this.aiRequestInProgress = false;
         }
-    }
-
-    closeAIResponse() {
-        const aiResponse = document.getElementById('neoAiResponse');
-        if (aiResponse) {
-            aiResponse.style.display = 'none';
-            aiResponse.innerHTML = '';
-        }
-    }
-
-    typewriterEffect(element, text) {
-        element.innerHTML = '';
-        let index = 0;
-        const speed = 20; // milliseconds per character
-
-        function type() {
-            if (index < text.length) {
-                element.textContent += text.charAt(index);
-                index++;
-                setTimeout(type, speed);
-                
-                // Auto-scroll to bottom during typing
-                element.scrollTop = element.scrollHeight;
-            }
-        }
-
-        type();
-    }
-
-    openModal() {
-        const modal = document.getElementById('neoArticleModal');
-        if (!modal) return;
-
-        modal.classList.add('active');
-        modal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-        
-        // Mobile optimizations
-        if (window.innerWidth <= 768) {
-            modal.style.paddingTop = '10px';
-        }
-        
-        const modalContainer = modal.querySelector('.neo-modal-container');
-        if (modalContainer) {
-            modalContainer.scrollTop = 0;
-        }
-        
-        // Focus management for accessibility
-        const firstFocusable = modal.querySelector('button, input, textarea');
-        if (firstFocusable) {
-            setTimeout(() => firstFocusable.focus(), 100);
-        }
-    }
-
-    closeModal() {
-        const modal = document.getElementById('neoArticleModal');
-        if (!modal) return;
-
-        modal.classList.remove('active');
-        modal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = 'auto';
-        this.currentArticle = null;
-        
-        // Clear AI response when closing modal
-        this.closeAIResponse();
     }
 
     updatePagination(currentPage, totalPages) {
-        const paginationContainer = document.getElementById('neoPaginationContainer');
-        const prevBtn = document.getElementById('neoPrevPageBtn');
-        const nextBtn = document.getElementById('neoNextPageBtn');
-        const currentPageSpan = document.querySelector('.neo-pagination-current');
-        const totalPagesSpan = document.querySelector('.neo-pagination-total');
+        const paginationContainer = document.getElementById('econPaginationContainer');
+        const prevBtn = document.getElementById('econPrevPageBtn');
+        const nextBtn = document.getElementById('econNextPageBtn');
+        const currentPageSpan = document.querySelector('.econ-pagination-current');
+        const totalPagesSpan = document.querySelector('.econ-pagination-total');
 
         if (currentPageSpan) currentPageSpan.textContent = currentPage;
         if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
@@ -769,9 +847,9 @@ class NeoAINewsPortal {
     }
 
     showLoading() {
-        const loadingContainer = document.getElementById('neoLoadingContainer');
-        const newsGrid = document.getElementById('neoNewsGrid');
-        const paginationContainer = document.getElementById('neoPaginationContainer');
+        const loadingContainer = document.getElementById('econLoadingContainer');
+        const newsGrid = document.getElementById('econNewsGrid');
+        const paginationContainer = document.getElementById('econPaginationContainer');
 
         if (loadingContainer) loadingContainer.style.display = 'flex';
         if (newsGrid) newsGrid.style.display = 'none';
@@ -779,20 +857,20 @@ class NeoAINewsPortal {
     }
 
     hideLoading() {
-        const loadingContainer = document.getElementById('neoLoadingContainer');
+        const loadingContainer = document.getElementById('econLoadingContainer');
         if (loadingContainer) loadingContainer.style.display = 'none';
     }
 
     renderError() {
-        const newsGrid = document.getElementById('neoNewsGrid');
+        const newsGrid = document.getElementById('econNewsGrid');
         if (!newsGrid) return;
 
         newsGrid.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center; gap: var(--neo-space-lg); background: var(--neo-gradient-card); border: 1px solid var(--neo-border-primary); border-radius: var(--neo-radius-xl); padding: var(--neo-space-2xl);">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; text-align: center; gap: var(--econ-space-lg); background: var(--econ-gradient-card); border: 1px solid var(--econ-border-primary); border-radius: var(--econ-radius-xl); padding: var(--econ-space-2xl);">
                 <div style="font-size: 48px;">❌</div>
-                <h3 style="color: var(--neo-text-primary); font-size: var(--neo-font-size-xl);">Lỗi khi tải tin tức</h3>
-                <p style="color: var(--neo-text-secondary);">Vui lòng thử lại sau</p>
-                <button onclick="neoAIPortal.refreshNews()" style="padding: var(--neo-space-md) var(--neo-space-lg); background: var(--neo-gradient-button); color: white; border: none; border-radius: var(--neo-radius-lg); cursor: pointer; font-weight: 600; transition: all var(--neo-transition-fast);">
+                <h3 style="color: var(--econ-text-primary); font-size: var(--econ-font-size-xl);">Lỗi khi tải tin tức</h3>
+                <p style="color: var(--econ-text-secondary);">Vui lòng thử lại sau</p>
+                <button onclick="econPortal.refreshNews()" style="padding: var(--econ-space-md) var(--econ-space-lg); background: var(--econ-gradient-button); color: white; border: none; border-radius: var(--econ-radius-lg); cursor: pointer; font-weight: 600; transition: all var(--econ-transition-fast);">
                     🔄 Thử lại
                 </button>
             </div>
@@ -801,7 +879,7 @@ class NeoAINewsPortal {
     }
 
     async refreshNews() {
-        this.showToast('🔄 NeoAI đang làm mới tin tức...', 'info');
+        this.showToast('🔄 E-con đang làm mới tin tức...', 'info');
         
         // Clear cache for current type
         const cacheKey = `${this.currentNewsType}-${this.currentPage}`;
@@ -811,11 +889,11 @@ class NeoAINewsPortal {
     }
 
     showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('neoToastContainer');
+        const toastContainer = document.getElementById('econToastContainer');
         if (!toastContainer) return;
         
         const toast = document.createElement('div');
-        toast.className = `neo-toast ${type}`;
+        toast.className = `econ-toast ${type}`;
         toast.textContent = message;
 
         toastContainer.appendChild(toast);
@@ -831,7 +909,7 @@ class NeoAINewsPortal {
                     toast.parentNode.removeChild(toast);
                 }
             }, 300);
-        }, 4000);
+        }, 3000); // Reduced from 4000ms to 3000ms
     }
 
     escapeHtml(text) {
@@ -857,13 +935,13 @@ class NeoAINewsPortal {
             totalAIRequests: this.performanceMetrics.aiRequests,
             totalErrors: this.performanceMetrics.errors.length,
             cacheSize: this.memoryUsage.newsCache.size,
-            memoryUsage: this.memoryUsage
+            chatMessages: this.chatMessages.length
         };
     }
 }
 
 // Enhanced Features for Render.com optimization
-class NeoAINewsPortalEnhanced extends NeoAINewsPortal {
+class EconNewsPortalEnhanced extends EconNewsPortal {
     constructor() {
         super();
         this.setupAdvancedFeatures();
@@ -874,6 +952,19 @@ class NeoAINewsPortalEnhanced extends NeoAINewsPortal {
         this.setupVirtualKeyboardHandling();
         this.setupOfflineSupport();
         this.setupPerformanceOptimizations();
+        this.setupChatAnimations();
+    }
+
+    setupChatAnimations() {
+        // Add typing animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes econTyping {
+                0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+                30% { opacity: 1; transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     setupKeyboardShortcuts() {
@@ -902,7 +993,7 @@ class NeoAINewsPortalEnhanced extends NeoAINewsPortal {
                     }
                     break;
                 case 'ArrowRight':
-                    const totalPages = parseInt(document.querySelector('.neo-pagination-total')?.textContent || '1');
+                    const totalPages = parseInt(document.querySelector('.econ-pagination-total')?.textContent || '1');
                     if (this.currentPage < totalPages) {
                         this.loadNews(this.currentNewsType, this.currentPage + 1);
                     }
@@ -929,13 +1020,12 @@ class NeoAINewsPortalEnhanced extends NeoAINewsPortal {
     }
 
     adjustForVirtualKeyboard() {
-        const modal = document.getElementById('neoArticleModal');
-        const aiInput = document.getElementById('neoAiInput');
+        const chatInput = document.getElementById('econChatInput');
         
-        if (modal && modal.classList.contains('active') && aiInput) {
+        if (chatInput) {
             // Scroll to input when virtual keyboard opens
             setTimeout(() => {
-                aiInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 300);
         }
     }
@@ -958,7 +1048,7 @@ class NeoAINewsPortalEnhanced extends NeoAINewsPortal {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 this.handleResize();
-            }, 250);
+            }, 150); // Reduced from 250ms
         });
 
         // Monitor memory usage on mobile
@@ -968,81 +1058,84 @@ class NeoAINewsPortalEnhanced extends NeoAINewsPortal {
                 if (memInfo.usedJSHeapSize / memInfo.totalJSHeapSize > 0.8) {
                     console.warn('🚨 High memory usage detected, cleaning up...');
                     this.memoryUsage.newsCache.clear();
+                    
+                    // Clear old chat messages
+                    if (this.chatMessages.length > 50) {
+                        this.chatMessages = this.chatMessages.slice(-30);
+                    }
                 }
-            }, 30000);
+            }, 45000); // Reduced from 30000ms
         }
     }
 
     handleResize() {
-        const modal = document.getElementById('neoArticleModal');
-        if (modal && modal.classList.contains('active')) {
+        const chatWindow = document.getElementById('econChatWindow');
+        const modal = document.getElementById('econArticleModal');
+        
+        if (chatWindow && chatWindow.style.display !== 'none') {
+            this.adjustChatForScreen();
+        }
+        
+        if (modal && modal.style.display !== 'none') {
             this.adjustModalForScreen();
         }
     }
 
-    adjustModalForScreen() {
-        const modal = document.getElementById('neoArticleModal');
-        const modalContainer = modal?.querySelector('.neo-modal-container');
+    adjustChatForScreen() {
+        const chatWindow = document.getElementById('econChatWindow');
         
-        if (window.innerWidth <= 768 && modalContainer) {
-            modalContainer.style.height = 'calc(100vh - 20px)';
-            modalContainer.style.margin = '10px';
-        } else if (modalContainer) {
-            modalContainer.style.height = '';
-            modalContainer.style.margin = '';
+        if (window.innerWidth <= 768 && chatWindow) {
+            chatWindow.style.width = 'calc(100vw - 20px)';
+            chatWindow.style.height = 'calc(100vh - 100px)';
+        } else if (chatWindow) {
+            chatWindow.style.width = '350px';
+            chatWindow.style.height = '500px';
+        }
+    }
+
+    adjustModalForScreen() {
+        const modal = document.getElementById('econArticleModal');
+        
+        if (window.innerWidth <= 768 && modal) {
+            modal.style.padding = '10px';
+        } else if (modal) {
+            modal.style.padding = 'var(--econ-space-lg)';
         }
     }
 }
 
 // Initialize the application
-let neoAIPortal;
+let econPortal;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, initializing NeoAI News Portal...');
+    console.log('🚀 DOM loaded, initializing E-con News Portal...');
     
     try {
-        neoAIPortal = new NeoAINewsPortalEnhanced();
+        econPortal = new EconNewsPortalEnhanced();
         
         // Add visual feedback for loading
         document.body.classList.add('loaded');
         
-        console.log('✅ NeoAI News Portal initialized successfully!');
-        console.log('🎨 Theme: Purple Gradient with Glassmorphism');
+        console.log('✅ E-con News Portal initialized successfully!');
+        console.log('🎨 Theme: Colorful Rainbow with Glassmorphism');
         console.log('📱 Optimized for Render.com free tier');
         
-        // Enhanced debugging info
-        const autoSummaryBtn = document.getElementById('neoAutoSummaryBtn');
-        const autoDebateBtn = document.getElementById('neoAutoDebateBtn');
-        
-        console.log('🔧 NeoAI buttons status:', {
-            autoSummary: {
-                found: !!autoSummaryBtn,
-                text: autoSummaryBtn?.textContent,
-                disabled: autoSummaryBtn?.disabled
-            },
-            autoDebate: {
-                found: !!autoDebateBtn,
-                text: autoDebateBtn?.textContent,
-                disabled: autoDebateBtn?.disabled
-            }
-        });
-
         // Performance report after 30 seconds
         setTimeout(() => {
-            console.log('📊 NeoAI Performance Report:', neoAIPortal.getPerformanceReport());
+            console.log('📊 E-con Performance Report:', econPortal.getPerformanceReport());
         }, 30000);
 
     } catch (error) {
-        console.error('❌ Failed to initialize NeoAI News Portal:', error);
+        console.error('❌ Failed to initialize E-con News Portal:', error);
         
         // Fallback error display
-        const loadingContainer = document.getElementById('neoLoadingContainer');
+        const loadingContainer = document.getElementById('econLoadingContainer');
         if (loadingContainer) {
             loadingContainer.innerHTML = `
-                <div style="text-align: center; color: var(--neo-accent-danger);">
-                    <h3>❌ Lỗi khởi tạo NeoAI</h3>
+                <div style="text-align: center; color: var(--econ-accent-danger);">
+                    <h3>❌ Lỗi khởi tạo E-con</h3>
                     <p>${error.message}</p>
-                    <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--neo-gradient-button); color: white; border: none; border-radius: var(--neo-radius-lg); cursor: pointer;">
+                    <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--econ-gradient-button); color: white; border: none; border-radius: var(--econ-radius-lg); cursor: pointer;">
                         🔄 Tải lại
                     </button>
                 </div>
@@ -1053,25 +1146,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Enhanced error boundary
 window.addEventListener('error', (e) => {
-    console.error('🚨 Global NeoAI error:', e.error);
+    console.error('🚨 Global E-con error:', e.error);
     
-    if (neoAIPortal) {
-        neoAIPortal.showToast('Đã xảy ra lỗi không mong muốn: ' + e.message, 'error');
+    if (econPortal) {
+        econPortal.showToast('Đã xảy ra lỗi không mong muốn: ' + e.message, 'error');
     }
 });
 
 // Handle online/offline status
 window.addEventListener('online', () => {
-    if (neoAIPortal) {
-        neoAIPortal.showToast('🌐 Kết nối internet đã được khôi phục', 'success');
+    if (econPortal) {
+        econPortal.showToast('🌐 Kết nối internet đã được khôi phục', 'success');
     }
 });
 
 window.addEventListener('offline', () => {
-    if (neoAIPortal) {
-        neoAIPortal.showToast('📱 Mất kết nối internet', 'error');
+    if (econPortal) {
+        econPortal.showToast('📱 Mất kết nối internet', 'error');
     }
 });
 
-// Make neoAIPortal globally accessible for debugging
-window.neoAIPortal = neoAIPortal;
+// Make econPortal globally accessible for debugging
+window.econPortal = econPortal;
