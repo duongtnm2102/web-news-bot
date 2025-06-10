@@ -59,9 +59,9 @@ UTC_TIMEZONE = pytz.UTC
 user_news_cache = {}
 user_last_detail_cache = {}
 global_seen_articles = {}  # Global deduplication cache
-MAX_CACHE_ENTRIES = 25
-MAX_GLOBAL_CACHE = 1000
-CACHE_EXPIRE_HOURS = 24
+MAX_CACHE_ENTRIES = 20  # Reduced for better memory management
+MAX_GLOBAL_CACHE = 500  # Reduced for Render.com optimization
+CACHE_EXPIRE_HOURS = 12  # Reduced cache time
 
 # 🔧 Enhanced User Agents for better compatibility
 USER_AGENTS = [
@@ -91,7 +91,7 @@ def get_current_datetime_str():
     current_dt = get_current_vietnam_datetime()
     return current_dt.strftime("%H:%M %d/%m/%Y")
 
-print("🚀 Flask News App:")
+print("🚀 E-con News Flask App:")
 print(f"Gemini: {'✅' if GEMINI_API_KEY else '❌'}")
 print("=" * 20)
 
@@ -168,7 +168,7 @@ def clean_expired_cache():
         del global_seen_articles[expired_hash]
     
     if expired_hashes:
-        print(f"🧹 Cleaned {len(expired_hashes)} expired articles from cache")
+        print(f"🧹 E-con cleaned {len(expired_hashes)} expired articles from cache")
 
 def is_duplicate_article_local(news_item, existing_articles):
     """Check duplicate within current collection - EXACT TITLE MATCH ONLY"""
@@ -214,10 +214,10 @@ def is_duplicate_article_global(news_item, source_name):
             'timestamp': get_current_vietnam_datetime()
         }
         
-        # Limit cache size
+        # Limit cache size for Render.com
         if len(global_seen_articles) > MAX_GLOBAL_CACHE:
             sorted_items = sorted(global_seen_articles.items(), key=lambda x: x[1]['timestamp'])
-            for old_key, _ in sorted_items[:100]:
+            for old_key, _ in sorted_items[:50]:  # Remove 50 oldest
                 del global_seen_articles[old_key]
         
         return False
@@ -227,7 +227,7 @@ def is_duplicate_article_global(news_item, source_name):
         return False
 
 # 🚀 ASYNC HTTP CLIENT - NO MORE BLOCKING REQUESTS
-async def fetch_with_aiohttp(url, headers=None, timeout=8):
+async def fetch_with_aiohttp(url, headers=None, timeout=6):
     """FIXED: Use aiohttp instead of requests to prevent blocking"""
     try:
         if headers is None:
@@ -243,7 +243,7 @@ async def fetch_with_aiohttp(url, headers=None, timeout=8):
                 else:
                     return None
     except Exception as e:
-        print(f"❌ aiohttp fetch error for {url}: {e}")
+        print(f"❌ E-con aiohttp fetch error for {url}: {e}")
         return None
 
 def get_enhanced_headers(url=None):
@@ -336,22 +336,22 @@ def create_fallback_content(url, source_name, error_msg=""):
         return f"Nội dung từ {source_name}. Vui lòng truy cập link gốc để đọc đầy đủ."
 
 async def extract_content_with_gemini(url, source_name):
-    """Use Gemini to extract and translate content from international news"""
+    """Use Gemini to extract and translate content from international news - OPTIMIZED"""
     try:
         if not GEMINI_API_KEY or not GEMINI_AVAILABLE:
             return create_fallback_content(url, source_name, "Gemini không khả dụng")
         
-        extraction_prompt = f"""Truy cập và trích xuất TOÀN BỘ nội dung bài báo từ: {url}
+        # Shorter, more focused prompt for better performance
+        extraction_prompt = f"""Trích xuất và dịch nội dung từ: {url}
 
 YÊU CẦU:
-1. Đọc và hiểu HOÀN TOÀN bài báo
-2. Trích xuất TẤT CẢ nội dung chính (loại bỏ quảng cáo, sidebar)
-3. Dịch từ tiếng Anh sang tiếng Việt TỰ NHIÊN
-4. Giữ nguyên số liệu, tên công ty, thuật ngữ tài chính
-5. Độ dài: 500-1500 từ (toàn bộ bài viết)
-6. CHỈ trả về nội dung bài báo đã dịch
+1. Đọc bài báo và trích xuất nội dung chính
+2. Dịch sang tiếng Việt tự nhiên  
+3. Giữ nguyên số liệu, tên công ty
+4. Độ dài: 400-800 từ
+5. CHỈ trả về nội dung đã dịch
 
-**NỘI DUNG HOÀN CHỈNH:**"""
+NỘI DUNG:"""
 
         try:
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
@@ -359,7 +359,7 @@ YÊU CẦU:
             generation_config = genai.types.GenerationConfig(
                 temperature=0.1,
                 top_p=0.8,
-                max_output_tokens=3000,  # Tăng từ 2000 để lấy toàn bộ nội dung
+                max_output_tokens=1800,  # Reduced for better performance
             )
             
             response = await asyncio.wait_for(
@@ -368,19 +368,19 @@ YÊU CẦU:
                     extraction_prompt,
                     generation_config=generation_config
                 ),
-                timeout=30  # Tăng timeout từ 20s
+                timeout=20  # Reduced timeout
             )
             
             extracted_content = response.text.strip()
             
-            if len(extracted_content) > 300:
+            if len(extracted_content) > 200:
                 error_indicators = [
                     'cannot access', 'unable to access', 'không thể truy cập',
                     'failed to retrieve', 'error occurred', 'sorry, i cannot'
                 ]
                 
                 if not any(indicator in extracted_content.lower() for indicator in error_indicators):
-                    return f"[🤖 Gemini AI - Toàn bộ nội dung từ {source_name}]\n\n{extracted_content}"
+                    return f"[🤖 AI - Nội dung từ {source_name}]\n\n{extracted_content}"
                 else:
                     return create_fallback_content(url, source_name, "Gemini không thể trích xuất")
             else:
@@ -397,7 +397,7 @@ YÊU CẦU:
 # 🚀 ASYNC-FIRST APPROACHES - NO MORE BLOCKING
 async def async_sleep_delay():
     """FIXED: Use asyncio.sleep instead of time.sleep to prevent heartbeat blocking"""
-    delay = random.uniform(0.1, 0.5)  # Much shorter delay
+    delay = random.uniform(0.05, 0.3)  # Much shorter delay for better performance
     await asyncio.sleep(delay)
 
 def clean_content_enhanced(content):
@@ -450,10 +450,10 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                         include_tables=True,
                         include_links=False,
                         include_images=False,
-                        favor_precision=False,  # Changed to False for more content
-                        favor_recall=True,      # Added for maximum content
+                        favor_precision=False,
+                        favor_recall=True,
                         with_metadata=True,
-                        prune_xpath=[],         # Don't prune anything
+                        prune_xpath=[],
                         only_with_metadata=False
                     )
                     
@@ -461,7 +461,7 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                         full_text = result['text']
                         
                         # Try to get more content with different settings
-                        if len(full_text) < 1000:
+                        if len(full_text) < 800:
                             result2 = await asyncio.to_thread(
                                 trafilatura.extract,
                                 content,
@@ -474,7 +474,7 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                             if result2 and len(result2) > len(full_text):
                                 full_text = result2
                         
-                        return full_text.strip()
+                        return clean_content_enhanced(full_text.strip())
                 except Exception as e:
                     print(f"⚠️ Trafilatura failed: {e}")
             
@@ -508,43 +508,24 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                                     extracted_text = text
                     
                     # Strategy 2: Find all paragraphs and combine
-                    if len(extracted_text) < 500:
+                    if len(extracted_text) < 400:
                         all_paragraphs = soup.find_all('p')
                         paragraph_texts = []
                         for p in all_paragraphs:
                             p_text = p.get_text(strip=True)
-                            if len(p_text) > 50:  # Only substantial paragraphs
+                            if len(p_text) > 40:
                                 paragraph_texts.append(p_text)
                         
                         combined_text = '\n\n'.join(paragraph_texts)
                         if len(combined_text) > len(extracted_text):
                             extracted_text = combined_text
                     
-                    if extracted_text and len(extracted_text) > 300:
+                    if extracted_text and len(extracted_text) > 200:
                         cleaned_content = clean_content_enhanced(extracted_text)
                         return cleaned_content.strip()
                         
                 except Exception as e:
                     print(f"⚠️ BeautifulSoup failed: {e}")
-            
-            # Method 3: Newspaper3k fallback
-            if NEWSPAPER_AVAILABLE:
-                try:
-                    from newspaper import Article
-                    article = Article(url)
-                    article.set_config({
-                        'headers': get_enhanced_headers(url),
-                        'timeout': 12
-                    })
-                    
-                    article.download()
-                    article.parse()
-                    
-                    if article.text and len(article.text) > 300:
-                        return article.text.strip()
-                
-                except Exception as e:
-                    print(f"⚠️ Newspaper3k failed: {e}")
         
         print(f"⚠️ All traditional methods failed for {source_name}")
         return create_fallback_content(url, source_name, "Traditional extraction methods failed")
@@ -583,9 +564,9 @@ async def process_rss_feed_async(source_name, rss_url, limit_per_source):
                 
                 description = ""
                 if hasattr(entry, 'summary'):
-                    description = entry.summary[:400] + "..." if len(entry.summary) > 400 else entry.summary
+                    description = entry.summary[:350] + "..." if len(entry.summary) > 350 else entry.summary
                 elif hasattr(entry, 'description'):
-                    description = entry.description[:400] + "..." if len(entry.description) > 400 else entry.description
+                    description = entry.description[:350] + "..." if len(entry.description) > 350 else entry.description
                 
                 if hasattr(entry, 'title') and hasattr(entry, 'link'):
                     title = entry.title.strip()
@@ -605,11 +586,11 @@ async def process_rss_feed_async(source_name, rss_url, limit_per_source):
             except Exception as entry_error:
                 continue
         
-        print(f"✅ Processed {len(news_items)} articles from {source_name}")
+        print(f"✅ E-con processed {len(news_items)} articles from {source_name}")
         return news_items
         
     except Exception as e:
-        print(f"❌ RSS processing error for {source_name}: {e}")
+        print(f"❌ E-con RSS processing error for {source_name}: {e}")
         return []
 
 def is_relevant_news(title, description, source_name):
@@ -637,12 +618,12 @@ def is_relevant_news(title, description, source_name):
             return True
     
     # If no keywords found, still include (very relaxed)
-    return True  # Changed from False to True - accept all articles
+    return True
 
 async def process_single_source(source_name, source_url, limit_per_source):
     """Process a single RSS source asynchronously"""
     try:
-        print(f"🔄 Processing {source_name}: {source_url}")
+        print(f"🔄 E-con processing {source_name}: {source_url}")
         
         if source_url.endswith('.rss') or 'rss' in source_url.lower() or 'feeds.' in source_url:
             # RSS Feed processing
@@ -652,15 +633,15 @@ async def process_single_source(source_name, source_url, limit_per_source):
             return []
             
     except Exception as e:
-        print(f"❌ Error for {source_name}: {e}")
+        print(f"❌ E-con error for {source_name}: {e}")
         return []
 
 # 🚀 ASYNC NEWS COLLECTION - Fully non-blocking
-async def collect_news_enhanced(sources_dict, limit_per_source=15, use_global_dedup=False):
+async def collect_news_enhanced(sources_dict, limit_per_source=12, use_global_dedup=False):
     """Session-based collection with EXACT TITLE duplicate detection"""
     all_news = []
     
-    print(f"🔄 Starting collection from {len(sources_dict)} sources (Global dedup: {use_global_dedup})")
+    print(f"🔄 E-con starting collection from {len(sources_dict)} sources (Global dedup: {use_global_dedup})")
     print(f"🎯 Duplicate logic: EXACT title match only")
     
     # Clean expired cache before starting
@@ -691,20 +672,18 @@ async def collect_news_enhanced(sources_dict, limit_per_source=15, use_global_de
                 # Local duplicate check (exact title/link match within current collection)
                 if is_duplicate_article_local(news_item, all_news):
                     local_duplicates += 1
-                    print(f"🔄 Local duplicate: {news_item['title'][:50]}...")
                     continue
                 
                 # Global duplicate check (exact title/link match cross-session) - only if enabled
                 if use_global_dedup and is_duplicate_article_global(news_item, news_item['source']):
                     global_duplicates += 1
-                    print(f"🌍 Global duplicate: {news_item['title'][:50]}...")
                     continue
                 
                 # Add unique article
                 all_news.append(news_item)
     
     unique_count = len(all_news)
-    print(f"📊 Processed: {total_processed}, Local dups: {local_duplicates}, Global dups: {global_duplicates}, Unique: {unique_count}")
+    print(f"📊 E-con processed: {total_processed}, Local dups: {local_duplicates}, Global dups: {global_duplicates}, Unique: {unique_count}")
     
     # Sort by publish time
     all_news.sort(key=lambda x: x['published'], reverse=True)
@@ -728,12 +707,12 @@ def save_user_news_enhanced(user_id, news_list, command_type, current_page=1):
     }
     
     if len(user_news_cache) > MAX_CACHE_ENTRIES:
-        oldest_users = sorted(user_news_cache.items(), key=lambda x: x[1]['timestamp'])[:10]
+        oldest_users = sorted(user_news_cache.items(), key=lambda x: x[1]['timestamp'])[:5]
         for user_id_to_remove, _ in oldest_users:
             del user_news_cache[user_id_to_remove]
 
 def save_user_last_detail(user_id, news_item):
-    """Save last article accessed via !chitiet"""
+    """Save last article accessed"""
     global user_last_detail_cache
     
     user_last_detail_cache[user_id] = {
@@ -767,7 +746,7 @@ HƯỚNG DẪN TRẢ LỜI:
 2. Đưa ra phân tích chuyên sâu và toàn diện
 3. Kết nối với bối cảnh kinh tế hiện tại (ngày {current_date_str})
 4. Đưa ra ví dụ thực tế và minh họa cụ thể
-5. Độ dài: 400-800 từ với cấu trúc rõ ràng
+5. Độ dài: 300-600 từ với cấu trúc rõ ràng
 6. Sử dụng đầu mục số để tổ chức nội dung
 
 Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini AI:"""
@@ -777,7 +756,7 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
             generation_config = genai.types.GenerationConfig(
                 temperature=0.2,
                 top_p=0.8,
-                max_output_tokens=1500,
+                max_output_tokens=1200,  # Reduced for Render.com optimization
             )
             
             response = await asyncio.wait_for(
@@ -786,7 +765,7 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
                     prompt,
                     generation_config=generation_config
                 ),
-                timeout=15
+                timeout=12  # Reduced timeout
             )
             
             return response.text.strip()
@@ -813,14 +792,14 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
 🧠 **Người Giàu Thông Thái:** [tầm nhìn xa]
 🤖 **Tổng Kết:** [phân tích khách quan]
 
-Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
+Mỗi góc nhìn 60-100 từ, thể hiện rõ tính cách:"""
 
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
             generation_config = genai.types.GenerationConfig(
                 temperature=0.4,
                 top_p=0.9,
-                max_output_tokens=1500,
+                max_output_tokens=1200,  # Reduced for optimization
             )
             
             response = await asyncio.wait_for(
@@ -829,7 +808,7 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
                     prompt,
                     generation_config=generation_config
                 ),
-                timeout=20
+                timeout=15  # Reduced timeout
             )
             
             return response.text.strip()
@@ -847,9 +826,13 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
         try:
             analysis_question = question if question else "Hãy phân tích và tóm tắt bài báo này"
             
+            # Truncate content if too long for Render.com optimization
+            if len(article_content) > 3000:
+                article_content = article_content[:3000] + "..."
+            
             prompt = f"""Bạn là Gemini AI - chuyên gia kinh tế tài chính thông minh. Hãy phân tích bài báo dựa trên NỘI DUNG HOÀN CHỈNH được cung cấp.
 
-**NỘI DUNG BÀI BÁO HOÀN CHỈNH:**
+**NỘI DUNG BÀI BÁO:**
 {article_content}
 
 **YÊU CẦU PHÂN TÍCH:**
@@ -861,7 +844,7 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
 3. Phân tích tác động, nguyên nhân, hậu quả
 4. Đưa ra nhận định và đánh giá chuyên sâu
 5. Trả lời câu hỏi trực tiếp với bằng chứng từ bài báo
-6. Độ dài: 600-1000 từ với cấu trúc rõ ràng
+6. Độ dài: 400-800 từ với cấu trúc rõ ràng
 7. Tham chiếu các phần cụ thể trong bài báo
 8. CHỈ phân tích bài báo được cung cấp
 
@@ -872,7 +855,7 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
             generation_config = genai.types.GenerationConfig(
                 temperature=0.2,
                 top_p=0.8,
-                max_output_tokens=2000,
+                max_output_tokens=1500,  # Reduced for optimization
             )
             
             response = await asyncio.wait_for(
@@ -881,7 +864,7 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
                     prompt,
                     generation_config=generation_config
                 ),
-                timeout=20
+                timeout=18  # Reduced timeout
             )
             
             return response.text.strip()
@@ -937,23 +920,23 @@ async def get_news_api(news_type):
         user_id = get_or_create_user_session()
         
         if news_type == 'all':
-            # Concurrent collection
-            domestic_task = collect_news_enhanced(RSS_FEEDS['domestic'], 15)
-            international_task = collect_news_enhanced(RSS_FEEDS['international'], 20)
+            # Concurrent collection with reduced limits for Render.com
+            domestic_task = collect_news_enhanced(RSS_FEEDS['domestic'], 12)
+            international_task = collect_news_enhanced(RSS_FEEDS['international'], 15)
             
             domestic_news, international_news = await asyncio.gather(domestic_task, international_task)
             all_news = domestic_news + international_news
             
         elif news_type == 'domestic':
-            all_news = await collect_news_enhanced(RSS_FEEDS['domestic'], 15)
+            all_news = await collect_news_enhanced(RSS_FEEDS['domestic'], 12)
             
         elif news_type == 'international':
-            all_news = await collect_news_enhanced(RSS_FEEDS['international'], 20)
+            all_news = await collect_news_enhanced(RSS_FEEDS['international'], 15)
             
         else:
             return jsonify({'error': 'Invalid news type'}), 400
         
-        items_per_page = 12
+        items_per_page = 10  # Reduced from 12 for better performance
         start_index = (page - 1) * items_per_page
         end_index = start_index + items_per_page
         page_news = all_news[start_index:end_index]
@@ -964,7 +947,7 @@ async def get_news_api(news_type):
         # Format news for frontend
         formatted_news = []
         for i, news in enumerate(page_news):
-            emoji = emoji_map.get(news['source'], '📰')
+            emoji = emoji_map.get(news['source'], '📊')
             source_display = source_names.get(news['source'], news['source'])
             
             formatted_news.append({
@@ -974,7 +957,7 @@ async def get_news_api(news_type):
                 'source': source_display,
                 'emoji': emoji,
                 'published': news['published_str'],
-                'description': news['description'][:200] + "..." if len(news['description']) > 200 else news['description']
+                'description': news['description'][:180] + "..." if len(news['description']) > 180 else news['description']
             })
         
         total_pages = (len(all_news) + items_per_page - 1) // items_per_page
@@ -987,30 +970,49 @@ async def get_news_api(news_type):
         })
         
     except Exception as e:
+        print(f"❌ E-con API error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/article/<int:article_id>')
 async def get_article_detail(article_id):
-    """Get article detail"""
+    """Get article detail with better error handling and validation"""
     try:
         user_id = get_or_create_user_session()
         
         if user_id not in user_news_cache:
-            return jsonify({'error': 'No cached news found'}), 404
+            return jsonify({
+                'error': 'Phiên làm việc đã hết hạn. Vui lòng làm mới trang để tải lại tin tức.',
+                'error_code': 'SESSION_EXPIRED'
+            }), 404
             
         user_data = user_news_cache[user_id]
         news_list = user_data['news']
         
+        # Validate article_id range
+        if not news_list:
+            return jsonify({
+                'error': 'Danh sách tin tức trống. Vui lòng làm mới trang.',
+                'error_code': 'EMPTY_NEWS_LIST'
+            }), 404
+        
         if article_id < 0 or article_id >= len(news_list):
-            return jsonify({'error': 'Invalid article ID'}), 404
+            return jsonify({
+                'error': f'ID bài viết không hợp lệ. Có thể chọn từ 0 đến {len(news_list)-1}.',
+                'error_code': 'INVALID_ARTICLE_ID',
+                'valid_range': f'0-{len(news_list)-1}'
+            }), 404
             
         news = news_list[article_id]
         
         # Save as last detail for AI context
         save_user_last_detail(user_id, news)
         
-        # Extract content
-        full_content = await extract_content_enhanced(news['link'], news['source'], news)
+        # Extract content with better error handling
+        try:
+            full_content = await extract_content_enhanced(news['link'], news['source'], news)
+        except Exception as content_error:
+            print(f"⚠️ Content extraction error: {content_error}")
+            full_content = create_fallback_content(news['link'], news['source'], str(content_error))
         
         source_display = source_names.get(news['source'], news['source'])
         
@@ -1019,11 +1021,17 @@ async def get_article_detail(article_id):
             'content': full_content,
             'source': source_display,
             'published': news['published_str'],
-            'link': news['link']
+            'link': news['link'],
+            'success': True
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ E-con article detail error: {e}")
+        return jsonify({
+            'error': 'Lỗi hệ thống khi tải bài viết. Vui lòng thử lại.',
+            'error_code': 'SYSTEM_ERROR',
+            'details': str(e)
+        }), 500
 
 @app.route('/api/ai/ask', methods=['POST'])
 async def ai_ask():
@@ -1046,7 +1054,7 @@ async def ai_ask():
                 article_content = await extract_content_enhanced(article['link'], article['source'], article)
                 
                 if article_content:
-                    context = f"BÀI BÁO LIÊN QUAN:\nTiêu đề: {article['title']}\nNguồn: {article['source']}\nNội dung: {article_content[:1500]}"
+                    context = f"BÀI BÁO LIÊN QUAN:\nTiêu đề: {article['title']}\nNguồn: {article['source']}\nNội dung: {article_content[:1200]}"  # Reduced for optimization
         
         # Get AI response
         if context and not question:
@@ -1060,6 +1068,7 @@ async def ai_ask():
         return jsonify({'response': response})
         
     except Exception as e:
+        print(f"❌ E-con AI ask error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/ai/debate', methods=['POST'])
@@ -1089,6 +1098,7 @@ async def ai_debate():
         return jsonify({'response': response})
         
     except Exception as e:
+        print(f"❌ E-con AI debate error: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
