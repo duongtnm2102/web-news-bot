@@ -879,21 +879,21 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
     async def analyze_article(self, article_content: str, question: str = ""):
         """Analyze specific article with Gemini - Vietnamese response"""
         if not self.available:
-            return "⚠️ Gemini AI không khả dụng cho phân tích bài báo."
+            return "Gemini AI không khả dụng cho phân tích bài báo."
         
         try:
             analysis_question = question if question else "Hãy phân tích và tóm tắt bài báo này"
             
-            prompt = f"""Bạn là Gemini AI - chuyên gia kinh tế tài chính thông minh. Hãy phân tích bài báo dựa trên NỘI DUNG HOÀN CHỈNH được cung cấp.
+            prompt = f"""Bạn là Gemini AI - chuyên gia kinh tế tài chính thông minh. Hãy phân tích bài báo dựa trên nội dung hoàn chỉnh được cung cấp.
 
-**NỘI DUNG BÀI BÁO HOÀN CHỈNH:**
+NỘI DUNG BÀI BÁO HOÀN CHỈNH:
 {article_content}
 
-**YÊU CẦU PHÂN TÍCH:**
+YÊU CẦU PHÂN TÍCH:
 {analysis_question}
 
-**HƯỚNG DẪN PHÂN TÍCH:**
-1. Phân tích CHỦ YẾU dựa trên nội dung bài báo (85-90%)
+HƯỚNG DẪN PHÂN TÍCH:
+1. Phân tích chủ yếu dựa trên nội dung bài báo (85-90%)
 2. Kết hợp kiến thức chuyên môn để giải thích sâu hơn (10-15%)
 3. Phân tích tác động, nguyên nhân, hậu quả
 4. Đưa ra nhận định và đánh giá chuyên sâu
@@ -902,7 +902,7 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
 7. Tham chiếu các phần cụ thể trong bài báo
 8. CHỈ phân tích bài báo được cung cấp
 
-**QUAN TRỌNG:** Tập trung hoàn toàn vào nội dung từ bài báo đã cung cấp. Đưa ra phân tích THÔNG MINH và CHI TIẾT bằng tiếng Việt:"""
+Tập trung hoàn toàn vào nội dung từ bài báo đã cung cấp. Đưa ra phân tích thông minh và chi tiết bằng tiếng Việt:"""
 
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
@@ -924,9 +924,9 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
             return response.text.strip()
             
         except asyncio.TimeoutError:
-            return "⚠️ Gemini AI timeout khi phân tích bài báo."
+            return "Gemini AI timeout khi phân tích bài báo."
         except Exception as e:
-            return f"⚠️ Lỗi Gemini AI: {str(e)}"
+            return f"Lỗi Gemini AI: {str(e)}"
 
 # Initialize Gemini Engine
 gemini_engine = GeminiAIEngine()
