@@ -825,25 +825,16 @@ Hãy thể hiện trí thông minh và kiến thức chuyên sâu của Gemini A
             return "⚠️ Gemini AI không khả dụng. Vui lòng kiểm tra GEMINI_API_KEY."
         
         try:
-            # Use safe string formatting to avoid emoji syntax errors
-            emoji_corrupt = "\U0001F4B8"  # 💸
-            emoji_teacher = "\U0001F468\u200D\U0001F3EB"  # 👨‍🏫  
-            emoji_worker = "\U0001F4BC"  # 💼
-            emoji_angry = "\U0001F620"  # 😠
-            emoji_rich_selfish = "\U0001F911"  # 🤑
-            emoji_rich_wise = "\U0001F9E0"  # 🧠
-            emoji_robot = "\U0001F916"  # 🤖
-            
             prompt = f"""Tổ chức cuộc tranh luận về: {topic}
 
 6 quan điểm khác nhau:
-{emoji_corrupt} **Nhà KT Tham Nhũng:** [ích kỷ, bóp méo số liệu]
-{emoji_teacher} **GS Chính Trực:** [học thuật, đạo đức cao]  
-{emoji_worker} **Nhân Viên Ham Tiền:** [chỉ quan tâm lương]
-{emoji_angry} **Người Nghèo:** [đổ lỗi, thiếu hiểu biết]
-{emoji_rich_selfish} **Người Giàu Ích Kỷ:** [chỉ tìm lợi nhuận]
-{emoji_rich_wise} **Người Giàu Thông Thái:** [tầm nhìn xa]
-{emoji_robot} **Tổng Kết:** [phân tích khách quan]
+💸 **Nhà KT Tham Nhũng:** [ích kỷ, bóp méo số liệu]
+👨‍🏫 **GS Chính Trực:** [học thuật, đạo đức cao]  
+💼 **Nhân Viên Ham Tiền:** [chỉ quan tâm lương]
+😠 **Người Nghèo:** [đổ lỗi, thiếu hiểu biết]
+🤑 **Người Giàu Ích Kỷ:** [chỉ tìm lợi nhuận]
+🧠 **Người Giàu Thông Thái:** [tầm nhìn xa]
+🤖 **Tổng Kết:** [phân tích khách quan]
 
 Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
 
@@ -879,21 +870,21 @@ Mỗi góc nhìn 80-120 từ, thể hiện rõ tính cách:"""
     async def analyze_article(self, article_content: str, question: str = ""):
         """Analyze specific article with Gemini - Vietnamese response"""
         if not self.available:
-            return "Gemini AI không khả dụng cho phân tích bài báo."
+            return "⚠️ Gemini AI không khả dụng cho phân tích bài báo."
         
         try:
             analysis_question = question if question else "Hãy phân tích và tóm tắt bài báo này"
             
-            prompt = f"""Bạn là Gemini AI - chuyên gia kinh tế tài chính thông minh. Hãy phân tích bài báo dựa trên nội dung hoàn chỉnh được cung cấp.
+            prompt = f"""Bạn là Gemini AI - chuyên gia kinh tế tài chính thông minh. Hãy phân tích bài báo dựa trên NỘI DUNG HOÀN CHỈNH được cung cấp.
 
-NỘI DUNG BÀI BÁO HOÀN CHỈNH:
+**NỘI DUNG BÀI BÁO HOÀN CHỈNH:**
 {article_content}
 
-YÊU CẦU PHÂN TÍCH:
+**YÊU CẦU PHÂN TÍCH:**
 {analysis_question}
 
-HƯỚNG DẪN PHÂN TÍCH:
-1. Phân tích chủ yếu dựa trên nội dung bài báo (85-90%)
+**HƯỚNG DẪN PHÂN TÍCH:**
+1. Phân tích CHỦ YẾU dựa trên nội dung bài báo (85-90%)
 2. Kết hợp kiến thức chuyên môn để giải thích sâu hơn (10-15%)
 3. Phân tích tác động, nguyên nhân, hậu quả
 4. Đưa ra nhận định và đánh giá chuyên sâu
@@ -902,7 +893,7 @@ HƯỚNG DẪN PHÂN TÍCH:
 7. Tham chiếu các phần cụ thể trong bài báo
 8. CHỈ phân tích bài báo được cung cấp
 
-Tập trung hoàn toàn vào nội dung từ bài báo đã cung cấp. Đưa ra phân tích thông minh và chi tiết bằng tiếng Việt:"""
+**QUAN TRỌNG:** Tập trung hoàn toàn vào nội dung từ bài báo đã cung cấp. Đưa ra phân tích THÔNG MINH và CHI TIẾT bằng tiếng Việt:"""
 
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
@@ -924,9 +915,9 @@ Tập trung hoàn toàn vào nội dung từ bài báo đã cung cấp. Đưa ra
             return response.text.strip()
             
         except asyncio.TimeoutError:
-            return "Gemini AI timeout khi phân tích bài báo."
+            return "⚠️ Gemini AI timeout khi phân tích bài báo."
         except Exception as e:
-            return f"Lỗi Gemini AI: {str(e)}"
+            return f"⚠️ Lỗi Gemini AI: {str(e)}"
 
 # Initialize Gemini Engine
 gemini_engine = GeminiAIEngine()
@@ -1147,36 +1138,6 @@ async def ai_debate():
         
     except Exception as e:
         print(f"❌ AI Debate Error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/test')
-def test_route():
-    """Simple test route"""
-    return "Flask app is working!"
-
-@app.route('/api/status')
-def api_status():
-    """Simple API status check"""
-    return jsonify({
-        'status': 'OK',
-        'message': 'API is working',
-        'gemini_available': gemini_engine.available if 'gemini_engine' in globals() else False,
-        'timestamp': get_current_datetime_str()
-    })
-
-@app.route('/api/debug')
-def debug_status():
-    """Debug endpoint to check system status"""
-    try:
-        return jsonify({
-            'gemini_available': gemini_engine.available,
-            'gemini_api_key_set': bool(GEMINI_API_KEY),
-            'gemini_api_key_preview': GEMINI_API_KEY[:10] + "..." if GEMINI_API_KEY else None,
-            'current_time': get_current_datetime_str(),
-            'total_sources': len(RSS_FEEDS['domestic']) + len(RSS_FEEDS['international']),
-            'cache_size': len(global_seen_articles)
-        })
-    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
