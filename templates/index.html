@@ -3,378 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>📰 E-con News - Tin Tức Tài Chính</title>
+    <title>📰 E-CON_NEWS.EXE - TERMINAL INTERFACE v2.024</title>
     
-    <!-- SEO & Social Meta -->
-    <meta name="description" content="E-con News - Cổng thông tin tài chính, kinh tế hàng đầu với giao diện hiện đại theo phong cách báo Tiền Phong">
-    <meta name="keywords" content="tin tức tài chính, chứng khoán, kinh tế, báo Tiền Phong, E-con News">
-    <meta name="author" content="E-con News Portal">
+    <!-- SEO & Meta Tags -->
+    <meta name="description" content="E-con News Terminal - AI-powered financial news portal with retro brutalism design. Real-time market analysis with terminal interface.">
+    <meta name="keywords" content="terminal news, retro brutalism, AI news, financial tech, neo-brutalism, economic analysis">
+    <meta name="author" content="E-con News Protocol">
     <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#00ff00">
+    <meta name="msapplication-navbutton-color" content="#00ff00">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <!-- Mobile App Experience -->
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="E-con News Terminal - AI Financial Analysis">
+    <meta property="og:description" content="Retro brutalism news portal with AI-powered financial analysis and terminal interface">
+    <meta property="og:image" content="/static/og-image.png">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="E-con News Terminal">
+    <meta name="twitter:description" content="AI-powered financial news with retro brutalism design">
+    
+    <!-- PWA Support -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="E-con News">
-    <meta name="theme-color" content="#dc2626">
-    <meta name="msapplication-navbutton-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-title" content="E-con News Terminal">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
-    <!-- Fonts - Combining Serif for Headlines with Sans-serif for Content -->
+    <!-- Fonts - Performance Optimized -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Stylesheets - FIXED -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000'/><text x='50' y='65' font-size='60' text-anchor='middle' fill='%2300ff00'>🖥️</text></svg>">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="{{ url_for('static', filename='script.js') }}" as="script">
+    
+    <!-- Performance Hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "E-con News Terminal",
+        "description": "AI-powered financial news portal with retro brutalism design",
+        "url": "{{ request.url_root }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.url_root }}?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
 </head>
 <body>
-    <!-- E-con News App Container -->
-    <div class="tp-app">
-        <!-- Header - Tiền Phong Style -->
-        <header class="tp-header">
-            <div class="tp-header-container">
-                <!-- Logo Section -->
-                <div class="tp-logo-section">
-                    <a href="/" class="tp-logo">
-                        <div class="tp-logo-icon">📰</div>
-                        <div class="tp-logo-text">
-                            <h1 class="tp-logo-main">E-con News</h1>
-                            <p class="tp-logo-subtitle">Tin Tức Tài Chính</p>
-                        </div>
-                    </a>
-                    
-                    <!-- Current Date & Time -->
-                    <div class="tp-date-section">
-                        <div class="tp-current-date" id="tpCurrentDate">Thứ Ba, 10/06/2025</div>
-                        <div class="tp-current-time" id="tpCurrentTime">23:10</div>
-                    </div>
-                </div>
+    <!-- Scanline Effect -->
+    <div class="scanline"></div>
 
-                <!-- Navigation Menu -->
-                <nav class="tp-nav">
-                    <a href="#" class="tp-nav-item active" data-category="all">TRANG CHỦ</a>
-                    <a href="#" class="tp-nav-item" data-category="stocks">CHỨNG KHOÁN</a>
-                    <a href="#" class="tp-nav-item" data-category="business">DOANH NGHIỆP</a>
-                    <a href="#" class="tp-nav-item" data-category="finance">TÀI CHÍNH</a>
-                    <a href="#" class="tp-nav-item" data-category="realestate">BẤT ĐỘNG SẢN</a>
-                    <a href="#" class="tp-nav-item" data-category="world">THẾ GIỚI</a>
-                </nav>
-
-                <!-- Search & Tools -->
-                <div class="tp-tools">
-                    <div class="tp-search-container">
-                        <input type="search" class="tp-search-input" placeholder="Tìm kiếm tin tức...">
-                        <button class="tp-search-btn">🔍</button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Layout - Full Width -->
-        <div class="tp-layout">
-            <!-- Sidebar - Tiền Phong Style -->
-            <aside class="tp-sidebar">
-                <!-- CHỨNG KHOÁN -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">📈 CHỨNG KHOÁN</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link active" data-category="all">
-                                <span class="tp-category-icon">🌍</span>
-                                <span>Tất cả tin tức</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="domestic">
-                                <span class="tp-category-icon">🇻🇳</span>
-                                <span>Thị trường trong nước</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="international">
-                                <span class="tp-category-icon">🌐</span>
-                                <span>Thị trường quốc tế</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- DOANH NGHIỆP -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">🏢 DOANH NGHIỆP</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="business">
-                                <span class="tp-category-icon">🏭</span>
-                                <span>Tin doanh nghiệp</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="earnings">
-                                <span class="tp-category-icon">💰</span>
-                                <span>Kết quả kinh doanh</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- TÀI CHÍNH -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">💳 TÀI CHÍNH</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="finance">
-                                <span class="tp-category-icon">🏦</span>
-                                <span>Tài chính - Ngân hàng</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="crypto">
-                                <span class="tp-category-icon">₿</span>
-                                <span>Tiền số</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- BẤT ĐỘNG SẢN -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">🏠 BẤT ĐỘNG SẢN</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="realestate">
-                                <span class="tp-category-icon">🏘️</span>
-                                <span>Thị trường BĐS</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="projects">
-                                <span class="tp-category-icon">🏗️</span>
-                                <span>Dự án</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- CÔNG CỤ -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">⚡ CÔNG CỤ</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" onclick="tienPhongPortal.openChatWindow(); return false;">
-                                <span class="tp-category-icon">🤖</span>
-                                <span>AI Phân tích</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" onclick="tienPhongPortal.loadNews(tienPhongPortal.currentCategory, 1); return false;">
-                                <span class="tp-category-icon">🔄</span>
-                                <span>Làm mới</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </aside>
-
-            <!-- Main Content Area -->
-            <main class="tp-main-content">
-                <!-- Content Header -->
-                <div class="tp-content-header">
-                    <h1 class="tp-content-title">Tin Tức Tài Chính - Chứng Khoán</h1>
-                    <p class="tp-content-subtitle">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
-                </div>
-
-                <!-- Filter Tabs -->
-                <div class="tp-filter-tabs">
-                    <a href="#" class="tp-filter-tab active" data-type="all">Tất cả</a>
-                    <a href="#" class="tp-filter-tab" data-type="domestic">Trong nước</a>
-                    <a href="#" class="tp-filter-tab" data-type="international">Quốc tế</a>
-                    <a href="#" class="tp-filter-tab" data-type="hot">Nổi bật</a>
-                </div>
-
-                <!-- News Content -->
-                <div class="tp-news-content">
-                    <!-- Loading State -->
-                    <div class="tp-loading" id="tpLoadingContainer">
-                        <div class="tp-spinner"></div>
-                        <p class="tp-loading-text">Đang tải tin tức...</p>
-                    </div>
-
-                    <!-- News Grid -->
-                    <div class="tp-news-grid" id="tpNewsGrid" style="display: none;">
-                        <!-- News items will be dynamically loaded here -->
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="tp-pagination" id="tpPaginationContainer" style="display: none;">
-                        <button class="tp-pagination-btn" id="tpPrevPageBtn">
-                            ← Trang trước
-                        </button>
-                        <div class="tp-pagination-info">
-                            <span class="tp-pagination-current">1</span>
-                            <span>/</span>
-                            <span class="tp-pagination-total">1</span>
-                        </div>
-                        <button class="tp-pagination-btn" id="tpNextPageBtn">
-                            Trang sau →
-                        </button>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <!-- iPad/iOS Style Article Modal -->
-        <div class="tp-article-modal" id="tpArticleModal" style="display: none;">
-            <div class="tp-article-container">
-                <div class="tp-article-header">
-                    <h2 class="tp-article-title" id="tpArticleTitle"></h2>
-                    <button class="tp-close-btn" id="tpCloseBtn">×</button>
-                </div>
-                
-                <div class="tp-article-meta">
-                    <span class="tp-article-source" id="tpArticleSource"></span>
-                    <span class="tp-article-time" id="tpArticleTime"></span>
-                    <a href="#" class="tp-article-link" id="tpArticleLink" target="_blank" rel="noopener noreferrer">
-                        🔗 Đọc bài gốc
-                    </a>
-                </div>
-                
-                <div class="tp-article-content" id="tpArticleContent">
-                    <!-- Article content will be loaded here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- iOS Style Floating Chat Widget -->
-        <div class="tp-floating-chat" id="tpFloatingChat">
-            <!-- Chat Bubble (Minimized State) -->
-            <div class="tp-chat-bubble" id="tpChatBubble">
-                <div class="tp-chat-bubble-avatar">
-                    <span>🤖</span>
-                    <div class="tp-chat-bubble-pulse"></div>
-                </div>
-                <div class="tp-chat-bubble-text">
-                    <div class="tp-chat-bubble-title">AI Assistant</div>
-                    <div class="tp-chat-bubble-subtitle">Hỏi tôi về bài báo!</div>
-                </div>
-            </div>
-
-            <!-- Chat Window (Maximized State) -->
-            <div class="tp-chat-window" id="tpChatWindow" style="display: none;">
-                <!-- Chat Header -->
-                <div class="tp-chat-header">
-                    <div class="tp-chat-avatar">🤖</div>
-                    <div class="tp-chat-info">
-                        <div class="tp-chat-title">AI Assistant</div>
-                        <div class="tp-chat-status">Online</div>
-                    </div>
-                    <div class="tp-chat-actions">
-                        <button class="tp-chat-minimize" id="tpChatMinimize">−</button>
-                        <button class="tp-chat-close" id="tpChatClose">×</button>
-                    </div>
-                </div>
-
-                <!-- Chat Messages -->
-                <div class="tp-chat-messages" id="tpChatMessages">
-                    <div class="tp-message tp-message-ai">
-                        <div class="tp-message-bubble">
-                            Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về tin tức tài chính hoặc sử dụng các nút bên dưới! 🤖✨
-                        </div>
-                        <div class="tp-message-time">Bây giờ</div>
-                    </div>
-                </div>
-
-                <!-- Chat Input Area -->
-                <div class="tp-chat-input-area">
-                    <!-- Quick Action Buttons -->
-                    <div class="tp-quick-actions">
-                        <button class="tp-quick-btn tp-summary-btn" id="tpSummaryBtn">
-                            📋 Tóm tắt
-                        </button>
-                        <button class="tp-quick-btn tp-debate-btn" id="tpDebateBtn">
-                            🎭 Bàn luận
-                        </button>
-                    </div>
-
-                    <!-- Input Row -->
-                    <div class="tp-input-row">
-                        <div class="tp-input-container">
-                            <textarea 
-                                class="tp-chat-input" 
-                                id="tpChatInput" 
-                                placeholder="Tin nhắn..."
-                                rows="1"
-                            ></textarea>
-                        </div>
-                        <button class="tp-send-btn" id="tpSendBtn">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Toast Notifications -->
-        <div class="tp-toast-container" id="tpToastContainer">
-            <!-- Toast messages will appear here -->
+    <!-- ASCII Art Header -->
+    <div class="ascii-header">
+        <div class="ascii-art">
+╔══════════════════════════════════════════════════════════════╗
+║  ███████╗       ██████╗ ██████╗ ███╗   ██╗    ███╗   ██╗███████╗██╗    ██╗███████╗  ║
+║  ██╔════╝      ██╔════╝██╔═══██╗████╗  ██║    ████╗  ██║██╔════╝██║    ██║██╔════╝  ║
+║  █████╗  █████╗██║     ██║   ██║██╔██╗ ██║    ██╔██╗ ██║█████╗  ██║ █╗ ██║███████╗  ║
+║  ██╔══╝  ╚════╝██║     ██║   ██║██║╚██╗██║    ██║╚██╗██║██╔══╝  ██║███╗██║╚════██║  ║
+║  ███████╗      ╚██████╗╚██████╔╝██║ ╚████║    ██║ ╚████║███████╗╚███╔███╔╝███████║  ║
+║  ╚══════╝       ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝ ╚══════╝  ║
+║                           [ TERMINAL INTERFACE v2.024 ]                            ║
+║                        [ AI-POWERED FINANCIAL PROTOCOL ]                          ║
+╚══════════════════════════════════════════════════════════════╝
         </div>
     </div>
 
-    <!-- Enhanced JavaScript for Time Display -->
-    <script>
-        // Real-time clock update with Vietnamese formatting
-        function updateTime() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('vi-VN', {
-                weekday: 'long',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            const timeStr = now.toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            const dateEl = document.getElementById('tpCurrentDate');
-            const timeEl = document.getElementById('tpCurrentTime');
-            
-            if (dateEl) dateEl.textContent = dateStr;
-            if (timeEl) timeEl.textContent = timeStr;
-        }
-        
-        // Update time immediately and every minute
-        updateTime();
-        setInterval(updateTime, 60000);
+    <!-- System Status Bar -->
+    <div class="status-bar" role="alert" aria-live="polite">
+        ⚠️ SYSTEM ALERT: REALITY.EXE EXPERIENCING CRITICAL ERRORS - PROCEED WITH CAUTION ⚠️
+    </div>
 
-        // Error handling
+    <!-- Command Bar -->
+    <div class="command-bar">
+        <div class="command-prompt">
+            <label for="commandInput" class="prompt-text">root@econews:~#</label>
+            <input type="text" 
+                   class="command-input" 
+                   id="commandInput"
+                   placeholder="Enter command..." 
+                   autocomplete="off"
+                   aria-label="Terminal command input"
+                   title="Type commands like 'help', 'news', 'ai', etc.">
+            <span class="cursor" aria-hidden="true">█</span>
+        </div>
+        <div class="command-help">
+            &gt; Available commands: [NEWS] [SEARCH] [AI] [STATUS] [HELP] [MATRIX] [EXIT]
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="navigation" aria-label="News categories">
+        <button class="nav-tab active" data-category="all" aria-pressed="true">
+            [ALL_NEWS.DAT]
+        </button>
+        <button class="nav-tab" data-category="domestic" aria-pressed="false">
+            [LOCAL_FEED.VN]
+        </button>
+        <button class="nav-tab" data-category="international" aria-pressed="false">
+            [GLOBAL_STREAM.INT]
+        </button>
+        <button class="nav-tab" data-category="tech" aria-pressed="false">
+            [TECH_STACK.JS]
+        </button>
+        <button class="nav-tab" data-category="crypto" aria-pressed="false">
+            [BLOCKCHAIN.BTC]
+        </button>
+        <button class="nav-tab" data-category="ai" aria-pressed="false">
+            [NEURAL_NET.AI]
+        </button>
+    </nav>
+
+    <!-- System Stats Dashboard -->
+    <section class="stats-grid" aria-label="System statistics">
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">👥</span>
+            <div class="stat-label">ACTIVE_USERS</div>
+            <div class="stat-value" id="activeUsers">1,337,420</div>
+            <div class="stat-status">[ONLINE]</div>
+        </div>
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">🤖</span>
+            <div class="stat-label">AI_QUERIES</div>
+            <div class="stat-value" id="aiQueries">42,069</div>
+            <div class="stat-status">[PROCESSING]</div>
+        </div>
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">📊</span>
+            <div class="stat-label">NEWS_PARSED</div>
+            <div class="stat-value" id="newsParsed">9,999</div>
+            <div class="stat-status">[UPDATED]</div>
+        </div>
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">⚡</span>
+            <div class="stat-label">SYSTEM_LOAD</div>
+            <div class="stat-value" id="systemLoad">69%</div>
+            <div class="stat-status">[OPTIMAL]</div>
+        </div>
+    </section>
+
+    <!-- Main News Container -->
+    <main class="news-container" role="main">
+        <!-- Loading State -->
+        <div class="loading" id="loadingContainer" role="status" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="loading-text">INITIALIZING NEWS PROTOCOL...</div>
+        </div>
+
+        <!-- News Articles Container -->
+        <div id="newsContainer" style="display: none;" role="region" aria-label="News articles">
+            <!-- News articles will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" role="complementary" aria-label="AI Assistant">
+        <!-- Chat Bubble (Minimized State) -->
+        <div class="chat-bubble" id="chatBubble" role="button" tabindex="0" aria-label="Open AI chat assistant">
+            <div class="chat-header">
+                <span class="chat-avatar" aria-hidden="true">🤖</span>
+                <div>
+                    <div class="chat-title">AI_ASSISTANT.EXE</div>
+                    <div class="chat-subtitle">Ready for queries...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window (Maximized State) -->
+        <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chatWindowTitle" aria-modal="false">
+            <div class="chat-window-header">
+                <h2 id="chatWindowTitle" class="chat-window-title">AI_TERMINAL v2.024</h2>
+                <div class="chat-controls">
+                    <button class="chat-btn" id="minimizeChat" aria-label="Minimize chat" title="Minimize">−</button>
+                    <button class="chat-btn" id="closeChat" aria-label="Close chat" title="Close">×</button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages">
+                <div class="chat-message ai">
+                    SYSTEM&gt; AI Assistant online. Ready to analyze news and answer queries.<br>
+                    Available commands: [SUMMARIZE] [ANALYZE] [DEBATE] [QUESTION]
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <div class="quick-actions">
+                    <button class="quick-btn summary" id="summaryBtn" aria-label="Summarize current article">
+                        📋 SUMMARIZE
+                    </button>
+                    <button class="quick-btn debate" id="debateBtn" aria-label="Start debate about current article">
+                        🎭 DEBATE
+                    </button>
+                </div>
+                <div class="chat-input-row">
+                    <label for="chatInput" class="sr-only">Enter your message</label>
+                    <input type="text" 
+                           class="chat-input" 
+                           id="chatInput" 
+                           placeholder="Enter query..."
+                           aria-label="Chat message input">
+                    <button class="send-btn" id="sendBtn" aria-label="Send message">SEND</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Modal -->
+    <div class="modal" id="articleModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">ARTICLE_VIEWER.EXE</h2>
+                <button class="close-btn" id="closeModal" aria-label="Close article" title="Close (Esc)">×</button>
+            </div>
+            <div class="modal-body" id="modalBody" role="document">
+                <!-- Article content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Command Bar -->
+    <footer class="bottom-bar" role="contentinfo">
+        <div class="hotkeys" role="navigation" aria-label="Keyboard shortcuts">
+            <span class="hotkey" tabindex="0" title="Show help">[F1] HELP</span>
+            <span class="hotkey" tabindex="0" title="Save current state">[F2] SAVE</span>
+            <span class="hotkey" tabindex="0" title="Exit application">[F3] EXIT</span>
+            <span class="hotkey" tabindex="0" title="Matrix mode">[F4] MATRIX</span>
+            <span class="hotkey" tabindex="0" title="Refresh data">[F5] REFRESH</span>
+        </div>
+        <div class="system-info" role="status" aria-label="System information">
+            <span class="status-online">STATUS: ONLINE</span>
+            <span aria-hidden="true">|</span>
+            <span class="cpu-usage">CPU: 69%</span>
+            <span aria-hidden="true">|</span>
+            <span class="ram-usage">RAM: 420MB</span>
+            <span aria-hidden="true">|</span>
+            <time id="currentTime">00:00:00</time>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" role="region" aria-live="polite" aria-label="Notifications">
+        <!-- Toast notifications will appear here -->
+    </div>
+
+    <!-- Screen Reader Only Content -->
+    <div class="sr-only">
+        <h1>E-con News Terminal - AI-Powered Financial News Portal</h1>
+        <p>Navigate using Tab key. Press F1 for help, F4 for special effects, F5 to refresh.</p>
+    </div>
+
+    <!-- Accessibility Styles -->
+    <style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --terminal-green: #00ff00;
+                --terminal-red: #ff0000;
+                --terminal-cyan: #00ffff;
+                --bg-black: #000000;
+                --terminal-white: #ffffff;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            .scanline {
+                display: none;
+            }
+        }
+
+        /* Focus indicators */
+        *:focus-visible {
+            outline: 2px solid var(--terminal-cyan);
+            outline-offset: 2px;
+        }
+
+        /* Skip link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--terminal-green);
+            color: var(--bg-black);
+            padding: 8px;
+            text-decoration: none;
+            z-index: 9999;
+            font-family: var(--font-mono);
+            font-weight: bold;
+        }
+
+        .skip-link:focus {
+            top: 6px;
+        }
+    </style>
+
+    <!-- Skip Navigation Link -->
+    <a href="#newsContainer" class="skip-link">Skip to main content</a>
+
+    <!-- Error Boundary -->
+    <script>
+        // Global error handling
         window.addEventListener('error', function(e) {
-            console.error('🚨 Tiền Phong Portal Error:', {
-                message: e.message,
-                filename: e.filename,
-                lineno: e.lineno,
-                error: e.error
-            });
+            console.error('🚨 Application Error:', e.error);
+            
+            // Show user-friendly error message
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: var(--bg-black);
+                border: 2px solid var(--terminal-red);
+                color: var(--terminal-red);
+                padding: 2rem;
+                font-family: var(--font-mono);
+                text-align: center;
+                z-index: 10000;
+                max-width: 400px;
+            `;
+            errorDiv.innerHTML = `
+                <h3>SYSTEM ERROR</h3>
+                <p style="margin: 1rem 0;">An unexpected error occurred.</p>
+                <button onclick="location.reload()" style="background: var(--terminal-red); color: white; border: none; padding: 0.5rem 1rem; font-family: var(--font-mono); cursor: pointer;">
+                    RESTART SYSTEM
+                </button>
+            `;
+            document.body.appendChild(errorDiv);
         });
 
         // Performance monitoring
         window.addEventListener('load', function() {
             if ('performance' in window) {
                 const perfData = performance.getEntriesByType('navigation')[0];
-                console.log('📊 Tiền Phong Page Performance:', {
+                console.log('📊 Performance Report:', {
                     loadTime: Math.round(performance.now()),
                     domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
-                    resources: performance.getEntriesByType('resource').length
+                    firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 'N/A'
                 });
             }
         });
 
-        // Viewport handling for mobile
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('{{ url_for("static", filename="sw.js") }}')
+                    .then(function(registration) {
+                        console.log('✅ SW registered:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('❌ SW registration failed:', error);
+                    });
+            });
+        }
+
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        // Handle viewport changes for mobile
         function handleViewportChanges() {
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -386,12 +416,33 @@
         });
         handleViewportChanges();
 
-        console.log('🚀 Tiền Phong News Portal HTML loaded successfully!');
-        console.log('🎨 Theme: Classic Tiền Phong with Modern iOS/iPadOS Elements');
-        console.log('📱 Responsive design for all devices');
+        // Connection status monitoring
+        function updateConnectionStatus() {
+            const statusElement = document.querySelector('.status-online');
+            if (statusElement) {
+                statusElement.textContent = navigator.onLine ? 'STATUS: ONLINE' : 'STATUS: OFFLINE';
+                statusElement.style.color = navigator.onLine ? 'var(--terminal-green)' : 'var(--terminal-red)';
+            }
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        console.log('🚀 Terminal interface loading...');
     </script>
 
-    <!-- Main Application Script - FIXED -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- Main Application Script -->
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+    <!-- Analytics & Monitoring (if needed) -->
+    {% if config.get('ANALYTICS_ID') %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.ANALYTICS_ID }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ config.ANALYTICS_ID }}');
+    </script>
+    {% endif %}
 </body>
 </html>
