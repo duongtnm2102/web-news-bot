@@ -1,27 +1,25 @@
-// E-con Service Worker - Render.com Free Tier Optimized
-// Version 2.0.0 - 2025
+// Tiền Phong Service Worker - SYNC Backend Optimized
+// Version 3.0.0 - 2025 - Fixed for SYNC Backend
 
-const CACHE_NAME = 'econ-news-v2.0.0';
-const RUNTIME_CACHE = 'econ-runtime-v2.0.0';
-const NEWS_CACHE = 'econ-news-data-v2.0.0';
+const CACHE_NAME = 'tienphong-news-v3.0.0';
+const RUNTIME_CACHE = 'tienphong-runtime-v3.0.0';
+const NEWS_CACHE = 'tienphong-news-data-v3.0.0';
 
-// RENDER.COM OPTIMIZED: Minimal static resources for low bandwidth
+// RENDER.COM OPTIMIZED: Minimal static resources for better performance
 const STATIC_RESOURCES = [
   '/',
   '/static/style.css',
   '/static/script.js',
-  '/static/manifest.json',
-  // Essential fonts only
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+  '/static/manifest.json'
 ];
 
-// RENDER.COM OPTIMIZED: Limited cache sizes for low memory
+// RENDER.COM OPTIMIZED: Reduced cache sizes for memory efficiency
 const CACHE_CONFIG = {
-  maxStaticEntries: 15,      // Reduced further for E-con
-  maxRuntimeEntries: 10,     // Reduced for better performance  
-  maxNewsEntries: 8,         // Reduced to prevent memory issues
-  maxAge: 3 * 60 * 1000,     // 3 minutes (shorter for fresh news)
-  networkTimeout: 6000       // 6 seconds (optimized for Render.com)
+  maxStaticEntries: 10,      // Reduced for memory efficiency
+  maxRuntimeEntries: 8,      // Reduced for Render.com free tier  
+  maxNewsEntries: 5,         // Reduced to prevent memory issues
+  maxAge: 2 * 60 * 1000,     // 2 minutes (shorter for fresh news)
+  networkTimeout: 8000       // 8 seconds (increased for SYNC backend)
 };
 
 // News API endpoints to cache
@@ -31,16 +29,19 @@ const NEWS_ENDPOINTS = [
   '/api/news/international'
 ];
 
-// RENDER.COM OPTIMIZED: Lightweight install event
+// RENDER.COM OPTIMIZED: Fast install event
 self.addEventListener('install', (event) => {
-  console.log('📦 E-con Service Worker installing...');
+  console.log('📦 Tiền Phong Service Worker installing (SYNC optimized)...');
   
   event.waitUntil(
     Promise.all([
       // Cache essential static resources only
       caches.open(CACHE_NAME).then((cache) => {
-        console.log('📝 Caching essential E-con resources...');
-        return cache.addAll(STATIC_RESOURCES.slice(0, 4)); // Only cache first 4 essential files
+        console.log('📝 Caching essential Tiền Phong resources...');
+        return cache.addAll(STATIC_RESOURCES);
+      }).catch(error => {
+        console.warn('⚠️ Static resource caching failed:', error);
+        // Don't fail installation if caching fails
       }),
       
       // Skip waiting to activate immediately
@@ -51,7 +52,7 @@ self.addEventListener('install', (event) => {
 
 // RENDER.COM OPTIMIZED: Fast activation
 self.addEventListener('activate', (event) => {
-  console.log('✅ E-con Service Worker activated');
+  console.log('✅ Tiền Phong Service Worker activated (SYNC version)');
   
   event.waitUntil(
     Promise.all([
@@ -64,7 +65,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// RENDER.COM OPTIMIZED: Simplified fetch handling
+// RENDER.COM OPTIMIZED: Enhanced fetch handling for SYNC backend
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -74,27 +75,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Skip chrome-extension and other non-http requests
+  // Skip non-http requests
   if (!url.protocol.startsWith('http')) {
     return;
   }
   
-  // Handle different types of requests with simple strategies
+  // Skip POST requests to AI endpoints (they're not cacheable)
+  if (url.pathname.includes('/api/ai/')) {
+    return;
+  }
+  
+  // Handle different types of requests with optimized strategies
   if (isStaticResource(url)) {
     event.respondWith(handleStaticResource(request));
   } else if (isNewsAPI(url)) {
     event.respondWith(handleNewsAPI(request));
   } else if (isNavigationRequest(request)) {
     event.respondWith(handleNavigation(request));
-  } else {
-    // Let other requests pass through
-    return;
   }
 });
 
 // RENDER.COM OPTIMIZED: Simple resource type checking
 function isStaticResource(url) {
-  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.svg', '.woff2'];
+  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.svg', '.woff2', '.ico'];
   const pathname = url.pathname.toLowerCase();
   
   return staticExtensions.some(ext => pathname.endsWith(ext)) ||
@@ -105,17 +108,16 @@ function isStaticResource(url) {
 
 function isNewsAPI(url) {
   return url.pathname.startsWith('/api/news/') || 
-         url.pathname.startsWith('/api/article/') ||
-         url.pathname.startsWith('/api/ai/');
+         url.pathname.startsWith('/api/article/');
 }
 
 function isNavigationRequest(request) {
   return request.mode === 'navigate';
 }
 
-// RENDER.COM OPTIMIZED: Cache-first for static resources
+// RENDER.COM OPTIMIZED: Cache-first for static resources with fallback
 async function handleStaticResource(request) {
-  console.log('📁 E-con handling static resource:', request.url);
+  console.log('📁 Tiền Phong handling static resource:', request.url);
   
   try {
     const cache = await caches.open(CACHE_NAME);
@@ -123,98 +125,136 @@ async function handleStaticResource(request) {
     
     if (cached) {
       console.log('💾 Serving from cache:', request.url);
+      // Check if cache is fresh (optional background update)
+      backgroundUpdateStatic(request, cache);
       return cached;
     }
     
     console.log('🌐 Fetching from network:', request.url);
-    const networkResponse = await fetch(request);
+    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
     
-    if (networkResponse.ok) {
+    if (networkResponse && networkResponse.ok) {
       // Clone before caching
-      cache.put(request, networkResponse.clone());
+      const responseToCache = networkResponse.clone();
+      cache.put(request, responseToCache);
       
       // Cleanup cache if too large
       limitCacheSize(cache, CACHE_CONFIG.maxStaticEntries);
     }
     
-    return networkResponse;
+    return networkResponse || createFallbackResponse(request);
     
   } catch (error) {
     console.log('❌ Static resource failed:', error.message);
-    
-    // Return offline fallback for essential files
-    if (request.url.includes('/static/style.css')) {
-      return new Response('/* E-con offline */body{background:#0a0a0f;color:#fff;}', {
-        headers: { 'Content-Type': 'text/css' }
-      });
-    }
-    
-    throw error;
+    return createFallbackResponse(request);
   }
 }
 
-// RENDER.COM OPTIMIZED: Network-first for news with short timeout
+// Background update for static resources
+async function backgroundUpdateStatic(request, cache) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+  } catch (error) {
+    console.log('⚠️ Background update failed:', error.message);
+  }
+}
+
+// RENDER.COM OPTIMIZED: Stale-while-revalidate for news API with SYNC backend support
 async function handleNewsAPI(request) {
-  console.log('📊 E-con handling news API:', request.url);
+  console.log('📊 Tiền Phong handling news API (SYNC):', request.url);
   
   try {
-    // Try network first with timeout
-    const networkPromise = fetch(request);
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Network timeout')), CACHE_CONFIG.networkTimeout)
-    );
+    const cache = await caches.open(NEWS_CACHE);
+    const cached = await cache.match(request);
     
-    const networkResponse = await Promise.race([networkPromise, timeoutPromise]);
+    // Serve cached version immediately if available
+    if (cached) {
+      console.log('💾 Serving cached news (will update in background):', request.url);
+      
+      // Background update for fresh content
+      backgroundUpdateNews(request, cache);
+      
+      return cached;
+    }
     
-    if (networkResponse.ok) {
-      console.log('✅ Network success, caching news:', request.url);
+    // No cache available, fetch from network with timeout
+    console.log('🌐 Fetching fresh news from SYNC backend:', request.url);
+    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
+    
+    if (networkResponse && networkResponse.ok) {
+      console.log('✅ SYNC backend success, caching news:', request.url);
       
       // Cache the response
-      const cache = await caches.open(NEWS_CACHE);
-      cache.put(request, networkResponse.clone());
+      const responseToCache = networkResponse.clone();
+      cache.put(request, responseToCache);
       
       // Cleanup cache
       limitCacheSize(cache, CACHE_CONFIG.maxNewsEntries);
       
       return networkResponse;
+    } else {
+      throw new Error('Network response not ok');
+    }
+    
+  } catch (error) {
+    console.log('❌ News API failed, trying cache fallback:', error.message);
+    
+    // Try cache as final fallback
+    const cache = await caches.open(NEWS_CACHE);
+    const cached = await cache.match(request);
+    
+    if (cached) {
+      console.log('💾 Serving stale cached news as fallback:', request.url);
+      return cached;
+    }
+    
+    // Final fallback - offline message optimized for SYNC backend
+    return createNewsOfflineFallback();
+  }
+}
+
+// Background update for news
+async function backgroundUpdateNews(request, cache) {
+  try {
+    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
+    if (networkResponse && networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+      console.log('🔄 Background updated news cache:', request.url);
     }
   } catch (error) {
-    console.log('❌ Network failed, trying cache:', error.message);
+    console.log('⚠️ Background news update failed:', error.message);
   }
+}
+
+// Enhanced fetch with timeout
+async function fetchWithTimeout(request, timeout) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
   
-  // Fallback to cache
-  const cache = await caches.open(NEWS_CACHE);
-  const cached = await cache.match(request);
-  
-  if (cached) {
-    console.log('💾 Serving cached news as fallback:', request.url);
-    return cached;
-  }
-  
-  // Final fallback - offline message
-  return new Response(JSON.stringify({
-    error: 'Không có kết nối internet và không có dữ liệu đã lưu',
-    offline: true,
-    news: [],
-    page: 1,
-    total_pages: 1
-  }), {
-    status: 503,
-    statusText: 'Service Unavailable',
-    headers: {
-      'Content-Type': 'application/json'
+  try {
+    const response = await fetch(request, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout');
     }
-  });
+    throw error;
+  }
 }
 
 // RENDER.COM OPTIMIZED: Simple navigation handling
 async function handleNavigation(request) {
-  console.log('🧭 E-con handling navigation:', request.url);
+  console.log('🧭 Tiền Phong handling navigation (SYNC):', request.url);
   
   try {
-    // Try network first for navigation
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
+    // Try network first for navigation with timeout
+    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
+    if (networkResponse && networkResponse.ok) {
       return networkResponse;
     }
   } catch (error) {
@@ -230,19 +270,77 @@ async function handleNavigation(request) {
     return cached;
   }
   
-  // Ultimate fallback - simple offline page
-  return new Response(`
-    <!DOCTYPE html>
+  // Ultimate fallback - optimized offline page for Tiền Phong
+  return createNavigationFallback();
+}
+
+// Create fallback response for static resources
+function createFallbackResponse(request) {
+  const url = new URL(request.url);
+  
+  if (url.pathname.endsWith('.css')) {
+    return new Response(`/* Tiền Phong offline CSS */
+      body { 
+        font-family: 'Times New Roman', serif; 
+        background: #ffffff; 
+        color: #000000; 
+        margin: 0; 
+        padding: 20px;
+        text-align: center;
+      }
+      .offline-notice {
+        border: 2px solid #dc2626;
+        padding: 20px;
+        margin: 20px 0;
+        background: #fef2f2;
+      }`, {
+      headers: { 'Content-Type': 'text/css' }
+    });
+  }
+  
+  if (url.pathname.endsWith('.js')) {
+    return new Response(`console.log('Tiền Phong: Script loaded in offline mode');`, {
+      headers: { 'Content-Type': 'application/javascript' }
+    });
+  }
+  
+  return new Response('Tiền Phong: Resource unavailable offline', {
+    status: 503,
+    statusText: 'Service Unavailable'
+  });
+}
+
+// Create news offline fallback
+function createNewsOfflineFallback() {
+  return new Response(JSON.stringify({
+    error: 'Không có kết nối internet',
+    offline: true,
+    message: 'Tiền Phong: Vui lòng kiểm tra kết nối mạng và thử lại',
+    news: [],
+    page: 1,
+    total_pages: 1
+  }), {
+    status: 503,
+    statusText: 'Service Unavailable',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8'
+    }
+  });
+}
+
+// Create navigation fallback
+function createNavigationFallback() {
+  return new Response(`<!DOCTYPE html>
     <html lang="vi">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>E-con News - Offline</title>
+      <title>Tiền Phong - Offline</title>
       <style>
         body { 
-          font-family: Inter, sans-serif; 
-          background: linear-gradient(135deg, #4ecdc4 0%, #ff6b6b 50%, #45b7d1 100%);
-          color: white; 
+          font-family: 'Times New Roman', serif; 
+          background: #ffffff;
+          color: #000000; 
           text-align: center; 
           padding: 2rem;
           margin: 0;
@@ -251,52 +349,100 @@ async function handleNavigation(request) {
           flex-direction: column;
           justify-content: center;
           align-items: center;
+          line-height: 1.6;
+        }
+        .masthead {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #dc2626;
+          margin-bottom: 0.5rem;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+        .tagline {
+          font-size: 0.9rem;
+          color: #666;
+          margin-bottom: 2rem;
+          border-bottom: 2px solid #dc2626;
+          padding-bottom: 1rem;
         }
         .offline-container {
-          background: rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(15px);
-          border-radius: 20px;
+          background: #fef2f2;
+          border: 3px solid #dc2626;
           padding: 2rem;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          max-width: 500px;
+          margin: 2rem 0;
+        }
+        .offline-title {
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin-bottom: 1rem;
+          color: #dc2626;
+        }
+        .offline-message {
+          margin-bottom: 1.5rem;
+          color: #333;
         }
         button {
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
+          background: #dc2626;
           color: white;
+          border: none;
           padding: 0.75rem 1.5rem;
-          border-radius: 12px;
-          cursor: pointer;
-          margin-top: 1rem;
           font-size: 1rem;
-          transition: all 0.3s ease;
+          cursor: pointer;
+          margin: 0.5rem;
+          font-family: inherit;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          transition: background 0.2s ease;
         }
         button:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateY(-2px);
+          background: #b91c1c;
         }
-        .emoji {
-          font-size: 4rem;
-          margin-bottom: 1rem;
-          animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+        .date {
+          margin-top: 2rem;
+          font-size: 0.9rem;
+          color: #666;
         }
       </style>
     </head>
     <body>
+      <div class="masthead">Tiền Phong</div>
+      <div class="tagline">www.tienphong.vn • Tin Tức Tài Chính - Chứng Khoán</div>
+      
       <div class="offline-container">
-        <div class="emoji">📊</div>
-        <h1>E-con News</h1>
-        <h2>📱 Chế độ Offline</h2>
-        <p>Không có kết nối internet. Vui lòng kiểm tra kết nối và thử lại.</p>
+        <div class="offline-title">📱 Chế độ Offline</div>
+        <div class="offline-message">
+          Không có kết nối internet. Tiền Phong cần kết nối để cập nhật tin tức mới nhất.
+        </div>
         <button onclick="location.reload()">🔄 Thử lại</button>
+        <button onclick="if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(registrations){for(let registration of registrations){registration.unregister();}});} location.reload();">🔧 Tải lại hoàn toàn</button>
       </div>
+      
+      <div class="date">
+        ${new Date().toLocaleDateString('vi-VN', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}
+      </div>
+      
+      <script>
+        // Auto-retry every 30 seconds
+        setTimeout(() => {
+          if (navigator.onLine) {
+            location.reload();
+          }
+        }, 30000);
+        
+        // Listen for online event
+        window.addEventListener('online', () => {
+          location.reload();
+        });
+      </script>
     </body>
-    </html>
-  `, {
+    </html>`, {
     headers: { 'Content-Type': 'text/html; charset=utf-8' }
   });
 }
@@ -310,11 +456,12 @@ async function cleanupOldCaches() {
     const deletePromises = cacheNames
       .filter(cacheName => !currentCaches.includes(cacheName))
       .map(cacheName => {
-        console.log('🗑️ Deleting old E-con cache:', cacheName);
+        console.log('🗑️ Deleting old Tiền Phong cache:', cacheName);
         return caches.delete(cacheName);
       });
     
-    return Promise.all(deletePromises);
+    await Promise.all(deletePromises);
+    console.log(`🧹 Cleaned up ${deletePromises.length} old caches`);
   } catch (error) {
     console.log('⚠️ Cache cleanup error:', error);
   }
@@ -327,62 +474,68 @@ async function limitCacheSize(cache, maxEntries) {
     if (keys.length > maxEntries) {
       const keysToDelete = keys.slice(0, keys.length - maxEntries);
       await Promise.all(keysToDelete.map(key => cache.delete(key)));
-      console.log(`🧹 E-con cleaned up ${keysToDelete.length} cache entries`);
+      console.log(`🧹 Tiền Phong cleaned up ${keysToDelete.length} cache entries`);
     }
   } catch (error) {
     console.log('⚠️ Cache size limiting error:', error);
   }
 }
 
-// RENDER.COM OPTIMIZED: Background sync for failed requests (simplified)
+// RENDER.COM OPTIMIZED: Background sync for failed requests
 self.addEventListener('sync', (event) => {
-  console.log('🔄 E-con background sync triggered:', event.tag);
+  console.log('🔄 Tiền Phong background sync triggered:', event.tag);
   
-  if (event.tag === 'econ-retry-requests') {
+  if (event.tag === 'tienphong-retry-requests') {
     event.waitUntil(retryFailedRequests());
   }
 });
 
 async function retryFailedRequests() {
-  console.log('🔄 E-con retrying failed requests...');
+  console.log('🔄 Tiền Phong retrying failed requests...');
   
   try {
-    // Simple retry logic - just ping the main endpoint
-    const response = await fetch('/api/news/all?page=1&limit=1');
-    if (response.ok) {
-      console.log('✅ E-con retry successful');
+    // Simple retry logic - ping main endpoint
+    const response = await fetchWithTimeout(
+      new Request('/api/news/all?page=1&limit=1'), 
+      CACHE_CONFIG.networkTimeout
+    );
+    
+    if (response && response.ok) {
+      console.log('✅ Tiền Phong retry successful');
       
       // Notify all clients that we're back online
       const clients = await self.clients.matchAll();
       clients.forEach(client => {
         client.postMessage({
           type: 'BACK_ONLINE',
-          message: 'Kết nối đã được khôi phục'
+          message: 'Kết nối đã được khôi phục - Tiền Phong'
         });
       });
     }
   } catch (error) {
-    console.log('❌ E-con retry failed:', error);
+    console.log('❌ Tiền Phong retry failed:', error);
   }
 }
 
-// RENDER.COM OPTIMIZED: Simple push notifications
+// RENDER.COM OPTIMIZED: Push notifications for news updates
 self.addEventListener('push', (event) => {
-  console.log('🔔 E-con push notification received');
+  console.log('🔔 Tiền Phong push notification received');
   
+  const data = event.data ? event.data.json() : {};
   const options = {
-    body: event.data ? event.data.text() : 'Tin tức mới từ E-con!',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%234ecdc4;stop-opacity:1" /><stop offset="50%" style="stop-color:%23ff6b6b;stop-opacity:1" /><stop offset="100%" style="stop-color:%2345b7d1;stop-opacity:1" /></linearGradient></defs><rect width="100" height="100" fill="url(%23grad)" rx="20"/><text x="50" y="65" font-size="45" text-anchor="middle" fill="white">📊</text></svg>',
-    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%234ecdc4"/><text x="50" y="65" font-size="45" text-anchor="middle" fill="white">📊</text></svg>',
+    body: data.body || 'Tin tức mới từ Tiền Phong!',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23dc2626"/><text x="50" y="65" font-size="40" text-anchor="middle" fill="white" font-family="serif">TP</text></svg>',
+    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%23dc2626"/><text x="50" y="65" font-size="30" text-anchor="middle" fill="white">📰</text></svg>',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 'econ-news'
+      primaryKey: 'tienphong-news',
+      url: data.url || '/'
     },
     actions: [
       {
-        action: 'explore',
-        title: 'Xem tin tức',
+        action: 'open',
+        title: 'Đọc tin tức',
         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
       },
       {
@@ -391,75 +544,140 @@ self.addEventListener('push', (event) => {
         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>'
       }
     ],
-    tag: 'econ-news',
-    requireInteraction: false
+    tag: 'tienphong-news',
+    requireInteraction: false,
+    silent: false
   };
   
   event.waitUntil(
-    self.registration.showNotification('E-con News Portal', options)
+    self.registration.showNotification('Tiền Phong - Tin Tức Tài Chính', options)
   );
 });
 
 // Notification click handling
 self.addEventListener('notificationclick', (event) => {
-  console.log('🖱️ E-con notification clicked:', event.action);
+  console.log('🖱️ Tiền Phong notification clicked:', event.action);
   
   event.notification.close();
   
-  if (event.action === 'explore') {
+  if (event.action === 'open' || !event.action) {
+    const urlToOpen = event.notification.data?.url || '/';
     event.waitUntil(
-      clients.openWindow('/')
+      clients.matchAll({ type: 'window' }).then(clientList => {
+        // Check if a window is already open
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Open new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
     );
   }
 });
 
-// RENDER.COM OPTIMIZED: Periodic cache cleanup (every 20 minutes)
+// RENDER.COM OPTIMIZED: Periodic cache maintenance (every 30 minutes)
 setInterval(() => {
-  console.log('🧹 E-con periodic cache cleanup...');
+  console.log('🧹 Tiền Phong periodic cache maintenance...');
+  
+  // Clean up old caches
   cleanupOldCaches();
   
-  // Also clean up individual caches
+  // Clean up individual caches
   [CACHE_NAME, RUNTIME_CACHE, NEWS_CACHE].forEach(async (cacheName) => {
     try {
       const cache = await caches.open(cacheName);
-      const maxEntries = cacheName === NEWS_CACHE ? CACHE_CONFIG.maxNewsEntries : 
-                         cacheName === RUNTIME_CACHE ? CACHE_CONFIG.maxRuntimeEntries : 
-                         CACHE_CONFIG.maxStaticEntries;
+      let maxEntries;
+      
+      switch (cacheName) {
+        case NEWS_CACHE:
+          maxEntries = CACHE_CONFIG.maxNewsEntries;
+          break;
+        case RUNTIME_CACHE:
+          maxEntries = CACHE_CONFIG.maxRuntimeEntries;
+          break;
+        default:
+          maxEntries = CACHE_CONFIG.maxStaticEntries;
+      }
+      
       await limitCacheSize(cache, maxEntries);
     } catch (error) {
-      console.log('⚠️ Periodic cleanup error:', error);
+      console.log('⚠️ Periodic maintenance error:', error);
     }
   });
-}, 20 * 60 * 1000); // 20 minutes
+}, 30 * 60 * 1000); // 30 minutes
 
 // RENDER.COM OPTIMIZED: Message handling from main thread
 self.addEventListener('message', (event) => {
-  console.log('💬 E-con SW received message:', event.data);
+  console.log('💬 Tiền Phong SW received message:', event.data);
   
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  const { type, data } = event.data || {};
   
-  if (event.data && event.data.type === 'WARM_UP') {
-    // Respond to warm-up ping from main thread
-    event.ports[0].postMessage({
-      type: 'WARM_UP_RESPONSE',
-      timestamp: Date.now()
-    });
+  switch (type) {
+    case 'SKIP_WAITING':
+      self.skipWaiting();
+      break;
+      
+    case 'WARM_UP':
+      // Respond to warm-up ping from main thread
+      if (event.ports[0]) {
+        event.ports[0].postMessage({
+          type: 'WARM_UP_RESPONSE',
+          timestamp: Date.now(),
+          version: '3.0.0'
+        });
+      }
+      break;
+      
+    case 'CLEAR_CACHE':
+      // Clear specific cache or all caches
+      event.waitUntil(
+        data?.cacheName ? 
+          caches.delete(data.cacheName) : 
+          cleanupOldCaches()
+      );
+      break;
+      
+    case 'CACHE_NEWS':
+      // Preemptively cache news data
+      if (data?.url) {
+        event.waitUntil(
+          caches.open(NEWS_CACHE).then(cache => 
+            fetch(data.url).then(response => {
+              if (response.ok) {
+                cache.put(data.url, response.clone());
+              }
+            })
+          )
+        );
+      }
+      break;
   }
 });
 
 // Log service worker status
-console.log('🚀 E-con Service Worker loaded successfully');
+console.log('🚀 Tiền Phong Service Worker loaded successfully (SYNC optimized)');
 console.log('📋 Cache configuration:', CACHE_CONFIG);
 console.log('💾 Static resources to cache:', STATIC_RESOURCES.length);
-console.log('📱 Optimized for Render.com free tier');
-console.log('🎨 Theme: Colorful Rainbow with Glassmorphism');
+console.log('📱 Optimized for Render.com free tier with SYNC backend');
+console.log('🎨 Theme: Traditional Tiền Phong Newspaper');
 
-// RENDER.COM OPTIMIZED: Check available storage
+// RENDER.COM OPTIMIZED: Storage quota check
 if ('storage' in navigator && 'estimate' in navigator.storage) {
   navigator.storage.estimate().then(estimate => {
-    console.log('💾 Storage quota:', Math.round(estimate.quota / 1024 / 1024) + 'MB');
-    console.log('💾 Storage usage:', Math.round(estimate.usage / 1024 / 1024) + 'MB');
+    const quotaMB = Math.round(estimate.quota / 1024 / 1024);
+    const usageMB = Math.round(estimate.usage / 1024 / 1024);
+    console.log(`💾 Storage quota: ${quotaMB}MB, usage: ${usageMB}MB`);
+    
+    // Warn if approaching storage limit
+    if (usageMB > quotaMB * 0.8) {
+      console.warn('⚠️ Approaching storage quota limit, cleaning up...');
+      cleanupOldCaches();
+    }
+  }).catch(error => {
+    console.log('⚠️ Storage estimate unavailable:', error);
   });
 }
