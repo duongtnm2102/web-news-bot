@@ -45,63 +45,21 @@ Modern AI-powered financial news aggregation with **retro brutalism design** and
 - **Glitch Effects:** Periodic reality distortions for authentic retro feel
 - **Performance Monitoring:** Built-in diagnostics and cache management
 
-## 🚀 Quick Deploy lên Render.com
+## 🚀 Triển khai (Deployment)
 
-### 1. **One-Click Deploy**
+Ứng dụng này được tối ưu để triển khai dễ dàng trên nền tảng **Render.com** (gói miễn phí).
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yourusername/e-con-news-terminal)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/duongtnm2102/web-news-bot)
 
-### 2. **Manual Setup**
+Để xem hướng dẫn triển khai chi tiết từng bước, cấu hình biến môi trường và các tối ưu cho production, vui lòng tham khảo tài liệu tại:
 
-```bash
-# Clone repository
-git clone https://github.com/yourusername/e-con-news-terminal.git
-cd e-con-news-terminal
+**[➡️ Hướng dẫn Triển khai Chi tiết](./docs/deployment-guild.md)**
 
-# Setup environment
-cp env.example .env
-# Edit .env with your API keys
+### Biến Môi trường Chính
 
-# Deploy to Render
-git add .
-git commit -m "Deploy retro brutalism news portal"
-git push origin main
-```
-
-### 3. **Environment Variables**
-
-```bash
-# Required - Gemini AI API Key
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Required - Flask secret key  
-SECRET_KEY=your_random_secret_key_here
-
-# Auto-set by Render
-PORT=8080
-FLASK_ENV=production
-```
-
-**🔑 Get Gemini API Key:**
-1. Visit [Google AI Studio](https://aistudio.google.com/)
-2. Create new API key
-3. Copy to `GEMINI_API_KEY`
-
-### 4. **Render Configuration**
-
-```yaml
-# render.yaml (optional)
-services:
-  - type: web
-    name: e-con-news-terminal
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: GEMINI_API_KEY
-        sync: false
-      - key: SECRET_KEY
-        generateValue: true
+-   `GEMINI_API_KEY`: API Key cho Google Gemini.
+-   `SECRET_KEY`: Khóa bí mật cho Flask session.
+-   `FLASK_ENV`: `production` khi triển khai.
 ```
 
 ## 📁 Architecture - Retro Brutalism Stack
