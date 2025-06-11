@@ -1,71 +1,138 @@
-// iOS 26 Liquid Glass News Portal - Enhanced Service Worker
-// Version 2.1.0 - Optimized for Production Deployment
+// ===================================================================
+// E-con News Terminal - Retro Brutalism Service Worker v2.024
+// Terminal-optimized caching & offline strategy for neo-brutalism
+// Performance-first approach with ASCII aesthetics
+// ===================================================================
 
-const CACHE_NAME = 'ios26-news-portal-v2.1.0';
-const RUNTIME_CACHE = 'ios26-runtime-v2.1.0';
-const NEWS_CACHE = 'ios26-news-data-v2.1.0';
-const IMAGES_CACHE = 'ios26-images-v2.1.0';
+'use strict';
 
-// === OPTIMIZED CACHE CONFIGURATION ===
+// ===============================
+// CACHE CONFIGURATION - TERMINAL STYLE
+// ===============================
+
+const CACHE_VERSION = '2.024.1';
+const CACHE_PREFIX = 'econ-terminal';
+const STATIC_CACHE = `${CACHE_PREFIX}-static-v${CACHE_VERSION}`;
+const RUNTIME_CACHE = `${CACHE_PREFIX}-runtime-v${CACHE_VERSION}`;
+const NEWS_CACHE = `${CACHE_PREFIX}-news-v${CACHE_VERSION}`;
+const FONTS_CACHE = `${CACHE_PREFIX}-fonts-v${CACHE_VERSION}`;
+const AI_CACHE = `${CACHE_PREFIX}-ai-v${CACHE_VERSION}`;
+
+// Enhanced cache configuration for brutalism theme
 const CACHE_CONFIG = {
-    maxStaticEntries: 25,      // iOS 26 optimized
-    maxRuntimeEntries: 15,     // Enhanced for better UX
-    maxNewsEntries: 12,        // Balanced for performance
-    maxImageEntries: 20,       // Image caching for offline
-    maxAge: 4 * 60 * 1000,     // 4 minutes for fresh news
-    networkTimeout: 8000,      // 8 seconds network timeout
-    staleWhileRevalidate: true // Background updates
+    // Static assets - Terminal essentials
+    maxStaticEntries: 30,
+    maxRuntimeEntries: 20,
+    maxNewsEntries: 15,
+    maxFontEntries: 10,
+    maxAIEntries: 8,
+    
+    // TTL configuration
+    staticTTL: 7 * 24 * 60 * 60 * 1000,      // 7 days
+    newsTTL: 4 * 60 * 60 * 1000,             // 4 hours  
+    aiTTL: 2 * 60 * 60 * 1000,               // 2 hours
+    runtimeTTL: 24 * 60 * 60 * 1000,         // 24 hours
+    
+    // Network timeouts
+    networkTimeout: 8000,                     // 8 seconds
+    offlineTimeout: 3000,                     // 3 seconds
+    
+    // Performance settings
+    enablePreloading: true,
+    enableBackgroundSync: true,
+    enablePushNotifications: false            // Optional for news alerts
 };
 
-// === STATIC RESOURCES FOR iOS 26 PORTAL ===
+// ===============================
+// STATIC RESOURCES - TERMINAL ESSENTIALS
+// ===============================
+
 const STATIC_RESOURCES = [
+    // Core application files
     '/',
     '/static/style.css',
     '/static/script.js',
     '/static/manifest.json',
-    // iOS 26 specific resources
-    'https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700;800;900&display=swap',
-    'https://fonts.gstatic.com/s/sfprodisplay/v1/6xKwdSBYKcSV-LCoeQqfX1RYOo3qNa7lujVj9_mf.woff2'
+    
+    // Terminal fonts - Critical for brutalism aesthetic
+    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Share+Tech+Mono&display=swap',
+    'https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2',
+    'https://fonts.gstatic.com/s/sharetechmono/v15/J7aHnp1uDWRBEqV98dVQztYldFcLowEFA87Heg.woff2',
+    
+    // Fallback pages
+    '/offline',
+    '/error'
 ];
 
-// === NEWS API ENDPOINTS ===
-const NEWS_ENDPOINTS = [
-    '/api/news/all',
-    '/api/news/domestic', 
-    '/api/news/international',
-    '/api/ai/ask',
-    '/api/ai/debate'
-];
+// ===============================
+// TERMINAL ASCII ART & LOGGING
+// ===============================
 
-// === INSTALL EVENT ===
+const ASCII_TERMINAL_BOOT = `
+╔══════════════════════════════════════════════════════════════╗
+║           SERVICE WORKER TERMINAL v2.024 - BOOTING          ║
+║                    RETRO BRUTALISM MODE                     ║
+╚══════════════════════════════════════════════════════════════╝`;
+
+const ASCII_CACHE_SUCCESS = `
+[✓] CACHE_OPERATION_SUCCESS`;
+
+const ASCII_CACHE_ERROR = `
+[✗] CACHE_OPERATION_FAILED`;
+
+const ASCII_NETWORK_OFFLINE = `
+[!] NETWORK_CONNECTION_LOST - ENTERING_OFFLINE_MODE`;
+
+// Enhanced console logging with terminal aesthetics
+function terminalLog(message, type = 'INFO', ascii = '') {
+    const timestamp = new Date().toISOString().replace('T', '_').replace(/\..+/, '');
+    const prefix = `[${timestamp}] [SW_TERMINAL] [${type}]`;
+    
+    if (ascii) {
+        console.log(ascii);
+    }
+    console.log(`${prefix} ${message}`);
+}
+
+// ===============================
+// INSTALL EVENT - TERMINAL INITIALIZATION
+// ===============================
+
 self.addEventListener('install', (event) => {
-    console.log('📦 iOS 26 Service Worker installing...');
+    terminalLog('Installing Service Worker...', 'BOOT', ASCII_TERMINAL_BOOT);
     
     event.waitUntil(
         Promise.all([
-            // Cache essential static resources
-            caches.open(CACHE_NAME).then((cache) => {
-                console.log('📝 Caching iOS 26 essential resources...');
+            // Cache critical terminal resources
+            caches.open(STATIC_CACHE).then((cache) => {
+                terminalLog('Caching terminal essentials...', 'CACHE');
                 return cache.addAll(STATIC_RESOURCES.slice(0, 4)); // Core files first
             }),
             
-            // Pre-cache fonts
-            caches.open(CACHE_NAME).then((cache) => {
-                console.log('🔤 Pre-caching iOS 26 fonts...');
+            // Pre-cache terminal fonts separately
+            caches.open(FONTS_CACHE).then((cache) => {
+                terminalLog('Pre-caching terminal fonts...', 'CACHE');
                 return cache.addAll(STATIC_RESOURCES.slice(4)); // Font files
             }).catch(error => {
-                console.log('⚠️ Font pre-caching failed:', error);
+                terminalLog(`Font pre-caching failed: ${error.message}`, 'ERROR');
             }),
             
             // Skip waiting for immediate activation
             self.skipWaiting()
-        ])
+        ]).then(() => {
+            terminalLog('Terminal installation complete', 'SUCCESS', ASCII_CACHE_SUCCESS);
+        }).catch(error => {
+            terminalLog(`Installation failed: ${error.message}`, 'ERROR', ASCII_CACHE_ERROR);
+        })
     );
 });
 
-// === ACTIVATE EVENT ===
+// ===============================
+// ACTIVATE EVENT - TERMINAL CONTROL
+// ===============================
+
 self.addEventListener('activate', (event) => {
-    console.log('✅ iOS 26 Service Worker activated');
+    terminalLog('Activating Terminal Service Worker...', 'BOOT');
     
     event.waitUntil(
         Promise.all([
@@ -76,12 +143,17 @@ self.addEventListener('activate', (event) => {
             self.clients.claim(),
             
             // Initialize performance monitoring
-            initializePerformanceMonitoring()
-        ])
+            initializeTerminalMonitoring()
+        ]).then(() => {
+            terminalLog('Terminal activation complete - System online', 'SUCCESS');
+        })
     );
 });
 
-// === FETCH EVENT - ENHANCED FOR iOS 26 ===
+// ===============================
+// FETCH EVENT - ENHANCED ROUTING FOR BRUTALISM
+// ===============================
+
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -91,249 +163,300 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Skip chrome-extension and other non-http requests
+    // Skip chrome-extension and non-http requests
     if (!url.protocol.startsWith('http')) {
         return;
     }
     
-    // Enhanced request routing
-    if (isStaticResource(url)) {
-        event.respondWith(handleStaticResource(request));
+    // Enhanced request routing for terminal interface
+    if (isTerminalStatic(url)) {
+        event.respondWith(handleTerminalStatic(request));
     } else if (isNewsAPI(url)) {
         event.respondWith(handleNewsAPI(request));
-    } else if (isImageResource(url)) {
-        event.respondWith(handleImageResource(request));
+    } else if (isAIAPI(url)) {
+        event.respondWith(handleAIAPI(request));
+    } else if (isTerminalAPI(url)) {
+        event.respondWith(handleTerminalAPI(request));
+    } else if (isTerminalFont(url)) {
+        event.respondWith(handleTerminalFont(request));
     } else if (isNavigationRequest(request)) {
-        event.respondWith(handleNavigation(request));
-    } else if (isFontResource(url)) {
-        event.respondWith(handleFontResource(request));
+        event.respondWith(handleTerminalNavigation(request));
     } else {
-        // Let other requests pass through with basic caching
-        event.respondWith(handleGenericRequest(request));
+        // Generic terminal-optimized handling
+        event.respondWith(handleGenericTerminal(request));
     }
 });
 
-// === RESOURCE TYPE DETECTION ===
-function isStaticResource(url) {
-    const staticExtensions = ['.css', '.js', '.json', '.ico'];
+// ===============================
+// RESOURCE TYPE DETECTION - TERMINAL SPECIFIC
+// ===============================
+
+function isTerminalStatic(url) {
+    const staticExtensions = ['.css', '.js', '.json', '.ico', '.svg'];
     const pathname = url.pathname.toLowerCase();
     
     return staticExtensions.some(ext => pathname.endsWith(ext)) ||
            pathname.startsWith('/static/') ||
-           pathname === '/';
+           pathname === '/' ||
+           pathname.includes('terminal') ||
+           pathname.includes('brutalism');
 }
 
 function isNewsAPI(url) {
     return url.pathname.startsWith('/api/news/') || 
-           url.pathname.startsWith('/api/article/') ||
-           url.pathname.startsWith('/api/ai/');
+           url.pathname.startsWith('/api/article/');
 }
 
-function isImageResource(url) {
-    const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'];
-    const pathname = url.pathname.toLowerCase();
-    
-    return imageExtensions.some(ext => pathname.endsWith(ext)) ||
-           url.hostname.includes('images') ||
-           url.hostname.includes('cdn');
+function isAIAPI(url) {
+    return url.pathname.startsWith('/api/ai/');
 }
 
-function isFontResource(url) {
+function isTerminalAPI(url) {
+    return url.pathname.startsWith('/api/terminal/') ||
+           url.pathname.startsWith('/api/system/');
+}
+
+function isTerminalFont(url) {
     const fontExtensions = ['.woff', '.woff2', '.ttf', '.otf'];
     const pathname = url.pathname.toLowerCase();
     
     return fontExtensions.some(ext => pathname.endsWith(ext)) ||
            url.hostname === 'fonts.googleapis.com' ||
-           url.hostname === 'fonts.gstatic.com';
+           url.hostname === 'fonts.gstatic.com' ||
+           pathname.includes('jetbrains') ||
+           pathname.includes('mono');
 }
 
 function isNavigationRequest(request) {
     return request.mode === 'navigate';
 }
 
-// === STATIC RESOURCE HANDLER - CACHE FIRST ===
-async function handleStaticResource(request) {
-    console.log('📁 Handling static resource:', request.url);
+// ===============================
+// TERMINAL STATIC HANDLER - CACHE FIRST
+// ===============================
+
+async function handleTerminalStatic(request) {
+    terminalLog(`Handling terminal static: ${request.url}`, 'FETCH');
     
     try {
-        const cache = await caches.open(CACHE_NAME);
+        const cache = await caches.open(STATIC_CACHE);
         const cached = await cache.match(request);
         
         if (cached) {
-            console.log('💾 Serving from cache:', request.url);
+            terminalLog(`Serving from terminal cache: ${request.url}`, 'CACHE');
             
             // Stale-while-revalidate for CSS/JS
             if (request.url.includes('.css') || request.url.includes('.js')) {
-                updateResourceInBackground(request, cache);
+                updateTerminalResourceInBackground(request, cache);
             }
             
             return cached;
         }
         
-        console.log('🌐 Fetching from network:', request.url);
-        const networkResponse = await fetchWithTimeout(request, 5000);
+        terminalLog(`Fetching from network: ${request.url}`, 'NETWORK');
+        const networkResponse = await fetchWithTerminalTimeout(request, 6000);
         
         if (networkResponse && networkResponse.ok) {
-            // Clone and cache
+            // Clone and cache for terminal
             cache.put(request, networkResponse.clone());
             await limitCacheSize(cache, CACHE_CONFIG.maxStaticEntries);
         }
         
-        return networkResponse || createOfflineResponse(request);
+        return networkResponse || createTerminalOfflineResponse(request);
         
     } catch (error) {
-        console.log('❌ Static resource failed:', error.message);
-        return createOfflineResponse(request);
+        terminalLog(`Terminal static failed: ${error.message}`, 'ERROR');
+        return createTerminalOfflineResponse(request);
     }
 }
 
-// === NEWS API HANDLER - NETWORK FIRST WITH ENHANCED CACHING ===
+// ===============================
+// NEWS API HANDLER - NETWORK FIRST WITH TERMINAL CACHING
+// ===============================
+
 async function handleNewsAPI(request) {
-    console.log('📊 Handling news API:', request.url);
+    terminalLog(`Handling news API: ${request.url}`, 'FETCH');
     
     try {
         // Enhanced network-first strategy
-        const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
+        const networkResponse = await fetchWithTerminalTimeout(request, CACHE_CONFIG.networkTimeout);
         
         if (networkResponse && networkResponse.ok) {
-            console.log('✅ Network success, caching news:', request.url);
+            terminalLog(`News API success: ${request.url}`, 'SUCCESS');
             
-            // Cache the response with intelligent TTL
+            // Cache with terminal metadata
             const cache = await caches.open(NEWS_CACHE);
             
-            // Add timestamp to response headers for TTL management
-            const responseClone = networkResponse.clone();
-            const responseWithTimestamp = new Response(responseClone.body, {
-                status: responseClone.status,
-                statusText: responseClone.statusText,
+            // Add terminal timestamp headers
+            const responseWithTerminalData = new Response(networkResponse.body, {
+                status: networkResponse.status,
+                statusText: networkResponse.statusText,
                 headers: {
-                    ...Object.fromEntries(responseClone.headers.entries()),
-                    'sw-cached-at': Date.now().toString()
+                    ...Object.fromEntries(networkResponse.headers.entries()),
+                    'sw-terminal-cached-at': Date.now().toString(),
+                    'sw-terminal-version': CACHE_VERSION
                 }
             });
             
-            cache.put(request, responseWithTimestamp);
+            cache.put(request, responseWithTerminalData);
             await limitCacheSize(cache, CACHE_CONFIG.maxNewsEntries);
             
             return networkResponse;
         }
         
     } catch (error) {
-        console.log('❌ Network failed, trying cache:', error.message);
+        terminalLog(`Network failed, checking terminal cache: ${error.message}`, 'WARN');
     }
     
-    // Fallback to cache with freshness check
+    // Fallback to terminal cache with freshness check
     const cache = await caches.open(NEWS_CACHE);
     const cached = await cache.match(request);
     
     if (cached) {
-        const cachedAt = cached.headers.get('sw-cached-at');
+        const cachedAt = cached.headers.get('sw-terminal-cached-at');
         const age = cachedAt ? Date.now() - parseInt(cachedAt) : Infinity;
         
-        if (age < CACHE_CONFIG.maxAge) {
-            console.log('💾 Serving fresh cached news:', request.url);
+        if (age < CACHE_CONFIG.newsTTL) {
+            terminalLog(`Serving fresh terminal cached news: ${request.url}`, 'CACHE');
             return cached;
         } else {
-            console.log('⏰ Cached news is stale, removing:', request.url);
+            terminalLog(`Terminal cached news is stale, removing: ${request.url}`, 'CACHE');
             cache.delete(request);
         }
     }
     
-    // Final fallback - offline response
-    return createOfflineNewsResponse();
+    // Final fallback - terminal offline response
+    return createTerminalOfflineNewsResponse();
 }
 
-// === IMAGE HANDLER - CACHE FIRST WITH LAZY LOADING ===
-async function handleImageResource(request) {
-    console.log('🖼️ Handling image resource:', request.url);
+// ===============================
+// AI API HANDLER - CACHE WITH INTELLIGENCE
+// ===============================
+
+async function handleAIAPI(request) {
+    terminalLog(`Handling AI API: ${request.url}`, 'AI');
     
     try {
-        const cache = await caches.open(IMAGES_CACHE);
-        const cached = await cache.match(request);
-        
-        if (cached) {
-            console.log('💾 Serving cached image:', request.url);
-            return cached;
-        }
-        
-        // Fetch with timeout for images
-        const networkResponse = await fetchWithTimeout(request, 10000);
+        const networkResponse = await fetchWithTerminalTimeout(request, 15000); // Longer timeout for AI
         
         if (networkResponse && networkResponse.ok) {
-            // Only cache successful image responses
-            if (networkResponse.headers.get('content-type')?.startsWith('image/')) {
-                cache.put(request, networkResponse.clone());
-                await limitCacheSize(cache, CACHE_CONFIG.maxImageEntries);
+            // Cache AI responses with terminal formatting
+            if (request.method === 'POST') {
+                // Don't cache POST requests, but log for analytics
+                terminalLog(`AI POST request completed: ${request.url}`, 'AI');
+                return networkResponse;
             }
+            
+            const cache = await caches.open(AI_CACHE);
+            cache.put(request, networkResponse.clone());
+            await limitCacheSize(cache, CACHE_CONFIG.maxAIEntries);
+            
+            return networkResponse;
         }
-        
-        return networkResponse || createPlaceholderImage();
         
     } catch (error) {
-        console.log('❌ Image loading failed:', error.message);
-        return createPlaceholderImage();
+        terminalLog(`AI API error: ${error.message}`, 'ERROR');
     }
+    
+    // AI fallback with terminal aesthetics
+    return createTerminalAIOfflineResponse();
 }
 
-// === FONT HANDLER - CACHE FIRST WITH LONG TTL ===
-async function handleFontResource(request) {
-    console.log('🔤 Handling font resource:', request.url);
+// ===============================
+// TERMINAL API HANDLER - COMMAND INTERFACE
+// ===============================
+
+async function handleTerminalAPI(request) {
+    terminalLog(`Handling terminal API: ${request.url}`, 'TERMINAL');
     
     try {
-        const cache = await caches.open(CACHE_NAME);
+        const networkResponse = await fetchWithTerminalTimeout(request, 5000);
+        
+        if (networkResponse && networkResponse.ok) {
+            // Log terminal commands for analytics
+            if (request.url.includes('/api/terminal/command')) {
+                terminalLog(`Terminal command executed via API`, 'TERMINAL');
+            }
+            return networkResponse;
+        }
+        
+    } catch (error) {
+        terminalLog(`Terminal API error: ${error.message}`, 'ERROR');
+    }
+    
+    // Terminal API offline fallback
+    return createTerminalCommandOfflineResponse();
+}
+
+// ===============================
+// FONT HANDLER - TERMINAL TYPOGRAPHY CACHE
+// ===============================
+
+async function handleTerminalFont(request) {
+    terminalLog(`Handling terminal font: ${request.url}`, 'FONT');
+    
+    try {
+        const cache = await caches.open(FONTS_CACHE);
         const cached = await cache.match(request);
         
         if (cached) {
-            console.log('💾 Serving cached font:', request.url);
+            terminalLog(`Serving cached terminal font: ${request.url}`, 'CACHE');
             return cached;
         }
         
-        const networkResponse = await fetchWithTimeout(request, 15000);
+        const networkResponse = await fetchWithTerminalTimeout(request, 20000); // Long timeout for fonts
         
         if (networkResponse && networkResponse.ok) {
-            // Fonts are cached for long periods
+            // Terminal fonts are cached for extended periods
             cache.put(request, networkResponse.clone());
+            await limitCacheSize(cache, CACHE_CONFIG.maxFontEntries);
         }
         
         return networkResponse;
         
     } catch (error) {
-        console.log('❌ Font loading failed:', error.message);
+        terminalLog(`Terminal font loading failed: ${error.message}`, 'ERROR');
         // Don't provide fallback for fonts - let browser handle it
         throw error;
     }
 }
 
-// === NAVIGATION HANDLER - NETWORK FIRST ===
-async function handleNavigation(request) {
-    console.log('🧭 Handling navigation:', request.url);
+// ===============================
+// NAVIGATION HANDLER - TERMINAL INTERFACE
+// ===============================
+
+async function handleTerminalNavigation(request) {
+    terminalLog(`Handling terminal navigation: ${request.url}`, 'NAV');
     
     try {
-        const networkResponse = await fetchWithTimeout(request, 8000);
+        const networkResponse = await fetchWithTerminalTimeout(request, 10000);
         if (networkResponse && networkResponse.ok) {
             return networkResponse;
         }
     } catch (error) {
-        console.log('❌ Navigation network failed:', error.message);
+        terminalLog(`Navigation network failed: ${error.message}`, 'ERROR');
     }
     
-    // Fallback to cached index
-    const cache = await caches.open(CACHE_NAME);
+    // Fallback to cached index with terminal interface
+    const cache = await caches.open(STATIC_CACHE);
     const cached = await cache.match('/');
     
     if (cached) {
-        console.log('💾 Serving cached index for navigation');
+        terminalLog('Serving cached terminal index for navigation', 'CACHE');
         return cached;
     }
     
-    // Ultimate fallback - enhanced offline page
-    return createEnhancedOfflinePage();
+    // Ultimate fallback - terminal offline page
+    return createTerminalOfflinePage();
 }
 
-// === GENERIC REQUEST HANDLER ===
-async function handleGenericRequest(request) {
+// ===============================
+// GENERIC HANDLER - TERMINAL OPTIMIZED
+// ===============================
+
+async function handleGenericTerminal(request) {
     try {
-        const networkResponse = await fetchWithTimeout(request, 6000);
+        const networkResponse = await fetchWithTerminalTimeout(request, 8000);
         
         if (networkResponse && networkResponse.ok) {
             // Light caching for other resources
@@ -350,7 +473,7 @@ async function handleGenericRequest(request) {
         const cached = await cache.match(request);
         
         if (cached) {
-            console.log('💾 Serving cached generic resource:', request.url);
+            terminalLog(`Serving cached generic resource: ${request.url}`, 'CACHE');
             return cached;
         }
         
@@ -358,8 +481,11 @@ async function handleGenericRequest(request) {
     }
 }
 
-// === UTILITY FUNCTIONS ===
-async function fetchWithTimeout(request, timeout = 5000) {
+// ===============================
+// UTILITY FUNCTIONS - TERMINAL ENHANCED
+// ===============================
+
+async function fetchWithTerminalTimeout(request, timeout = 8000) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
@@ -375,15 +501,15 @@ async function fetchWithTimeout(request, timeout = 5000) {
     }
 }
 
-async function updateResourceInBackground(request, cache) {
+async function updateTerminalResourceInBackground(request, cache) {
     try {
         const response = await fetch(request);
         if (response.ok) {
             cache.put(request, response);
-            console.log('🔄 Updated resource in background:', request.url);
+            terminalLog(`Updated terminal resource in background: ${request.url}`, 'CACHE');
         }
     } catch (error) {
-        console.log('⚠️ Background update failed:', error.message);
+        terminalLog(`Background terminal update failed: ${error.message}`, 'WARN');
     }
 }
 
@@ -393,200 +519,295 @@ async function limitCacheSize(cache, maxEntries) {
         if (keys.length > maxEntries) {
             const keysToDelete = keys.slice(0, keys.length - maxEntries);
             await Promise.all(keysToDelete.map(key => cache.delete(key)));
-            console.log(`🧹 Cleaned up ${keysToDelete.length} cache entries`);
+            terminalLog(`Terminal cache cleanup: removed ${keysToDelete.length} entries`, 'CACHE');
         }
     } catch (error) {
-        console.log('⚠️ Cache cleanup error:', error);
+        terminalLog(`Terminal cache cleanup error: ${error.message}`, 'ERROR');
     }
 }
 
 async function cleanupOldCaches() {
     try {
         const cacheNames = await caches.keys();
-        const currentCaches = [CACHE_NAME, RUNTIME_CACHE, NEWS_CACHE, IMAGES_CACHE];
+        const currentCaches = [STATIC_CACHE, RUNTIME_CACHE, NEWS_CACHE, FONTS_CACHE, AI_CACHE];
         
         const deletePromises = cacheNames
-            .filter(cacheName => !currentCaches.includes(cacheName))
+            .filter(cacheName => !currentCaches.includes(cacheName) && cacheName.startsWith(CACHE_PREFIX))
             .map(cacheName => {
-                console.log('🗑️ Deleting old cache:', cacheName);
+                terminalLog(`Deleting old terminal cache: ${cacheName}`, 'CACHE');
                 return caches.delete(cacheName);
             });
         
         return Promise.all(deletePromises);
     } catch (error) {
-        console.log('⚠️ Cache cleanup error:', error);
+        terminalLog(`Terminal cache cleanup error: ${error.message}`, 'ERROR');
     }
 }
 
-// === OFFLINE RESPONSES ===
-function createOfflineResponse(request) {
+// ===============================
+// OFFLINE RESPONSES - TERMINAL AESTHETICS
+// ===============================
+
+function createTerminalOfflineResponse(request) {
+    const terminalStyle = `
+        body {
+            font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
+            background: #000000;
+            color: #00ff00;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.4;
+        }
+        .terminal-container {
+            border: 2px solid #00ff00;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .ascii-header {
+            font-size: 12px;
+            line-height: 1;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .terminal-text {
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    `;
+
     if (request.url.includes('.css')) {
-        return new Response('/* iOS 26 Offline */body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:SF Pro Display,sans-serif;}', {
+        return new Response(`/* Terminal Offline CSS */ ${terminalStyle}`, {
             headers: { 'Content-Type': 'text/css' }
         });
     }
     
     if (request.url.includes('.js')) {
-        return new Response('console.log("iOS 26 Portal - Offline Mode");', {
+        return new Response('console.log("Terminal offline mode - JavaScript unavailable");', {
             headers: { 'Content-Type': 'application/javascript' }
         });
     }
     
-    return new Response('Offline - iOS 26 Portal', {
+    return new Response('Terminal Offline', {
         status: 503,
         statusText: 'Service Unavailable'
     });
 }
 
-function createOfflineNewsResponse() {
+function createTerminalOfflineNewsResponse() {
     return new Response(JSON.stringify({
-        error: 'Không có kết nối internet và không có dữ liệu đã lưu',
+        error: 'NETWORK_CONNECTION_OFFLINE',
+        terminal_status: 'No cached news data available',
         offline: true,
         news: [],
         page: 1,
         total_pages: 1,
-        offline_message: 'Vui lòng kiểm tra kết nối mạng và thử lại'
+        terminal_message: 'Check network connection and retry',
+        ascii_status: ASCII_NETWORK_OFFLINE
     }), {
         status: 503,
         statusText: 'Service Unavailable',
         headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
+            'SW-Terminal-Offline': 'true'
         }
     });
 }
 
-function createPlaceholderImage() {
-    // Create a simple SVG placeholder
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">
-        <defs>
-            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#007AFF;stop-opacity:0.3" />
-                <stop offset="100%" style="stop-color:#AF52DE;stop-opacity:0.3" />
-            </linearGradient>
-        </defs>
-        <rect width="400" height="200" fill="url(#grad)"/>
-        <text x="200" y="100" text-anchor="middle" fill="#007AFF" font-family="SF Pro Display, sans-serif" font-size="16">📷 Ảnh không tải được</text>
-        <text x="200" y="120" text-anchor="middle" fill="#64D2FF" font-family="SF Pro Display, sans-serif" font-size="12">iOS 26 Portal</text>
-    </svg>`;
-    
-    return new Response(svg, {
+function createTerminalAIOfflineResponse() {
+    return new Response(JSON.stringify({
+        error: 'AI_SYSTEM_OFFLINE',
+        response: `**TERMINAL ERROR: AI_MODULE_UNAVAILABLE**
+
+SYSTEM STATUS: Network connection lost
+AI ENGINE: Gemini offline
+CACHED DATA: None available
+
+**ERROR CODE:** NETWORK_TIMEOUT
+**ACTION:** Check connection and retry
+**FALLBACK:** Use terminal commands for basic functionality
+
+[TERMINAL] AI services will resume when network is restored`,
+        terminal_offline: true,
+        timestamp: new Date().toISOString()
+    }), {
+        status: 503,
         headers: {
-            'Content-Type': 'image/svg+xml',
-            'Cache-Control': 'no-cache'
+            'Content-Type': 'application/json',
+            'SW-Terminal-AI-Offline': 'true'
         }
     });
 }
 
-function createEnhancedOfflinePage() {
+function createTerminalCommandOfflineResponse() {
+    return new Response(JSON.stringify({
+        status: 'error',
+        message: 'TERMINAL_API_OFFLINE - Network connection required for command execution',
+        terminal_status: 'offline',
+        available_commands: ['help', 'status', 'cache'],
+        error_code: 'NETWORK_UNAVAILABLE'
+    }), {
+        status: 503,
+        headers: {
+            'Content-Type': 'application/json',
+            'SW-Terminal-Command-Offline': 'true'
+        }
+    });
+}
+
+function createTerminalOfflinePage() {
     const html = `
     <!DOCTYPE html>
     <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>iOS 26 E-con News - Offline</title>
+        <title>E-con Terminal - Offline Mode</title>
         <style>
-            body { 
-                font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; 
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-                color: white; 
-                text-align: center; 
-                padding: 2rem;
+            body {
+                font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
+                background: #000000;
+                color: #00ff00;
                 margin: 0;
+                padding: 0;
                 min-height: 100vh;
                 display: flex;
-                flex-direction: column;
-                justify-content: center;
                 align-items: center;
+                justify-content: center;
+                line-height: 1.4;
             }
-            .offline-container {
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border-radius: 24px;
+            .terminal-container {
+                border: 2px solid #00ff00;
                 padding: 3rem 2rem;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-                max-width: 500px;
+                max-width: 600px;
+                width: 90%;
+                background: rgba(0, 255, 0, 0.05);
+                text-align: center;
             }
-            .logo {
-                width: 80px;
-                height: 80px;
-                background: #007AFF;
-                border-radius: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 40px;
-                margin: 0 auto 2rem;
-                animation: pulse 2s infinite;
+            .ascii-logo {
+                font-size: 10px;
+                line-height: 1;
+                margin-bottom: 2rem;
+                color: #00ff00;
+                text-shadow: 0 0 10px #00ff00;
             }
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); opacity: 1; }
-                50% { transform: scale(1.05); opacity: 0.9; }
+            h1 {
+                font-size: 1.5rem;
+                margin: 2rem 0 1rem 0;
+                text-transform: uppercase;
+                letter-spacing: 2px;
             }
-            h1 { font-size: 2rem; margin-bottom: 1rem; font-weight: 700; }
-            h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #64D2FF; }
-            p { margin-bottom: 2rem; line-height: 1.6; opacity: 0.9; }
-            button {
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                color: white;
+            .status {
+                color: #ff0000;
+                font-weight: bold;
+                margin: 1rem 0;
+                font-size: 1.1rem;
+            }
+            .message {
+                margin: 2rem 0;
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+            .button {
+                background: transparent;
+                border: 2px solid #00ff00;
+                color: #00ff00;
                 padding: 1rem 2rem;
-                border-radius: 50px;
+                font-family: inherit;
+                font-size: 0.9rem;
                 cursor: pointer;
-                font-size: 1rem;
-                font-weight: 600;
+                margin-top: 2rem;
                 transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
+                text-transform: uppercase;
+                letter-spacing: 1px;
             }
-            button:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            .button:hover {
+                background: #00ff00;
+                color: #000000;
+                box-shadow: 0 0 20px #00ff00;
             }
             .features {
-                margin-top: 2rem;
                 text-align: left;
-                opacity: 0.8;
+                margin-top: 2rem;
+                font-size: 0.8rem;
+                line-height: 1.8;
             }
-            .features h3 { color: #64D2FF; margin-bottom: 1rem; }
-            .features ul { list-style: none; padding: 0; }
-            .features li { margin-bottom: 0.5rem; }
-            .features li::before { content: "✨ "; }
+            .blink {
+                animation: blink 1s infinite;
+            }
+            @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0; }
+            }
+            @media (max-width: 600px) {
+                .terminal-container {
+                    padding: 2rem 1rem;
+                }
+                .ascii-logo {
+                    font-size: 8px;
+                }
+            }
         </style>
     </head>
     <body>
-        <div class="offline-container">
-            <div class="logo">📊</div>
-            <h1>E-con News</h1>
-            <h2>📱 Chế độ Offline</h2>
-            <p>Bạn đang offline, nhưng iOS 26 Portal vẫn hoạt động! Một số tính năng có thể bị giới hạn.</p>
-            
-            <div class="features">
-                <h3>Tính năng khả dụng:</h3>
-                <ul>
-                    <li>Xem tin tức đã lưu cache</li>
-                    <li>Giao diện Liquid Glass</li>
-                    <li>Chức năng cơ bản</li>
-                </ul>
+        <div class="terminal-container">
+            <div class="ascii-logo">
+╔══════════════════════════════════════════════════════════════╗
+║  ███████╗       ██████╗ ██████╗ ███╗   ██╗                  ║
+║  ██╔════╝      ██╔════╝██╔═══██╗████╗  ██║                  ║
+║  █████╗  █████╗██║     ██║   ██║██╔██╗ ██║                  ║
+║  ██╔══╝  ╚════╝██║     ██║   ██║██║╚██╗██║                  ║
+║  ███████╗      ╚██████╗╚██████╔╝██║ ╚████║                  ║
+║  ╚══════╝       ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝                  ║
+║                     TERMINAL OFFLINE MODE                   ║
+╚══════════════════════════════════════════════════════════════╝
             </div>
             
-            <button onclick="location.reload()">🔄 Thử kết nối lại</button>
+            <h1>Terminal Disconnected</h1>
+            <div class="status">STATUS: NETWORK_OFFLINE <span class="blink">█</span></div>
+            
+            <div class="message">
+                Your terminal session has been disconnected from the network.<br>
+                Some cached content may still be available offline.
+            </div>
+            
+            <div class="features">
+                <strong>AVAILABLE OFFLINE:</strong><br>
+                • Cached news articles<br>
+                • Terminal interface<br>
+                • Local storage data<br>
+                • Service worker functionality<br><br>
+                
+                <strong>NETWORK REQUIRED FOR:</strong><br>
+                • Live news updates<br>
+                • AI analysis features<br>
+                • Real-time data sync<br>
+                • Terminal API commands
+            </div>
+            
+            <button class="button" onclick="location.reload()">
+                🔄 RETRY CONNECTION
+            </button>
         </div>
         
         <script>
             // Auto-retry connection
             let retryCount = 0;
-            const maxRetries = 3;
+            const maxRetries = 5;
             
             function checkConnection() {
                 if (navigator.onLine && retryCount < maxRetries) {
                     retryCount++;
-                    console.log('Attempting to reconnect...', retryCount);
-                    location.reload();
+                    console.log('Terminal: Attempting reconnection...', retryCount);
+                    setTimeout(() => location.reload(), 1000);
                 }
             }
             
@@ -598,66 +819,87 @@ function createEnhancedOfflinePage() {
                     checkConnection();
                 }
             }, 30000);
+            
+            // Terminal-style logging
+            console.log('E-con Terminal - Offline Mode v2.024');
+            console.log('Network status:', navigator.onLine ? 'ONLINE' : 'OFFLINE');
         </script>
     </body>
     </html>`;
     
     return new Response(html, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        headers: { 
+            'Content-Type': 'text/html; charset=utf-8',
+            'SW-Terminal-Offline-Page': 'true'
+        }
     });
 }
 
-// === PERFORMANCE MONITORING ===
-function initializePerformanceMonitoring() {
-    // Track cache hit rates
-    self.cacheHitRate = {
-        hits: 0,
-        misses: 0,
-        getRate() {
-            const total = this.hits + this.misses;
-            return total > 0 ? (this.hits / total * 100).toFixed(2) + '%' : '0%';
+// ===============================
+// PERFORMANCE MONITORING - TERMINAL STYLE
+// ===============================
+
+function initializeTerminalMonitoring() {
+    // Initialize performance tracking
+    self.terminalPerformance = {
+        cacheHits: 0,
+        cacheMisses: 0,
+        networkRequests: 0,
+        offlineRequests: 0,
+        startTime: Date.now(),
+        
+        getHitRate() {
+            const total = this.cacheHits + this.cacheMisses;
+            return total > 0 ? (this.cacheHits / total * 100).toFixed(1) + '%' : '0%';
+        },
+        
+        getUptime() {
+            return Math.floor((Date.now() - this.startTime) / 1000);
         }
     };
     
-    console.log('📊 Performance monitoring initialized');
+    terminalLog('Terminal performance monitoring initialized', 'INIT');
 }
 
-// === BACKGROUND SYNC ===
+// ===============================
+// BACKGROUND SYNC & PUSH NOTIFICATIONS
+// ===============================
+
 self.addEventListener('sync', (event) => {
-    console.log('🔄 Background sync triggered:', event.tag);
+    terminalLog(`Background sync triggered: ${event.tag}`, 'SYNC');
     
-    if (event.tag === 'ios26-retry-requests') {
-        event.waitUntil(retryFailedRequests());
-    } else if (event.tag === 'ios26-cache-cleanup') {
-        event.waitUntil(performMaintenanceTasks());
+    if (event.tag === 'terminal-retry-requests') {
+        event.waitUntil(retryFailedTerminalRequests());
+    } else if (event.tag === 'terminal-cache-maintenance') {
+        event.waitUntil(performTerminalMaintenance());
     }
 });
 
-async function retryFailedRequests() {
-    console.log('🔄 Retrying failed requests...');
+async function retryFailedTerminalRequests() {
+    terminalLog('Retrying failed terminal requests...', 'SYNC');
     
     try {
         // Test connectivity with main endpoint
         const response = await fetch('/api/news/all?page=1&limit=1');
         if (response.ok) {
-            console.log('✅ Connection restored');
+            terminalLog('Terminal connection restored', 'SUCCESS');
             
             // Notify all clients
             const clients = await self.clients.matchAll();
             clients.forEach(client => {
                 client.postMessage({
-                    type: 'CONNECTION_RESTORED',
-                    message: 'Kết nối đã được khôi phục'
+                    type: 'TERMINAL_CONNECTION_RESTORED',
+                    message: 'Network connection restored - Terminal online'
                 });
             });
         }
     } catch (error) {
-        console.log('❌ Retry failed:', error);
+        terminalLog(`Terminal retry failed: ${error.message}`, 'ERROR');
     }
 }
 
-async function performMaintenanceTasks() {
-    console.log('🧹 Performing maintenance tasks...');
+async function performTerminalMaintenance() {
+    terminalLog('Performing terminal maintenance...', 'MAINT');
     
     try {
         await cleanupOldCaches();
@@ -669,97 +911,60 @@ async function performMaintenanceTasks() {
         for (const request of requests) {
             const response = await newsCache.match(request);
             if (response) {
-                const cachedAt = response.headers.get('sw-cached-at');
+                const cachedAt = response.headers.get('sw-terminal-cached-at');
                 if (cachedAt) {
                     const age = Date.now() - parseInt(cachedAt);
-                    if (age > CACHE_CONFIG.maxAge * 2) {
+                    if (age > CACHE_CONFIG.newsTTL * 2) {
                         await newsCache.delete(request);
-                        console.log('🗑️ Deleted expired news cache:', request.url);
+                        terminalLog(`Deleted expired terminal cache: ${request.url}`, 'MAINT');
                     }
                 }
             }
         }
         
-        console.log('✅ Maintenance completed');
+        terminalLog('Terminal maintenance completed', 'SUCCESS');
     } catch (error) {
-        console.log('⚠️ Maintenance error:', error);
+        terminalLog(`Terminal maintenance error: ${error.message}`, 'ERROR');
     }
 }
 
-// === PUSH NOTIFICATIONS ===
-self.addEventListener('push', (event) => {
-    console.log('🔔 Push notification received');
-    
-    const options = {
-        body: event.data ? event.data.text() : 'Tin tức mới từ iOS 26 E-con Portal!',
-        icon: '/static/icon-192x192.png',
-        badge: '/static/badge-72x72.png',
-        image: '/static/notification-image.jpg',
-        vibrate: [100, 50, 100],
-        data: {
-            dateOfArrival: Date.now(),
-            primaryKey: 'ios26-news',
-            url: '/'
-        },
-        actions: [
-            {
-                action: 'explore',
-                title: 'Xem tin tức',
-                icon: '/static/action-explore.png'
-            },
-            {
-                action: 'close',
-                title: 'Đóng',
-                icon: '/static/action-close.png'
-            }
-        ],
-        tag: 'ios26-news',
-        requireInteraction: false,
-        silent: false
-    };
-    
-    event.waitUntil(
-        self.registration.showNotification('E-con News - iOS 26 Portal', options)
-    );
-});
+// ===============================
+// MESSAGE HANDLING - TERMINAL COMMUNICATION
+// ===============================
 
-self.addEventListener('notificationclick', (event) => {
-    console.log('🖱️ Notification clicked:', event.action);
-    
-    event.notification.close();
-    
-    if (event.action === 'explore') {
-        event.waitUntil(
-            clients.openWindow(event.notification.data.url || '/')
-        );
-    }
-});
-
-// === MESSAGE HANDLING ===
 self.addEventListener('message', (event) => {
-    console.log('💬 SW received message:', event.data);
+    terminalLog(`Terminal message received: ${event.data?.type}`, 'MSG');
     
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
     
-    if (event.data && event.data.type === 'GET_CACHE_STATUS') {
+    if (event.data && event.data.type === 'GET_TERMINAL_STATUS') {
         event.ports[0].postMessage({
-            type: 'CACHE_STATUS',
-            cacheHitRate: self.cacheHitRate ? self.cacheHitRate.getRate() : '0%',
+            type: 'TERMINAL_STATUS',
+            performance: self.terminalPerformance,
+            version: CACHE_VERSION,
+            caches: {
+                static: STATIC_CACHE,
+                runtime: RUNTIME_CACHE,
+                news: NEWS_CACHE,
+                fonts: FONTS_CACHE,
+                ai: AI_CACHE
+            },
             timestamp: Date.now()
         });
     }
     
-    if (event.data && event.data.type === 'CLEAR_CACHE') {
+    if (event.data && event.data.type === 'CLEAR_TERMINAL_CACHE') {
         event.waitUntil(
-            caches.keys().then(cacheNames => {
-                return Promise.all(
-                    cacheNames.map(cacheName => caches.delete(cacheName))
-                );
-            }).then(() => {
+            Promise.all([
+                caches.delete(STATIC_CACHE),
+                caches.delete(RUNTIME_CACHE),
+                caches.delete(NEWS_CACHE),
+                caches.delete(AI_CACHE)
+            ]).then(() => {
                 event.ports[0].postMessage({
-                    type: 'CACHE_CLEARED',
+                    type: 'TERMINAL_CACHE_CLEARED',
                     timestamp: Date.now()
                 });
             })
@@ -767,20 +972,27 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// === STARTUP LOG ===
-console.log('🚀 iOS 26 Liquid Glass Service Worker loaded successfully');
-console.log('📋 Cache configuration:', CACHE_CONFIG);
-console.log('💾 Static resources:', STATIC_RESOURCES.length);
-console.log('📱 Optimized for iOS 26 design system');
-console.log('🎨 Features: Stale-while-revalidate, Background sync, Push notifications');
+// ===============================
+// STARTUP SEQUENCE - TERMINAL BOOT
+// ===============================
 
-// === PERFORMANCE TRACKING ===
+terminalLog('E-con Terminal Service Worker v2.024 loaded', 'BOOT');
+terminalLog(`Cache configuration: ${JSON.stringify(CACHE_CONFIG)}`, 'CONFIG');
+terminalLog(`Static resources: ${STATIC_RESOURCES.length} files`, 'CONFIG');
+terminalLog('Terminal brutalism optimization: ENABLED', 'CONFIG');
+terminalLog('Matrix/glitch effects support: READY', 'CONFIG');
+
+// Enhanced performance tracking for retro brutalism
 if ('storage' in navigator && 'estimate' in navigator.storage) {
     navigator.storage.estimate().then(estimate => {
-        console.log('💾 Storage quota:', Math.round(estimate.quota / 1024 / 1024) + 'MB');
-        console.log('💾 Storage usage:', Math.round(estimate.usage / 1024 / 1024) + 'MB');
-        console.log('💾 Usage percentage:', Math.round(estimate.usage / estimate.quota * 100) + '%');
+        terminalLog(`Storage quota: ${Math.round(estimate.quota / 1024 / 1024)}MB`, 'STORAGE');
+        terminalLog(`Storage usage: ${Math.round(estimate.usage / 1024 / 1024)}MB`, 'STORAGE');
+        terminalLog(`Usage percentage: ${Math.round(estimate.usage / estimate.quota * 100)}%`, 'STORAGE');
     }).catch(() => {
-        console.log('💾 Storage estimation not available');
+        terminalLog('Storage estimation not available', 'WARN');
     });
 }
+
+// Terminal boot complete
+terminalLog('Terminal Service Worker boot sequence complete', 'READY', `
+[✓] TERMINAL_READY - All systems operational`);
