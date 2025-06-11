@@ -5,6 +5,7 @@
 # === CORE FLASK FRAMEWORK ===
 Flask[async]==3.0.3
 Flask-CORS==4.0.0
+colorama==0.4.6
 
 # === RSS & FEED PROCESSING ===
 feedparser==6.0.11
