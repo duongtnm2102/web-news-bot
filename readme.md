@@ -85,6 +85,7 @@ e-con-news-terminal/
     └── Procfile                      # Process management
 ```
 
+
 ## 🎮 Terminal Commands Reference
 
 Access the terminal by clicking the command bar or pressing **`** (backtick):
