@@ -1,3 +1,8 @@
+# ===============================
+# PATH CORRECTION FOR DEPLOYMENT
+# ===============================
+import sys
+import os
 from flask import Flask, render_template, request, jsonify, session, make_response
 import feedparser
 import asyncio
