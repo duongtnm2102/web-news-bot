@@ -25,7 +25,6 @@ import eventlet
 
 # Import application modules
 try:
-    from app import terminal_processor, gemini_engine, system_stats
     from monitoring.health_check import get_health_monitor
     APP_MODULES_AVAILABLE = True
 except ImportError:
@@ -410,14 +409,14 @@ class TerminalWebSocketManager:
     def _create_welcome_message(self, terminal_session: TerminalSession) -> TerminalMessage:
         """Create welcome message for new connections"""
         welcome_text = f"""
-╔═══════════════════════════════════════════════════════════════╗
+╔════════════════════════════════════════════════════════════════════════════════╗
 ║  TERMINAL_CONNECTION_ESTABLISHED - SESSION: {terminal_session.session_id[:8]}  ║
-║  E-CON NEWS TERMINAL v2.024 - WEBSOCKET INTERFACE           ║
-║  Connection Time: {datetime.now().strftime('%Y.%m.%d_%H:%M:%S')}                    ║
-║  User ID: {terminal_session.user_id[:12]}...                              ║
-║  Permissions: {', '.join(sorted(terminal_session.permissions))}                    ║
-║  Protocol: WebSocket + SocketIO                             ║
-╚═══════════════════════════════════════════════════════════════╝
+║  E-CON NEWS TERMINAL v2.024 - WEBSOCKET INTERFACE                              ║
+║  Connection Time: {datetime.now().strftime('%Y.%m.%d_%H:%M:%S')}               ║
+║  User ID: {terminal_session.user_id[:12]}...                                   ║
+║  Permissions: {', '.join(sorted(terminal_session.permissions))}                ║
+║  Protocol: WebSocket + SocketIO                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
 
 Type 'help' for commands or start typing to begin terminal session.
 Real-time mode: ACTIVE | Background sync: ENABLED | AI: READY
@@ -452,6 +451,8 @@ Real-time mode: ACTIVE | Background sync: ENABLED | AI: READY
         """Execute terminal command asynchronously"""
         def execute():
             try:
+                # THÊM DÒNG IMPORT VÀO ĐÂY
+                from app import terminal_processor
                 # Check permissions
                 if not self._check_command_permissions(command, terminal_session):
                     self._send_to_session(terminal_session.session_id, TerminalMessage(
