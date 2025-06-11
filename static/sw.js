@@ -1,683 +1,786 @@
-// Tiền Phong Service Worker - SYNC Backend Optimized
-// Version 3.0.0 - 2025 - Fixed for SYNC Backend
+// iOS 26 Liquid Glass News Portal - Enhanced Service Worker
+// Version 2.1.0 - Optimized for Production Deployment
 
-const CACHE_NAME = 'tienphong-news-v3.0.0';
-const RUNTIME_CACHE = 'tienphong-runtime-v3.0.0';
-const NEWS_CACHE = 'tienphong-news-data-v3.0.0';
+const CACHE_NAME = 'ios26-news-portal-v2.1.0';
+const RUNTIME_CACHE = 'ios26-runtime-v2.1.0';
+const NEWS_CACHE = 'ios26-news-data-v2.1.0';
+const IMAGES_CACHE = 'ios26-images-v2.1.0';
 
-// RENDER.COM OPTIMIZED: Minimal static resources for better performance
-const STATIC_RESOURCES = [
-  '/',
-  '/static/style.css',
-  '/static/script.js',
-  '/static/manifest.json'
-];
-
-// RENDER.COM OPTIMIZED: Reduced cache sizes for memory efficiency
+// === OPTIMIZED CACHE CONFIGURATION ===
 const CACHE_CONFIG = {
-  maxStaticEntries: 10,      // Reduced for memory efficiency
-  maxRuntimeEntries: 8,      // Reduced for Render.com free tier  
-  maxNewsEntries: 5,         // Reduced to prevent memory issues
-  maxAge: 2 * 60 * 1000,     // 2 minutes (shorter for fresh news)
-  networkTimeout: 8000       // 8 seconds (increased for SYNC backend)
+    maxStaticEntries: 25,      // iOS 26 optimized
+    maxRuntimeEntries: 15,     // Enhanced for better UX
+    maxNewsEntries: 12,        // Balanced for performance
+    maxImageEntries: 20,       // Image caching for offline
+    maxAge: 4 * 60 * 1000,     // 4 minutes for fresh news
+    networkTimeout: 8000,      // 8 seconds network timeout
+    staleWhileRevalidate: true // Background updates
 };
 
-// News API endpoints to cache
-const NEWS_ENDPOINTS = [
-  '/api/news/all',
-  '/api/news/domestic', 
-  '/api/news/international'
+// === STATIC RESOURCES FOR iOS 26 PORTAL ===
+const STATIC_RESOURCES = [
+    '/',
+    '/static/style.css',
+    '/static/script.js',
+    '/static/manifest.json',
+    // iOS 26 specific resources
+    'https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700;800;900&display=swap',
+    'https://fonts.gstatic.com/s/sfprodisplay/v1/6xKwdSBYKcSV-LCoeQqfX1RYOo3qNa7lujVj9_mf.woff2'
 ];
 
-// RENDER.COM OPTIMIZED: Fast install event
+// === NEWS API ENDPOINTS ===
+const NEWS_ENDPOINTS = [
+    '/api/news/all',
+    '/api/news/domestic', 
+    '/api/news/international',
+    '/api/ai/ask',
+    '/api/ai/debate'
+];
+
+// === INSTALL EVENT ===
 self.addEventListener('install', (event) => {
-  console.log('📦 Tiền Phong Service Worker installing (SYNC optimized)...');
-  
-  event.waitUntil(
-    Promise.all([
-      // Cache essential static resources only
-      caches.open(CACHE_NAME).then((cache) => {
-        console.log('📝 Caching essential Tiền Phong resources...');
-        return cache.addAll(STATIC_RESOURCES);
-      }).catch(error => {
-        console.warn('⚠️ Static resource caching failed:', error);
-        // Don't fail installation if caching fails
-      }),
-      
-      // Skip waiting to activate immediately
-      self.skipWaiting()
-    ])
-  );
+    console.log('📦 iOS 26 Service Worker installing...');
+    
+    event.waitUntil(
+        Promise.all([
+            // Cache essential static resources
+            caches.open(CACHE_NAME).then((cache) => {
+                console.log('📝 Caching iOS 26 essential resources...');
+                return cache.addAll(STATIC_RESOURCES.slice(0, 4)); // Core files first
+            }),
+            
+            // Pre-cache fonts
+            caches.open(CACHE_NAME).then((cache) => {
+                console.log('🔤 Pre-caching iOS 26 fonts...');
+                return cache.addAll(STATIC_RESOURCES.slice(4)); // Font files
+            }).catch(error => {
+                console.log('⚠️ Font pre-caching failed:', error);
+            }),
+            
+            // Skip waiting for immediate activation
+            self.skipWaiting()
+        ])
+    );
 });
 
-// RENDER.COM OPTIMIZED: Fast activation
+// === ACTIVATE EVENT ===
 self.addEventListener('activate', (event) => {
-  console.log('✅ Tiền Phong Service Worker activated (SYNC version)');
-  
-  event.waitUntil(
-    Promise.all([
-      // Clean up old caches quickly
-      cleanupOldCaches(),
-      
-      // Claim all clients
-      self.clients.claim()
-    ])
-  );
+    console.log('✅ iOS 26 Service Worker activated');
+    
+    event.waitUntil(
+        Promise.all([
+            // Clean up old caches
+            cleanupOldCaches(),
+            
+            // Claim all clients immediately
+            self.clients.claim(),
+            
+            // Initialize performance monitoring
+            initializePerformanceMonitoring()
+        ])
+    );
 });
 
-// RENDER.COM OPTIMIZED: Enhanced fetch handling for SYNC backend
+// === FETCH EVENT - ENHANCED FOR iOS 26 ===
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-  
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
-  
-  // Skip non-http requests
-  if (!url.protocol.startsWith('http')) {
-    return;
-  }
-  
-  // Skip POST requests to AI endpoints (they're not cacheable)
-  if (url.pathname.includes('/api/ai/')) {
-    return;
-  }
-  
-  // Handle different types of requests with optimized strategies
-  if (isStaticResource(url)) {
-    event.respondWith(handleStaticResource(request));
-  } else if (isNewsAPI(url)) {
-    event.respondWith(handleNewsAPI(request));
-  } else if (isNavigationRequest(request)) {
-    event.respondWith(handleNavigation(request));
-  }
+    const { request } = event;
+    const url = new URL(request.url);
+    
+    // Skip non-GET requests
+    if (request.method !== 'GET') {
+        return;
+    }
+    
+    // Skip chrome-extension and other non-http requests
+    if (!url.protocol.startsWith('http')) {
+        return;
+    }
+    
+    // Enhanced request routing
+    if (isStaticResource(url)) {
+        event.respondWith(handleStaticResource(request));
+    } else if (isNewsAPI(url)) {
+        event.respondWith(handleNewsAPI(request));
+    } else if (isImageResource(url)) {
+        event.respondWith(handleImageResource(request));
+    } else if (isNavigationRequest(request)) {
+        event.respondWith(handleNavigation(request));
+    } else if (isFontResource(url)) {
+        event.respondWith(handleFontResource(request));
+    } else {
+        // Let other requests pass through with basic caching
+        event.respondWith(handleGenericRequest(request));
+    }
 });
 
-// RENDER.COM OPTIMIZED: Simple resource type checking
+// === RESOURCE TYPE DETECTION ===
 function isStaticResource(url) {
-  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.svg', '.woff2', '.ico'];
-  const pathname = url.pathname.toLowerCase();
-  
-  return staticExtensions.some(ext => pathname.endsWith(ext)) ||
-         pathname.startsWith('/static/') ||
-         url.hostname === 'fonts.googleapis.com' ||
-         url.hostname === 'fonts.gstatic.com';
+    const staticExtensions = ['.css', '.js', '.json', '.ico'];
+    const pathname = url.pathname.toLowerCase();
+    
+    return staticExtensions.some(ext => pathname.endsWith(ext)) ||
+           pathname.startsWith('/static/') ||
+           pathname === '/';
 }
 
 function isNewsAPI(url) {
-  return url.pathname.startsWith('/api/news/') || 
-         url.pathname.startsWith('/api/article/');
+    return url.pathname.startsWith('/api/news/') || 
+           url.pathname.startsWith('/api/article/') ||
+           url.pathname.startsWith('/api/ai/');
+}
+
+function isImageResource(url) {
+    const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'];
+    const pathname = url.pathname.toLowerCase();
+    
+    return imageExtensions.some(ext => pathname.endsWith(ext)) ||
+           url.hostname.includes('images') ||
+           url.hostname.includes('cdn');
+}
+
+function isFontResource(url) {
+    const fontExtensions = ['.woff', '.woff2', '.ttf', '.otf'];
+    const pathname = url.pathname.toLowerCase();
+    
+    return fontExtensions.some(ext => pathname.endsWith(ext)) ||
+           url.hostname === 'fonts.googleapis.com' ||
+           url.hostname === 'fonts.gstatic.com';
 }
 
 function isNavigationRequest(request) {
-  return request.mode === 'navigate';
+    return request.mode === 'navigate';
 }
 
-// RENDER.COM OPTIMIZED: Cache-first for static resources with fallback
+// === STATIC RESOURCE HANDLER - CACHE FIRST ===
 async function handleStaticResource(request) {
-  console.log('📁 Tiền Phong handling static resource:', request.url);
-  
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(request);
+    console.log('📁 Handling static resource:', request.url);
     
-    if (cached) {
-      console.log('💾 Serving from cache:', request.url);
-      // Check if cache is fresh (optional background update)
-      backgroundUpdateStatic(request, cache);
-      return cached;
+    try {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(request);
+        
+        if (cached) {
+            console.log('💾 Serving from cache:', request.url);
+            
+            // Stale-while-revalidate for CSS/JS
+            if (request.url.includes('.css') || request.url.includes('.js')) {
+                updateResourceInBackground(request, cache);
+            }
+            
+            return cached;
+        }
+        
+        console.log('🌐 Fetching from network:', request.url);
+        const networkResponse = await fetchWithTimeout(request, 5000);
+        
+        if (networkResponse && networkResponse.ok) {
+            // Clone and cache
+            cache.put(request, networkResponse.clone());
+            await limitCacheSize(cache, CACHE_CONFIG.maxStaticEntries);
+        }
+        
+        return networkResponse || createOfflineResponse(request);
+        
+    } catch (error) {
+        console.log('❌ Static resource failed:', error.message);
+        return createOfflineResponse(request);
     }
-    
-    console.log('🌐 Fetching from network:', request.url);
-    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
-    
-    if (networkResponse && networkResponse.ok) {
-      // Clone before caching
-      const responseToCache = networkResponse.clone();
-      cache.put(request, responseToCache);
-      
-      // Cleanup cache if too large
-      limitCacheSize(cache, CACHE_CONFIG.maxStaticEntries);
-    }
-    
-    return networkResponse || createFallbackResponse(request);
-    
-  } catch (error) {
-    console.log('❌ Static resource failed:', error.message);
-    return createFallbackResponse(request);
-  }
 }
 
-// Background update for static resources
-async function backgroundUpdateStatic(request, cache) {
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse && networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-  } catch (error) {
-    console.log('⚠️ Background update failed:', error.message);
-  }
-}
-
-// RENDER.COM OPTIMIZED: Stale-while-revalidate for news API with SYNC backend support
+// === NEWS API HANDLER - NETWORK FIRST WITH ENHANCED CACHING ===
 async function handleNewsAPI(request) {
-  console.log('📊 Tiền Phong handling news API (SYNC):', request.url);
-  
-  try {
-    const cache = await caches.open(NEWS_CACHE);
-    const cached = await cache.match(request);
+    console.log('📊 Handling news API:', request.url);
     
-    // Serve cached version immediately if available
-    if (cached) {
-      console.log('💾 Serving cached news (will update in background):', request.url);
-      
-      // Background update for fresh content
-      backgroundUpdateNews(request, cache);
-      
-      return cached;
+    try {
+        // Enhanced network-first strategy
+        const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
+        
+        if (networkResponse && networkResponse.ok) {
+            console.log('✅ Network success, caching news:', request.url);
+            
+            // Cache the response with intelligent TTL
+            const cache = await caches.open(NEWS_CACHE);
+            
+            // Add timestamp to response headers for TTL management
+            const responseClone = networkResponse.clone();
+            const responseWithTimestamp = new Response(responseClone.body, {
+                status: responseClone.status,
+                statusText: responseClone.statusText,
+                headers: {
+                    ...Object.fromEntries(responseClone.headers.entries()),
+                    'sw-cached-at': Date.now().toString()
+                }
+            });
+            
+            cache.put(request, responseWithTimestamp);
+            await limitCacheSize(cache, CACHE_CONFIG.maxNewsEntries);
+            
+            return networkResponse;
+        }
+        
+    } catch (error) {
+        console.log('❌ Network failed, trying cache:', error.message);
     }
     
-    // No cache available, fetch from network with timeout
-    console.log('🌐 Fetching fresh news from SYNC backend:', request.url);
-    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
-    
-    if (networkResponse && networkResponse.ok) {
-      console.log('✅ SYNC backend success, caching news:', request.url);
-      
-      // Cache the response
-      const responseToCache = networkResponse.clone();
-      cache.put(request, responseToCache);
-      
-      // Cleanup cache
-      limitCacheSize(cache, CACHE_CONFIG.maxNewsEntries);
-      
-      return networkResponse;
-    } else {
-      throw new Error('Network response not ok');
-    }
-    
-  } catch (error) {
-    console.log('❌ News API failed, trying cache fallback:', error.message);
-    
-    // Try cache as final fallback
+    // Fallback to cache with freshness check
     const cache = await caches.open(NEWS_CACHE);
     const cached = await cache.match(request);
     
     if (cached) {
-      console.log('💾 Serving stale cached news as fallback:', request.url);
-      return cached;
+        const cachedAt = cached.headers.get('sw-cached-at');
+        const age = cachedAt ? Date.now() - parseInt(cachedAt) : Infinity;
+        
+        if (age < CACHE_CONFIG.maxAge) {
+            console.log('💾 Serving fresh cached news:', request.url);
+            return cached;
+        } else {
+            console.log('⏰ Cached news is stale, removing:', request.url);
+            cache.delete(request);
+        }
     }
     
-    // Final fallback - offline message optimized for SYNC backend
-    return createNewsOfflineFallback();
-  }
+    // Final fallback - offline response
+    return createOfflineNewsResponse();
 }
 
-// Background update for news
-async function backgroundUpdateNews(request, cache) {
-  try {
-    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
-    if (networkResponse && networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-      console.log('🔄 Background updated news cache:', request.url);
+// === IMAGE HANDLER - CACHE FIRST WITH LAZY LOADING ===
+async function handleImageResource(request) {
+    console.log('🖼️ Handling image resource:', request.url);
+    
+    try {
+        const cache = await caches.open(IMAGES_CACHE);
+        const cached = await cache.match(request);
+        
+        if (cached) {
+            console.log('💾 Serving cached image:', request.url);
+            return cached;
+        }
+        
+        // Fetch with timeout for images
+        const networkResponse = await fetchWithTimeout(request, 10000);
+        
+        if (networkResponse && networkResponse.ok) {
+            // Only cache successful image responses
+            if (networkResponse.headers.get('content-type')?.startsWith('image/')) {
+                cache.put(request, networkResponse.clone());
+                await limitCacheSize(cache, CACHE_CONFIG.maxImageEntries);
+            }
+        }
+        
+        return networkResponse || createPlaceholderImage();
+        
+    } catch (error) {
+        console.log('❌ Image loading failed:', error.message);
+        return createPlaceholderImage();
     }
-  } catch (error) {
-    console.log('⚠️ Background news update failed:', error.message);
-  }
 }
 
-// Enhanced fetch with timeout
-async function fetchWithTimeout(request, timeout) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    const response = await fetch(request, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error('Request timeout');
+// === FONT HANDLER - CACHE FIRST WITH LONG TTL ===
+async function handleFontResource(request) {
+    console.log('🔤 Handling font resource:', request.url);
+    
+    try {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(request);
+        
+        if (cached) {
+            console.log('💾 Serving cached font:', request.url);
+            return cached;
+        }
+        
+        const networkResponse = await fetchWithTimeout(request, 15000);
+        
+        if (networkResponse && networkResponse.ok) {
+            // Fonts are cached for long periods
+            cache.put(request, networkResponse.clone());
+        }
+        
+        return networkResponse;
+        
+    } catch (error) {
+        console.log('❌ Font loading failed:', error.message);
+        // Don't provide fallback for fonts - let browser handle it
+        throw error;
     }
-    throw error;
-  }
 }
 
-// RENDER.COM OPTIMIZED: Simple navigation handling
+// === NAVIGATION HANDLER - NETWORK FIRST ===
 async function handleNavigation(request) {
-  console.log('🧭 Tiền Phong handling navigation (SYNC):', request.url);
-  
-  try {
-    // Try network first for navigation with timeout
-    const networkResponse = await fetchWithTimeout(request, CACHE_CONFIG.networkTimeout);
-    if (networkResponse && networkResponse.ok) {
-      return networkResponse;
+    console.log('🧭 Handling navigation:', request.url);
+    
+    try {
+        const networkResponse = await fetchWithTimeout(request, 8000);
+        if (networkResponse && networkResponse.ok) {
+            return networkResponse;
+        }
+    } catch (error) {
+        console.log('❌ Navigation network failed:', error.message);
     }
-  } catch (error) {
-    console.log('❌ Navigation network failed:', error.message);
-  }
-  
-  // Fallback to cached index
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match('/');
-  
-  if (cached) {
-    console.log('💾 Serving cached index for navigation');
-    return cached;
-  }
-  
-  // Ultimate fallback - optimized offline page for Tiền Phong
-  return createNavigationFallback();
-}
-
-// Create fallback response for static resources
-function createFallbackResponse(request) {
-  const url = new URL(request.url);
-  
-  if (url.pathname.endsWith('.css')) {
-    return new Response(`/* Tiền Phong offline CSS */
-      body { 
-        font-family: 'Times New Roman', serif; 
-        background: #ffffff; 
-        color: #000000; 
-        margin: 0; 
-        padding: 20px;
-        text-align: center;
-      }
-      .offline-notice {
-        border: 2px solid #dc2626;
-        padding: 20px;
-        margin: 20px 0;
-        background: #fef2f2;
-      }`, {
-      headers: { 'Content-Type': 'text/css' }
-    });
-  }
-  
-  if (url.pathname.endsWith('.js')) {
-    return new Response(`console.log('Tiền Phong: Script loaded in offline mode');`, {
-      headers: { 'Content-Type': 'application/javascript' }
-    });
-  }
-  
-  return new Response('Tiền Phong: Resource unavailable offline', {
-    status: 503,
-    statusText: 'Service Unavailable'
-  });
-}
-
-// Create news offline fallback
-function createNewsOfflineFallback() {
-  return new Response(JSON.stringify({
-    error: 'Không có kết nối internet',
-    offline: true,
-    message: 'Tiền Phong: Vui lòng kiểm tra kết nối mạng và thử lại',
-    news: [],
-    page: 1,
-    total_pages: 1
-  }), {
-    status: 503,
-    statusText: 'Service Unavailable',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
+    
+    // Fallback to cached index
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match('/');
+    
+    if (cached) {
+        console.log('💾 Serving cached index for navigation');
+        return cached;
     }
-  });
+    
+    // Ultimate fallback - enhanced offline page
+    return createEnhancedOfflinePage();
 }
 
-// Create navigation fallback
-function createNavigationFallback() {
-  return new Response(`<!DOCTYPE html>
+// === GENERIC REQUEST HANDLER ===
+async function handleGenericRequest(request) {
+    try {
+        const networkResponse = await fetchWithTimeout(request, 6000);
+        
+        if (networkResponse && networkResponse.ok) {
+            // Light caching for other resources
+            const cache = await caches.open(RUNTIME_CACHE);
+            cache.put(request, networkResponse.clone());
+            await limitCacheSize(cache, CACHE_CONFIG.maxRuntimeEntries);
+        }
+        
+        return networkResponse;
+        
+    } catch (error) {
+        // Try cache fallback
+        const cache = await caches.open(RUNTIME_CACHE);
+        const cached = await cache.match(request);
+        
+        if (cached) {
+            console.log('💾 Serving cached generic resource:', request.url);
+            return cached;
+        }
+        
+        throw error;
+    }
+}
+
+// === UTILITY FUNCTIONS ===
+async function fetchWithTimeout(request, timeout = 5000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(request, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+}
+
+async function updateResourceInBackground(request, cache) {
+    try {
+        const response = await fetch(request);
+        if (response.ok) {
+            cache.put(request, response);
+            console.log('🔄 Updated resource in background:', request.url);
+        }
+    } catch (error) {
+        console.log('⚠️ Background update failed:', error.message);
+    }
+}
+
+async function limitCacheSize(cache, maxEntries) {
+    try {
+        const keys = await cache.keys();
+        if (keys.length > maxEntries) {
+            const keysToDelete = keys.slice(0, keys.length - maxEntries);
+            await Promise.all(keysToDelete.map(key => cache.delete(key)));
+            console.log(`🧹 Cleaned up ${keysToDelete.length} cache entries`);
+        }
+    } catch (error) {
+        console.log('⚠️ Cache cleanup error:', error);
+    }
+}
+
+async function cleanupOldCaches() {
+    try {
+        const cacheNames = await caches.keys();
+        const currentCaches = [CACHE_NAME, RUNTIME_CACHE, NEWS_CACHE, IMAGES_CACHE];
+        
+        const deletePromises = cacheNames
+            .filter(cacheName => !currentCaches.includes(cacheName))
+            .map(cacheName => {
+                console.log('🗑️ Deleting old cache:', cacheName);
+                return caches.delete(cacheName);
+            });
+        
+        return Promise.all(deletePromises);
+    } catch (error) {
+        console.log('⚠️ Cache cleanup error:', error);
+    }
+}
+
+// === OFFLINE RESPONSES ===
+function createOfflineResponse(request) {
+    if (request.url.includes('.css')) {
+        return new Response('/* iOS 26 Offline */body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:SF Pro Display,sans-serif;}', {
+            headers: { 'Content-Type': 'text/css' }
+        });
+    }
+    
+    if (request.url.includes('.js')) {
+        return new Response('console.log("iOS 26 Portal - Offline Mode");', {
+            headers: { 'Content-Type': 'application/javascript' }
+        });
+    }
+    
+    return new Response('Offline - iOS 26 Portal', {
+        status: 503,
+        statusText: 'Service Unavailable'
+    });
+}
+
+function createOfflineNewsResponse() {
+    return new Response(JSON.stringify({
+        error: 'Không có kết nối internet và không có dữ liệu đã lưu',
+        offline: true,
+        news: [],
+        page: 1,
+        total_pages: 1,
+        offline_message: 'Vui lòng kiểm tra kết nối mạng và thử lại'
+    }), {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+        }
+    });
+}
+
+function createPlaceholderImage() {
+    // Create a simple SVG placeholder
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">
+        <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#007AFF;stop-opacity:0.3" />
+                <stop offset="100%" style="stop-color:#AF52DE;stop-opacity:0.3" />
+            </linearGradient>
+        </defs>
+        <rect width="400" height="200" fill="url(#grad)"/>
+        <text x="200" y="100" text-anchor="middle" fill="#007AFF" font-family="SF Pro Display, sans-serif" font-size="16">📷 Ảnh không tải được</text>
+        <text x="200" y="120" text-anchor="middle" fill="#64D2FF" font-family="SF Pro Display, sans-serif" font-size="12">iOS 26 Portal</text>
+    </svg>`;
+    
+    return new Response(svg, {
+        headers: {
+            'Content-Type': 'image/svg+xml',
+            'Cache-Control': 'no-cache'
+        }
+    });
+}
+
+function createEnhancedOfflinePage() {
+    const html = `
+    <!DOCTYPE html>
     <html lang="vi">
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Tiền Phong - Offline</title>
-      <style>
-        body { 
-          font-family: 'Times New Roman', serif; 
-          background: #ffffff;
-          color: #000000; 
-          text-align: center; 
-          padding: 2rem;
-          margin: 0;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          line-height: 1.6;
-        }
-        .masthead {
-          font-size: 3rem;
-          font-weight: bold;
-          color: #dc2626;
-          margin-bottom: 0.5rem;
-          text-transform: uppercase;
-          letter-spacing: 2px;
-        }
-        .tagline {
-          font-size: 0.9rem;
-          color: #666;
-          margin-bottom: 2rem;
-          border-bottom: 2px solid #dc2626;
-          padding-bottom: 1rem;
-        }
-        .offline-container {
-          background: #fef2f2;
-          border: 3px solid #dc2626;
-          padding: 2rem;
-          max-width: 500px;
-          margin: 2rem 0;
-        }
-        .offline-title {
-          font-size: 1.5rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
-          color: #dc2626;
-        }
-        .offline-message {
-          margin-bottom: 1.5rem;
-          color: #333;
-        }
-        button {
-          background: #dc2626;
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          font-size: 1rem;
-          cursor: pointer;
-          margin: 0.5rem;
-          font-family: inherit;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          transition: background 0.2s ease;
-        }
-        button:hover {
-          background: #b91c1c;
-        }
-        .date {
-          margin-top: 2rem;
-          font-size: 0.9rem;
-          color: #666;
-        }
-      </style>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>iOS 26 E-con News - Offline</title>
+        <style>
+            body { 
+                font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+                color: white; 
+                text-align: center; 
+                padding: 2rem;
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .offline-container {
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 24px;
+                padding: 3rem 2rem;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+                max-width: 500px;
+            }
+            .logo {
+                width: 80px;
+                height: 80px;
+                background: #007AFF;
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 40px;
+                margin: 0 auto 2rem;
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.05); opacity: 0.9; }
+            }
+            h1 { font-size: 2rem; margin-bottom: 1rem; font-weight: 700; }
+            h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #64D2FF; }
+            p { margin-bottom: 2rem; line-height: 1.6; opacity: 0.9; }
+            button {
+                background: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 50px;
+                cursor: pointer;
+                font-size: 1rem;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            button:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+            .features {
+                margin-top: 2rem;
+                text-align: left;
+                opacity: 0.8;
+            }
+            .features h3 { color: #64D2FF; margin-bottom: 1rem; }
+            .features ul { list-style: none; padding: 0; }
+            .features li { margin-bottom: 0.5rem; }
+            .features li::before { content: "✨ "; }
+        </style>
     </head>
     <body>
-      <div class="masthead">Tiền Phong</div>
-      <div class="tagline">www.tienphong.vn • Tin Tức Tài Chính - Chứng Khoán</div>
-      
-      <div class="offline-container">
-        <div class="offline-title">📱 Chế độ Offline</div>
-        <div class="offline-message">
-          Không có kết nối internet. Tiền Phong cần kết nối để cập nhật tin tức mới nhất.
+        <div class="offline-container">
+            <div class="logo">📊</div>
+            <h1>E-con News</h1>
+            <h2>📱 Chế độ Offline</h2>
+            <p>Bạn đang offline, nhưng iOS 26 Portal vẫn hoạt động! Một số tính năng có thể bị giới hạn.</p>
+            
+            <div class="features">
+                <h3>Tính năng khả dụng:</h3>
+                <ul>
+                    <li>Xem tin tức đã lưu cache</li>
+                    <li>Giao diện Liquid Glass</li>
+                    <li>Chức năng cơ bản</li>
+                </ul>
+            </div>
+            
+            <button onclick="location.reload()">🔄 Thử kết nối lại</button>
         </div>
-        <button onclick="location.reload()">🔄 Thử lại</button>
-        <button onclick="if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(registrations){for(let registration of registrations){registration.unregister();}});} location.reload();">🔧 Tải lại hoàn toàn</button>
-      </div>
-      
-      <div class="date">
-        ${new Date().toLocaleDateString('vi-VN', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })}
-      </div>
-      
-      <script>
-        // Auto-retry every 30 seconds
-        setTimeout(() => {
-          if (navigator.onLine) {
-            location.reload();
-          }
-        }, 30000);
         
-        // Listen for online event
-        window.addEventListener('online', () => {
-          location.reload();
-        });
-      </script>
+        <script>
+            // Auto-retry connection
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            function checkConnection() {
+                if (navigator.onLine && retryCount < maxRetries) {
+                    retryCount++;
+                    console.log('Attempting to reconnect...', retryCount);
+                    location.reload();
+                }
+            }
+            
+            window.addEventListener('online', checkConnection);
+            
+            // Retry every 30 seconds
+            setInterval(() => {
+                if (navigator.onLine) {
+                    checkConnection();
+                }
+            }, 30000);
+        </script>
     </body>
-    </html>`, {
-    headers: { 'Content-Type': 'text/html; charset=utf-8' }
-  });
-}
-
-// RENDER.COM OPTIMIZED: Efficient cache cleanup
-async function cleanupOldCaches() {
-  try {
-    const cacheNames = await caches.keys();
-    const currentCaches = [CACHE_NAME, RUNTIME_CACHE, NEWS_CACHE];
+    </html>`;
     
-    const deletePromises = cacheNames
-      .filter(cacheName => !currentCaches.includes(cacheName))
-      .map(cacheName => {
-        console.log('🗑️ Deleting old Tiền Phong cache:', cacheName);
-        return caches.delete(cacheName);
-      });
+    return new Response(html, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+    });
+}
+
+// === PERFORMANCE MONITORING ===
+function initializePerformanceMonitoring() {
+    // Track cache hit rates
+    self.cacheHitRate = {
+        hits: 0,
+        misses: 0,
+        getRate() {
+            const total = this.hits + this.misses;
+            return total > 0 ? (this.hits / total * 100).toFixed(2) + '%' : '0%';
+        }
+    };
     
-    await Promise.all(deletePromises);
-    console.log(`🧹 Cleaned up ${deletePromises.length} old caches`);
-  } catch (error) {
-    console.log('⚠️ Cache cleanup error:', error);
-  }
+    console.log('📊 Performance monitoring initialized');
 }
 
-// RENDER.COM OPTIMIZED: Simple cache size limiting
-async function limitCacheSize(cache, maxEntries) {
-  try {
-    const keys = await cache.keys();
-    if (keys.length > maxEntries) {
-      const keysToDelete = keys.slice(0, keys.length - maxEntries);
-      await Promise.all(keysToDelete.map(key => cache.delete(key)));
-      console.log(`🧹 Tiền Phong cleaned up ${keysToDelete.length} cache entries`);
-    }
-  } catch (error) {
-    console.log('⚠️ Cache size limiting error:', error);
-  }
-}
-
-// RENDER.COM OPTIMIZED: Background sync for failed requests
+// === BACKGROUND SYNC ===
 self.addEventListener('sync', (event) => {
-  console.log('🔄 Tiền Phong background sync triggered:', event.tag);
-  
-  if (event.tag === 'tienphong-retry-requests') {
-    event.waitUntil(retryFailedRequests());
-  }
+    console.log('🔄 Background sync triggered:', event.tag);
+    
+    if (event.tag === 'ios26-retry-requests') {
+        event.waitUntil(retryFailedRequests());
+    } else if (event.tag === 'ios26-cache-cleanup') {
+        event.waitUntil(performMaintenanceTasks());
+    }
 });
 
 async function retryFailedRequests() {
-  console.log('🔄 Tiền Phong retrying failed requests...');
-  
-  try {
-    // Simple retry logic - ping main endpoint
-    const response = await fetchWithTimeout(
-      new Request('/api/news/all?page=1&limit=1'), 
-      CACHE_CONFIG.networkTimeout
-    );
+    console.log('🔄 Retrying failed requests...');
     
-    if (response && response.ok) {
-      console.log('✅ Tiền Phong retry successful');
-      
-      // Notify all clients that we're back online
-      const clients = await self.clients.matchAll();
-      clients.forEach(client => {
-        client.postMessage({
-          type: 'BACK_ONLINE',
-          message: 'Kết nối đã được khôi phục - Tiền Phong'
-        });
-      });
+    try {
+        // Test connectivity with main endpoint
+        const response = await fetch('/api/news/all?page=1&limit=1');
+        if (response.ok) {
+            console.log('✅ Connection restored');
+            
+            // Notify all clients
+            const clients = await self.clients.matchAll();
+            clients.forEach(client => {
+                client.postMessage({
+                    type: 'CONNECTION_RESTORED',
+                    message: 'Kết nối đã được khôi phục'
+                });
+            });
+        }
+    } catch (error) {
+        console.log('❌ Retry failed:', error);
     }
-  } catch (error) {
-    console.log('❌ Tiền Phong retry failed:', error);
-  }
 }
 
-// RENDER.COM OPTIMIZED: Push notifications for news updates
-self.addEventListener('push', (event) => {
-  console.log('🔔 Tiền Phong push notification received');
-  
-  const data = event.data ? event.data.json() : {};
-  const options = {
-    body: data.body || 'Tin tức mới từ Tiền Phong!',
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23dc2626"/><text x="50" y="65" font-size="40" text-anchor="middle" fill="white" font-family="serif">TP</text></svg>',
-    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%23dc2626"/><text x="50" y="65" font-size="30" text-anchor="middle" fill="white">📰</text></svg>',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 'tienphong-news',
-      url: data.url || '/'
-    },
-    actions: [
-      {
-        action: 'open',
-        title: 'Đọc tin tức',
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
-      },
-      {
-        action: 'close',
-        title: 'Đóng',
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>'
-      }
-    ],
-    tag: 'tienphong-news',
-    requireInteraction: false,
-    silent: false
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification('Tiền Phong - Tin Tức Tài Chính', options)
-  );
-});
-
-// Notification click handling
-self.addEventListener('notificationclick', (event) => {
-  console.log('🖱️ Tiền Phong notification clicked:', event.action);
-  
-  event.notification.close();
-  
-  if (event.action === 'open' || !event.action) {
-    const urlToOpen = event.notification.data?.url || '/';
-    event.waitUntil(
-      clients.matchAll({ type: 'window' }).then(clientList => {
-        // Check if a window is already open
-        for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // Open new window
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
-      })
-    );
-  }
-});
-
-// RENDER.COM OPTIMIZED: Periodic cache maintenance (every 30 minutes)
-setInterval(() => {
-  console.log('🧹 Tiền Phong periodic cache maintenance...');
-  
-  // Clean up old caches
-  cleanupOldCaches();
-  
-  // Clean up individual caches
-  [CACHE_NAME, RUNTIME_CACHE, NEWS_CACHE].forEach(async (cacheName) => {
-    try {
-      const cache = await caches.open(cacheName);
-      let maxEntries;
-      
-      switch (cacheName) {
-        case NEWS_CACHE:
-          maxEntries = CACHE_CONFIG.maxNewsEntries;
-          break;
-        case RUNTIME_CACHE:
-          maxEntries = CACHE_CONFIG.maxRuntimeEntries;
-          break;
-        default:
-          maxEntries = CACHE_CONFIG.maxStaticEntries;
-      }
-      
-      await limitCacheSize(cache, maxEntries);
-    } catch (error) {
-      console.log('⚠️ Periodic maintenance error:', error);
-    }
-  });
-}, 30 * 60 * 1000); // 30 minutes
-
-// RENDER.COM OPTIMIZED: Message handling from main thread
-self.addEventListener('message', (event) => {
-  console.log('💬 Tiền Phong SW received message:', event.data);
-  
-  const { type, data } = event.data || {};
-  
-  switch (type) {
-    case 'SKIP_WAITING':
-      self.skipWaiting();
-      break;
-      
-    case 'WARM_UP':
-      // Respond to warm-up ping from main thread
-      if (event.ports[0]) {
-        event.ports[0].postMessage({
-          type: 'WARM_UP_RESPONSE',
-          timestamp: Date.now(),
-          version: '3.0.0'
-        });
-      }
-      break;
-      
-    case 'CLEAR_CACHE':
-      // Clear specific cache or all caches
-      event.waitUntil(
-        data?.cacheName ? 
-          caches.delete(data.cacheName) : 
-          cleanupOldCaches()
-      );
-      break;
-      
-    case 'CACHE_NEWS':
-      // Preemptively cache news data
-      if (data?.url) {
-        event.waitUntil(
-          caches.open(NEWS_CACHE).then(cache => 
-            fetch(data.url).then(response => {
-              if (response.ok) {
-                cache.put(data.url, response.clone());
-              }
-            })
-          )
-        );
-      }
-      break;
-  }
-});
-
-// Log service worker status
-console.log('🚀 Tiền Phong Service Worker loaded successfully (SYNC optimized)');
-console.log('📋 Cache configuration:', CACHE_CONFIG);
-console.log('💾 Static resources to cache:', STATIC_RESOURCES.length);
-console.log('📱 Optimized for Render.com free tier with SYNC backend');
-console.log('🎨 Theme: Traditional Tiền Phong Newspaper');
-
-// RENDER.COM OPTIMIZED: Storage quota check
-if ('storage' in navigator && 'estimate' in navigator.storage) {
-  navigator.storage.estimate().then(estimate => {
-    const quotaMB = Math.round(estimate.quota / 1024 / 1024);
-    const usageMB = Math.round(estimate.usage / 1024 / 1024);
-    console.log(`💾 Storage quota: ${quotaMB}MB, usage: ${usageMB}MB`);
+async function performMaintenanceTasks() {
+    console.log('🧹 Performing maintenance tasks...');
     
-    // Warn if approaching storage limit
-    if (usageMB > quotaMB * 0.8) {
-      console.warn('⚠️ Approaching storage quota limit, cleaning up...');
-      cleanupOldCaches();
+    try {
+        await cleanupOldCaches();
+        
+        // Clean up expired news cache
+        const newsCache = await caches.open(NEWS_CACHE);
+        const requests = await newsCache.keys();
+        
+        for (const request of requests) {
+            const response = await newsCache.match(request);
+            if (response) {
+                const cachedAt = response.headers.get('sw-cached-at');
+                if (cachedAt) {
+                    const age = Date.now() - parseInt(cachedAt);
+                    if (age > CACHE_CONFIG.maxAge * 2) {
+                        await newsCache.delete(request);
+                        console.log('🗑️ Deleted expired news cache:', request.url);
+                    }
+                }
+            }
+        }
+        
+        console.log('✅ Maintenance completed');
+    } catch (error) {
+        console.log('⚠️ Maintenance error:', error);
     }
-  }).catch(error => {
-    console.log('⚠️ Storage estimate unavailable:', error);
-  });
+}
+
+// === PUSH NOTIFICATIONS ===
+self.addEventListener('push', (event) => {
+    console.log('🔔 Push notification received');
+    
+    const options = {
+        body: event.data ? event.data.text() : 'Tin tức mới từ iOS 26 E-con Portal!',
+        icon: '/static/icon-192x192.png',
+        badge: '/static/badge-72x72.png',
+        image: '/static/notification-image.jpg',
+        vibrate: [100, 50, 100],
+        data: {
+            dateOfArrival: Date.now(),
+            primaryKey: 'ios26-news',
+            url: '/'
+        },
+        actions: [
+            {
+                action: 'explore',
+                title: 'Xem tin tức',
+                icon: '/static/action-explore.png'
+            },
+            {
+                action: 'close',
+                title: 'Đóng',
+                icon: '/static/action-close.png'
+            }
+        ],
+        tag: 'ios26-news',
+        requireInteraction: false,
+        silent: false
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification('E-con News - iOS 26 Portal', options)
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    console.log('🖱️ Notification clicked:', event.action);
+    
+    event.notification.close();
+    
+    if (event.action === 'explore') {
+        event.waitUntil(
+            clients.openWindow(event.notification.data.url || '/')
+        );
+    }
+});
+
+// === MESSAGE HANDLING ===
+self.addEventListener('message', (event) => {
+    console.log('💬 SW received message:', event.data);
+    
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+    
+    if (event.data && event.data.type === 'GET_CACHE_STATUS') {
+        event.ports[0].postMessage({
+            type: 'CACHE_STATUS',
+            cacheHitRate: self.cacheHitRate ? self.cacheHitRate.getRate() : '0%',
+            timestamp: Date.now()
+        });
+    }
+    
+    if (event.data && event.data.type === 'CLEAR_CACHE') {
+        event.waitUntil(
+            caches.keys().then(cacheNames => {
+                return Promise.all(
+                    cacheNames.map(cacheName => caches.delete(cacheName))
+                );
+            }).then(() => {
+                event.ports[0].postMessage({
+                    type: 'CACHE_CLEARED',
+                    timestamp: Date.now()
+                });
+            })
+        );
+    }
+});
+
+// === STARTUP LOG ===
+console.log('🚀 iOS 26 Liquid Glass Service Worker loaded successfully');
+console.log('📋 Cache configuration:', CACHE_CONFIG);
+console.log('💾 Static resources:', STATIC_RESOURCES.length);
+console.log('📱 Optimized for iOS 26 design system');
+console.log('🎨 Features: Stale-while-revalidate, Background sync, Push notifications');
+
+// === PERFORMANCE TRACKING ===
+if ('storage' in navigator && 'estimate' in navigator.storage) {
+    navigator.storage.estimate().then(estimate => {
+        console.log('💾 Storage quota:', Math.round(estimate.quota / 1024 / 1024) + 'MB');
+        console.log('💾 Storage usage:', Math.round(estimate.usage / 1024 / 1024) + 'MB');
+        console.log('💾 Usage percentage:', Math.round(estimate.usage / estimate.quota * 100) + '%');
+    }).catch(() => {
+        console.log('💾 Storage estimation not available');
+    });
 }
