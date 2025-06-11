@@ -97,7 +97,7 @@ class TerminalPWAManager {
         }
         
         try {
-            const registration = await navigator.serviceWorker.register('/static/sw-enhanced.js', {
+            const registration = await navigator.serviceWorker.register('/static/sw.js', {
                 scope: '/',
                 updateViaCache: 'none'
             });
