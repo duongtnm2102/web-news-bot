@@ -117,61 +117,24 @@ class TerminalMessage:
 # ===============================
 
 class TerminalWebSocketManager:
-    def __init__(self, app: Flask, socketio: SocketIO, terminal_processor):
+    """
+    Advanced WebSocket manager for terminal interface
+    """
+    def __init__(self, app: Flask, socketio, terminal_processor):
         self.app = app
         self.socketio = socketio
         self.terminal_processor = terminal_processor
         self.active_sessions: Dict[str, TerminalSession] = {}
-        
-        # Message history and monitoring
+        self.session_rooms: Dict[str, Set[str]] = defaultdict(set)
         self.message_history = deque(maxlen=1000)
         self.broadcast_subscribers: Set[str] = set()
-        
-        # Performance metrics
+        self.rate_limits: Dict[str, deque] = defaultdict(lambda: deque(maxlen=30))
+        self.rate_limit_window = 60
         self.metrics = {
-            'total_connections': 0,
-            'active_connections': 0,
-            'messages_sent': 0,
-            'commands_executed': 0,
-            'errors': 0,
-            'uptime_start': time.time()
+            'total_connections': 0, 'active_connections': 0, 'messages_sent': 0,
+            'commands_executed': 0, 'errors': 0, 'uptime_start': time.time()
         }
-        
-        # Background processing
-        self.background_processor = None
-        self.processing_active = False
-        
-        # Rate limiting
-        self.rate_limits: Dict[str, deque] = defaultdict(lambda: deque(maxlen=10))
-        self.rate_limit_window = 60  # seconds
-        self.rate_limit_max = 30  # requests per window
-        
-        if app:
-            self.init_app(app)
-    
-    def __init__(self, app: Flask):
-        """Initialize WebSocket manager with Flask app"""
-        self.app = app
-        
-        # Initialize SocketIO with terminal-optimized config
-        self.socketio = SocketIO(
-            app,
-            cors_allowed_origins="*",
-            async_mode='eventlet',
-            logger=True,
-            engineio_logger=False,
-            ping_timeout=60,
-            ping_interval=25,
-            max_http_buffer_size=10000
-        )
-        
-        # Register event handlers
-        self.register_handlers()
-        
-        # Start background processing
-        self.start_background_processing()
-        
-        logger.info("🔌 Terminal WebSocket Manager initialized")
+        logger.info("🔌 TerminalWebSocketManager instance created.")
     
     def _register_handlers(self):
         """Register all WebSocket event handlers"""
@@ -399,6 +362,8 @@ class TerminalWebSocketManager:
                 
             except Exception as e:
                 logger.error(f"Status request error: {e}")
+                
+        logger.info("🔌 WebSocket event handlers registered.")
     
     def _create_welcome_message(self, terminal_session: TerminalSession) -> TerminalMessage:
         """Create welcome message for new connections"""
