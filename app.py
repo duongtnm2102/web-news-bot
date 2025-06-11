@@ -44,7 +44,7 @@ except ImportError:
 
 # Flask app configuration
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'vietstock-econ-portal-2025')
+app.secret_key = os.getenv('SECRET_KEY', 'tien-phong-econ-portal-2025')
 
 # Environment variables
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -88,25 +88,14 @@ def get_current_datetime_str():
     current_dt = get_current_vietnam_datetime()
     return current_dt.strftime("%H:%M %d/%m/%Y")
 
-print("🚀 VietStock-style E-con News Backend:")
+print("🚀 Tiền Phong E-con News Backend:")
 print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print("=" * 50)
 
-# ENHANCED RSS FEEDS - VietStock + Others
+# UPDATED RSS FEEDS - NO VIETSTOCK, ONLY CAFEF + INTERNATIONAL
 RSS_FEEDS = {
-    # === VIETSTOCK RSS FEEDS (Primary) ===
-    'vietstock': {
-        'vietstock_stocks': 'https://vietstock.vn/chung-khoan.rss',
-        'vietstock_business': 'https://vietstock.vn/doanh-nghiep.rss', 
-        'vietstock_realestate': 'https://vietstock.vn/bat-dong-san.rss',
-        'vietstock_finance': 'https://vietstock.vn/tai-chinh.rss',
-        'vietstock_macro': 'https://vietstock.vn/vi-mo.rss',
-        'vietstock_world': 'https://vietstock.vn/the-gioi.rss',
-        'vietstock_analysis': 'https://vietstock.vn/phan-tich.rss'
-    },
-    
-    # === CAFEF RSS FEEDS (Secondary) ===
+    # === CAFEF RSS FEEDS (Primary Vietnamese Source) ===
     'cafef': {
         'cafef_stocks': 'https://cafef.vn/thi-truong-chung-khoan.rss',
         'cafef_realestate': 'https://cafef.vn/bat-dong-san.rss',
@@ -115,14 +104,16 @@ RSS_FEEDS = {
         'cafef_macro': 'https://cafef.vn/vi-mo-dau-tu.rss'
     },
     
-    # === INTERNATIONAL RSS FEEDS (Tertiary) ===
+    # === INTERNATIONAL RSS FEEDS (Global Financial News) ===
     'international': {
         'yahoo_finance': 'https://finance.yahoo.com/news/rssindex',
         'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
         'cnbc': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
         'reuters_business': 'https://feeds.reuters.com/reuters/businessNews',
         'investing_com': 'https://www.investing.com/rss/news.rss',
-        'bloomberg': 'https://feeds.bloomberg.com/markets/news.rss'
+        'bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
+        'financial_times': 'https://www.ft.com/rss/home',
+        'wsj_markets': 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml'
     }
 }
 
@@ -249,12 +240,7 @@ def get_enhanced_headers(url=None):
     }
     
     if url:
-        if 'vietstock.vn' in url.lower():
-            headers.update({
-                'Referer': 'https://vietstock.vn/',
-                'Origin': 'https://vietstock.vn'
-            })
-        elif 'cafef.vn' in url.lower():
+        if 'cafef.vn' in url.lower():
             headers.update({
                 'Referer': 'https://cafef.vn/',
                 'Origin': 'https://cafef.vn'
@@ -270,7 +256,8 @@ def get_enhanced_headers(url=None):
 def is_international_source(source_name):
     """Check if source is international"""
     international_sources = [
-        'yahoo_finance', 'marketwatch', 'cnbc', 'reuters', 'investing_com', 'bloomberg'
+        'yahoo_finance', 'marketwatch', 'cnbc', 'reuters', 'investing_com', 
+        'bloomberg', 'financial_times', 'wsj_markets'
     ]
     return any(source in source_name for source in international_sources)
 
@@ -299,7 +286,7 @@ def create_fallback_content(url, source_name, error_msg=""):
 
 **Source:** {source_name.replace('_', ' ').title()}"""
         else:
-            return f"""**📰 Tin tức tài chính VietStock/CafeF**
+            return f"""**📰 Tin tức tài chính CafeF**
 
 **Thông tin chi tiết:** Bài viết cung cấp thông tin chuyên sâu về thị trường tài chính, chứng khoán Việt Nam.
 
@@ -322,22 +309,38 @@ def create_fallback_content(url, source_name, error_msg=""):
         return f"**Nội dung từ {source_name}**\n\nVui lòng truy cập link gốc để đọc đầy đủ bài viết.\n\nMã lỗi: {str(e)}"
 
 async def extract_content_with_gemini(url, source_name):
-    """Enhanced Gemini content extraction with image detection"""
+    """Enhanced Gemini content extraction with proper formatting"""
     try:
         if not GEMINI_API_KEY or not GEMINI_AVAILABLE:
             return create_fallback_content(url, source_name, "Gemini AI không khả dụng")
         
-        # Enhanced extraction prompt
+        # Enhanced extraction prompt for better formatting
         extraction_prompt = f"""Trích xuất và dịch nội dung từ: {url}
 
 YÊU CẦU CHI TIẾT:
 1. Đọc toàn bộ bài báo và trích xuất nội dung chính
 2. Dịch sang tiếng Việt tự nhiên, lưu loát  
 3. Giữ nguyên số liệu, tên công ty, thuật ngữ kỹ thuật
-4. Format với headline in đậm và đoạn văn rõ ràng
-5. Nếu có ảnh/biểu đồ, mô tả ngắn gọn
-6. Độ dài: 500-1000 từ
-7. CHỈ trả về nội dung đã dịch và format
+4. Format với các headline rõ ràng sử dụng **Tiêu đề**
+5. Tách dòng rõ ràng giữa các đoạn văn
+6. Nếu có ảnh/biểu đồ, ghi chú [📷 Ảnh minh họa]
+7. Độ dài: 500-1000 từ
+8. CHỈ trả về nội dung đã dịch và format
+
+FORMAT MẪU:
+**Tiêu đề chính**
+
+Đoạn văn đầu tiên với thông tin quan trọng.
+
+**Phân tích chi tiết**
+
+Đoạn văn thứ hai với phân tích sâu hơn.
+
+[📷 Ảnh minh họa - nếu có]
+
+**Kết luận**
+
+Đoạn kết luận với những điểm quan trọng.
 
 BẮTTĐẦU TRÍCH XUẤT:"""
 
@@ -347,7 +350,7 @@ BẮTTĐẦU TRÍCH XUẤT:"""
             generation_config = genai.types.GenerationConfig(
                 temperature=0.1,
                 top_p=0.8,
-                max_output_tokens=2000,
+                max_output_tokens=2500,
             )
             
             response = await asyncio.wait_for(
@@ -356,7 +359,7 @@ BẮTTĐẦU TRÍCH XUẤT:"""
                     extraction_prompt,
                     generation_config=generation_config
                 ),
-                timeout=25
+                timeout=30
             )
             
             extracted_content = response.text.strip()
@@ -386,7 +389,7 @@ BẮTTĐẦU TRÍCH XUẤT:"""
         return create_fallback_content(url, source_name, str(e))
 
 def format_extracted_content(content, source_name):
-    """Enhanced content formatting with headlines and images"""
+    """Enhanced content formatting with proper headlines and line breaks"""
     if not content:
         return content
     
@@ -399,8 +402,11 @@ def format_extracted_content(content, source_name):
         if not line:
             continue
             
+        # Check if it's already formatted with **
+        if line.startswith('**') and line.endswith('**'):
+            formatted_lines.append(line)
         # Check if it's a headline (short, capitalized, or starts with numbers)
-        if (len(line) < 80 and 
+        elif (len(line) < 80 and 
             (line.isupper() or 
              line.startswith(('1.', '2.', '3.', '•', '-', '*')) or
              line.endswith(':') or
@@ -410,12 +416,13 @@ def format_extracted_content(content, source_name):
             # Regular paragraph
             formatted_lines.append(line)
     
+    # Join with double line breaks for proper spacing
     formatted_content = '\n\n'.join(formatted_lines)
     
     # Add image placeholder if content mentions visuals
     image_keywords = ['ảnh', 'hình', 'biểu đồ', 'chart', 'graph', 'image', 'photo']
     if any(keyword in formatted_content.lower() for keyword in image_keywords):
-        image_placeholder = "\n\n**[📷 Ảnh minh họa - Xem trong bài viết gốc]**\n\n"
+        image_placeholder = "\n\n[📷 Ảnh minh họa - Xem trong bài viết gốc]\n\n"
         # Insert after first paragraph
         paragraphs = formatted_content.split('\n\n')
         if len(paragraphs) > 1:
@@ -435,7 +442,7 @@ def clean_content_enhanced(content):
         return content
     
     unwanted_patterns = [
-        r'Theo.*?(VietStock|CafeF).*?',
+        r'Theo.*?(CafeF).*?',
         r'Nguồn.*?:.*?',
         r'Tags:.*?$',
         r'Từ khóa:.*?$',
@@ -449,21 +456,21 @@ def clean_content_enhanced(content):
     for pattern in unwanted_patterns:
         content = re.sub(pattern, '', content, flags=re.IGNORECASE | re.DOTALL)
     
-    # Clean up extra whitespace
-    content = re.sub(r'\s+', ' ', content)
-    content = re.sub(r'\n\s*\n', '\n\n', content)
+    # Clean up extra whitespace but preserve line breaks
+    content = re.sub(r'[ \t]+', ' ', content)  # Only clean horizontal whitespace
+    content = re.sub(r'\n\s*\n\s*\n', '\n\n', content)  # Max 2 consecutive newlines
     
     return content.strip()
 
 async def extract_content_enhanced(url, source_name, news_item=None):
-    """Enhanced content extraction with image support"""
+    """Enhanced content extraction with proper formatting"""
     
     # For international sources, use Gemini
     if is_international_source(source_name):
         print(f"🤖 Using Gemini for international source: {source_name}")
         return await extract_content_with_gemini(url, source_name)
     
-    # For VietStock/CafeF sources, use enhanced traditional methods
+    # For CafeF sources, use enhanced traditional methods
     try:
         print(f"🔧 Using enhanced traditional methods for: {source_name}")
         await async_sleep_delay()
@@ -480,7 +487,7 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                         include_comments=False,
                         include_tables=True,
                         include_links=False,
-                        include_images=True,  # Include image info
+                        include_images=True,
                         favor_precision=False,
                         favor_recall=True,
                         with_metadata=True
@@ -492,23 +499,9 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                         # Extract image information
                         images_info = ""
                         if 'images' in result and result['images']:
-                            images_info = f"\n\n**[📷 Bài viết có {len(result['images'])} hình ảnh minh họa]**\n\n"
+                            images_info = f"\n\n[📷 Bài viết có {len(result['images'])} hình ảnh minh họa]\n\n"
                         
-                        # Try to get more content with different settings
-                        if len(full_text) < 1000:
-                            result2 = await asyncio.to_thread(
-                                trafilatura.extract,
-                                content,
-                                include_comments=True,
-                                include_tables=True,
-                                include_links=True,
-                                favor_precision=False,
-                                favor_recall=True
-                            )
-                            if result2 and len(result2) > len(full_text):
-                                full_text = result2
-                        
-                        # Enhanced formatting
+                        # Enhanced formatting with proper line breaks
                         formatted_content = format_vietnamese_content(full_text)
                         return clean_content_enhanced(images_info + formatted_content)
                         
@@ -543,7 +536,7 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                         valid_images = [img for img in images if img.get('src') and 
                                       not any(x in img.get('src', '') for x in ['logo', 'icon', 'avatar', 'ads'])]
                         if valid_images:
-                            image_info = f"\n\n**[📷 Bài viết có {len(valid_images)} hình ảnh minh họa]**\n\n"
+                            image_info = f"\n\n[📷 Bài viết có {len(valid_images)} hình ảnh minh họa]\n\n"
                     
                     # Strategy 2: Combine all paragraphs if main content is insufficient
                     if len(extracted_text) < 500:
@@ -576,7 +569,7 @@ async def extract_content_enhanced(url, source_name, news_item=None):
                 if article.text and len(article.text) > 300:
                     image_info = ""
                     if article.top_image:
-                        image_info = "\n\n**[📷 Ảnh đại diện bài viết]**\n\n"
+                        image_info = "\n\n[📷 Ảnh đại diện bài viết]\n\n"
                     
                     formatted_content = format_vietnamese_content(article.text)
                     return clean_content_enhanced(image_info + formatted_content)
@@ -592,7 +585,7 @@ async def extract_content_enhanced(url, source_name, news_item=None):
         return create_fallback_content(url, source_name, str(e))
 
 def format_vietnamese_content(content):
-    """Format Vietnamese content with proper headlines and paragraphs"""
+    """Format Vietnamese content with proper headlines and paragraphs with line breaks"""
     if not content:
         return content
     
@@ -615,6 +608,7 @@ def format_vietnamese_content(content):
             # Regular paragraph
             formatted_paragraphs.append(paragraph)
     
+    # Join with double newlines for proper spacing
     return '\n\n'.join(formatted_paragraphs)
 
 async def process_rss_feed_async(source_name, rss_url, limit_per_source):
@@ -677,8 +671,8 @@ async def process_rss_feed_async(source_name, rss_url, limit_per_source):
 
 def is_relevant_news(title, description, source_name):
     """Enhanced relevance filtering"""
-    # VietStock and CafeF sources are always relevant
-    if 'vietstock' in source_name or 'cafef' in source_name:
+    # CafeF sources are always relevant
+    if 'cafef' in source_name:
         return True
     
     # For international sources, use enhanced keyword filtering
@@ -803,7 +797,7 @@ def save_user_last_detail(user_id, news_item):
         'timestamp': get_current_vietnam_datetime()
     }
 
-# Enhanced Gemini AI Engine
+# Enhanced Gemini AI Engine with improved response formatting
 class GeminiAIEngine:
     def __init__(self):
         self.available = GEMINI_AVAILABLE and GEMINI_API_KEY
@@ -811,14 +805,14 @@ class GeminiAIEngine:
             genai.configure(api_key=GEMINI_API_KEY)
     
     async def ask_question(self, question: str, context: str = ""):
-        """Enhanced Gemini AI question answering"""
+        """Enhanced Gemini AI question answering with proper formatting"""
         if not self.available:
             return "⚠️ Gemini AI không khả dụng. Vui lòng kiểm tra cấu hình API."
         
         try:
             current_date_str = get_current_date_str()
             
-            prompt = f"""Bạn là Gemini AI - chuyên gia tài chính chứng khoán thông minh của VietStock. Hãy trả lời câu hỏi với kiến thức chuyên sâu.
+            prompt = f"""Bạn là Gemini AI - chuyên gia tài chính chứng khoán thông minh. Hãy trả lời câu hỏi với kiến thức chuyên sâu.
 
 CÂU HỎI: {question}
 
@@ -830,8 +824,24 @@ HƯỚNG DẪN TRẢ LỜI:
 3. Kết nối với bối cảnh thị trường hiện tại (ngày {current_date_str})
 4. Đưa ra ví dụ thực tế từ thị trường Việt Nam và quốc tế
 5. Độ dài: 400-800 từ với cấu trúc rõ ràng
-6. Sử dụng bullet points và đánh số để tổ chức nội dung
-7. Đưa ra kết luận và khuyến nghị cụ thể
+6. Sử dụng **Tiêu đề** để tổ chức nội dung
+7. Tách dòng rõ ràng giữa các đoạn văn
+8. Đưa ra kết luận và khuyến nghị cụ thể
+
+FORMAT TRẢ LỜI:
+**Phân tích chính**
+
+Nội dung phân tích chính với thông tin chi tiết.
+
+**Các yếu tố quan trọng**
+
+• Điểm 1: Giải thích chi tiết
+• Điểm 2: Giải thích chi tiết  
+• Điểm 3: Giải thích chi tiết
+
+**Kết luận và khuyến nghị**
+
+Tóm tắt và đưa ra khuyến nghị cụ thể.
 
 Hãy thể hiện chuyên môn và kiến thức sâu rộng của Gemini AI:"""
 
@@ -840,61 +850,7 @@ Hãy thể hiện chuyên môn và kiến thức sâu rộng của Gemini AI:"""
             generation_config = genai.types.GenerationConfig(
                 temperature=0.2,
                 top_p=0.8,
-                max_output_tokens=1500,
-            )
-            
-            response = await asyncio.wait_for(
-                asyncio.to_thread(
-                    model.generate_content,
-                    prompt,
-                    generation_config=generation_config
-                ),
-                timeout=15
-            )
-            
-            return response.text.strip()
-            
-        except asyncio.TimeoutError:
-            return "⚠️ Gemini AI timeout. Vui lòng thử lại."
-        except Exception as e:
-            return f"⚠️ Lỗi Gemini AI: {str(e)}"
-    
-    async def debate_perspectives(self, topic: str):
-        """Enhanced multi-perspective debate system"""
-        if not self.available:
-            return "⚠️ Gemini AI không khả dụng cho chức năng bàn luận."
-        
-        try:
-            prompt = f"""Tổ chức cuộc tranh luận chuyên sâu về: {topic}
-
-HỆ THỐNG 6 QUAN ĐIỂM:
-
-🏦 **Nhà Đầu Tư Ngân Hàng (Thận trọng):** 
-[Phong cách: Bảo thủ, tập trung vào rủi ro, ưa tiên an toàn]
-
-📈 **Trader Chuyên Nghiệp (Tích cực):** 
-[Phong cách: Năng động, tìm kiếm cơ hội, chấp nhận rủi ro cao]
-
-🎓 **Giáo Sư Kinh Tế (Học thuật):** 
-[Phong cách: Lý thuyết, dữ liệu, phân tích dài hạn]
-
-💼 **CEO Doanh Nghiệp (Thực tế):** 
-[Phong cách: Kinh doanh, lợi nhuận, tác động thực tiễn]
-
-🌍 **Nhà Phân Tích Quốc Tế (Toàn cầu):** 
-[Phong cách: So sánh quốc tế, xu hướng toàn cầu]
-
-🤖 **AI Gemini - Tổng Kết:** 
-[Phong cách: Khách quan, cân bằng, đưa ra kết luận tổng hợp]
-
-Mỗi quan điểm 80-120 từ, thể hiện rõ tính cách và chuyên môn."""
-
-            model = genai.GenerativeModel('gemini-2.0-flash-exp')
-            
-            generation_config = genai.types.GenerationConfig(
-                temperature=0.4,
-                top_p=0.9,
-                max_output_tokens=1500,
+                max_output_tokens=1800,
             )
             
             response = await asyncio.wait_for(
@@ -909,12 +865,74 @@ Mỗi quan điểm 80-120 từ, thể hiện rõ tính cách và chuyên môn.""
             return response.text.strip()
             
         except asyncio.TimeoutError:
+            return "⚠️ Gemini AI timeout. Vui lòng thử lại."
+        except Exception as e:
+            return f"⚠️ Lỗi Gemini AI: {str(e)}"
+    
+    async def debate_perspectives(self, topic: str):
+        """Enhanced multi-perspective debate system with separate character responses"""
+        if not self.available:
+            return "⚠️ Gemini AI không khả dụng cho chức năng bàn luận."
+        
+        try:
+            prompt = f"""Tổ chức cuộc tranh luận chuyên sâu về: {topic}
+
+YÊU CẦU ĐẶC BIỆT: Mỗi nhân vật phải có phần riêng biệt, dễ tách thành các tin nhắn riêng lẻ.
+
+HỆ THỐNG 6 QUAN ĐIỂM:
+
+🏦 **Nhà Đầu Tư Ngân Hàng (Thận trọng):**
+[Phong cách: Bảo thủ, tập trung vào rủi ro, ưa tiên an toàn]
+[Trình bày quan điểm 100-150 từ, kết thúc với dấu chấm câu.]
+
+📈 **Trader Chuyên Nghiệp (Tích cực):**
+[Phong cách: Năng động, tìm kiếm cơ hội, chấp nhận rủi ro cao]
+[Trình bày quan điểm 100-150 từ, kết thúc với dấu chấm câu.]
+
+🎓 **Giáo Sư Kinh Tế (Học thuật):**
+[Phong cách: Lý thuyết, dữ liệu, phân tích dài hạn]
+[Trình bày quan điểm 100-150 từ, kết thúc với dấu chấm câu.]
+
+💼 **CEO Doanh Nghiệp (Thực tế):**
+[Phong cách: Kinh doanh, lợi nhuận, tác động thực tiễn]
+[Trình bày quan điểm 100-150 từ, kết thúc với dấu chấm câu.]
+
+🌍 **Nhà Phân Tích Quốc Tế (Toàn cầu):**
+[Phong cách: So sánh quốc tế, xu hướng toàn cầu]
+[Trình bày quan điểm 100-150 từ, kết thúc với dấu chấm câu.]
+
+🤖 **AI Gemini - Tổng Kết:**
+[Phong cách: Khách quan, cân bằng, đưa ra kết luận tổng hợp]
+[Tổng kết 150-200 từ với kết luận cân bằng.]
+
+QUAN TRỌNG: Mỗi nhân vật phải có phần riêng biệt, bắt đầu với emoji và tên, kết thúc rõ ràng."""
+
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            
+            generation_config = genai.types.GenerationConfig(
+                temperature=0.4,
+                top_p=0.9,
+                max_output_tokens=2000,
+            )
+            
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    model.generate_content,
+                    prompt,
+                    generation_config=generation_config
+                ),
+                timeout=25
+            )
+            
+            return response.text.strip()
+            
+        except asyncio.TimeoutError:
             return "⚠️ Gemini AI timeout khi tổ chức bàn luận."
         except Exception as e:
             return f"⚠️ Lỗi Gemini AI: {str(e)}"
     
     async def analyze_article(self, article_content: str, question: str = ""):
-        """Enhanced article analysis with Vietnamese response"""
+        """Enhanced article analysis with Vietnamese response and proper formatting"""
         if not self.available:
             return "⚠️ Gemini AI không khả dụng cho phân tích bài báo."
         
@@ -936,13 +954,32 @@ Mỗi quan điểm 80-120 từ, thể hiện rõ tính cách và chuyên môn.""
 **HƯỚNG DẪN PHÂN TÍCH CHUYÊN SÂU:**
 1. Phân tích CHỦ YẾU dựa trên nội dung bài báo (90%)
 2. Bổ sung kiến thức chuyên môn để giải thích sâu hơn (10%)
-3. Phân tích tác động, nguyên nhân, hậu quả chi tiết
-4. Đưa ra nhận định và đánh giá chuyên môn
-5. Trả lời câu hỏi trực tiếp với bằng chứng từ bài báo
-6. Độ dài: 500-1000 từ với cấu trúc rõ ràng
-7. Sử dụng bullet points và đánh số
-8. Tham chiếu các phần cụ thể trong bài báo
-9. Đưa ra kết luận và khuyến nghị
+3. Sử dụng **Tiêu đề** để tổ chức nội dung
+4. Tách dòng rõ ràng giữa các đoạn văn
+5. Phân tích tác động, nguyên nhân, hậu quả chi tiết
+6. Đưa ra nhận định và đánh giá chuyên môn
+7. Trả lời câu hỏi trực tiếp với bằng chứng từ bài báo
+8. Độ dài: 500-1000 từ với cấu trúc rõ ràng
+9. Tham chiếu các phần cụ thể trong bài báo
+10. Đưa ra kết luận và khuyến nghị
+
+**FORMAT PHÂN TÍCH:**
+
+**Tóm tắt nội dung chính**
+
+Tóm tắt những điểm quan trọng nhất từ bài báo.
+
+**Phân tích chi tiết**
+
+Phân tích sâu các yếu tố và tác động được đề cập trong bài.
+
+**Ý nghĩa và tác động**
+
+Đánh giá ý nghĩa và tác động của thông tin trong bài báo.
+
+**Kết luận và khuyến nghị**
+
+Đưa ra kết luận tổng hợp và các khuyến nghị cụ thể.
 
 **QUAN TRỌNG:** Tập trung hoàn toàn vào nội dung bài báo. Đưa ra phân tích CHUYÊN SÂU và CHI TIẾT:"""
 
@@ -951,7 +988,7 @@ Mỗi quan điểm 80-120 từ, thể hiện rõ tính cách và chuyên môn.""
             generation_config = genai.types.GenerationConfig(
                 temperature=0.2,
                 top_p=0.8,
-                max_output_tokens=2000,
+                max_output_tokens=2200,
             )
             
             response = await asyncio.wait_for(
@@ -960,7 +997,7 @@ Mỗi quan điểm 80-120 từ, thể hiện rõ tính cách và chuyên môn.""
                     prompt,
                     generation_config=generation_config
                 ),
-                timeout=25
+                timeout=30
             )
             
             return response.text.strip()
@@ -973,14 +1010,8 @@ Mỗi quan điểm 80-120 từ, thể hiện rõ tính cách và chuyên môn.""
 # Initialize Gemini Engine
 gemini_engine = GeminiAIEngine()
 
-# Enhanced source mapping for display
+# UPDATED source mapping for display - NO VIETSTOCK
 source_names = {
-    # VietStock sources
-    'vietstock_stocks': 'VietStock CK', 'vietstock_business': 'VietStock DN',
-    'vietstock_realestate': 'VietStock BĐS', 'vietstock_finance': 'VietStock TC',
-    'vietstock_macro': 'VietStock VM', 'vietstock_world': 'VietStock TG',
-    'vietstock_analysis': 'VietStock PT',
-    
     # CafeF sources  
     'cafef_stocks': 'CafeF CK', 'cafef_business': 'CafeF DN',
     'cafef_realestate': 'CafeF BĐS', 'cafef_finance': 'CafeF TC',
@@ -989,22 +1020,19 @@ source_names = {
     # International sources
     'yahoo_finance': 'Yahoo Finance', 'marketwatch': 'MarketWatch',
     'cnbc': 'CNBC', 'reuters_business': 'Reuters', 
-    'investing_com': 'Investing.com', 'bloomberg': 'Bloomberg'
+    'investing_com': 'Investing.com', 'bloomberg': 'Bloomberg',
+    'financial_times': 'Financial Times', 'wsj_markets': 'WSJ Markets'
 }
 
 emoji_map = {
-    # VietStock sources
-    'vietstock_stocks': '📈', 'vietstock_business': '🏢', 'vietstock_realestate': '🏠',
-    'vietstock_finance': '💰', 'vietstock_macro': '🌍', 'vietstock_world': '🌐',
-    'vietstock_analysis': '🔍',
-    
     # CafeF sources
     'cafef_stocks': '📊', 'cafef_business': '🏭', 'cafef_realestate': '🏘️',
     'cafef_finance': '💳', 'cafef_macro': '📉',
     
     # International sources
     'yahoo_finance': '💼', 'marketwatch': '📰', 'cnbc': '📺',
-    'reuters_business': '🌏', 'investing_com': '💹', 'bloomberg': '📊'
+    'reuters_business': '🌏', 'investing_com': '💹', 'bloomberg': '📊',
+    'financial_times': '📈', 'wsj_markets': '💹'
 }
 
 # Flask Routes
@@ -1022,13 +1050,12 @@ async def get_news_api(news_type):
         
         if news_type == 'all':
             # Collect from all sources
-            all_sources = {**RSS_FEEDS['vietstock'], **RSS_FEEDS['cafef'], **RSS_FEEDS['international']}
+            all_sources = {**RSS_FEEDS['cafef'], **RSS_FEEDS['international']}
             all_news = await collect_news_enhanced(all_sources, 12)
             
         elif news_type == 'domestic':
-            # Vietnamese sources only
-            domestic_sources = {**RSS_FEEDS['vietstock'], **RSS_FEEDS['cafef']}
-            all_news = await collect_news_enhanced(domestic_sources, 15)
+            # Vietnamese sources only (CafeF)
+            all_news = await collect_news_enhanced(RSS_FEEDS['cafef'], 15)
             
         elif news_type == 'international':
             # International sources only
@@ -1204,8 +1231,9 @@ if __name__ == '__main__':
         genai.configure(api_key=GEMINI_API_KEY)
         print("✅ Gemini AI configured successfully")
     
-    print("🚀 VietStock-style E-con News Backend starting...")
+    print("🚀 Tiền Phong E-con News Backend starting...")
     print(f"📊 Total RSS sources: {sum(len(feeds) for feeds in RSS_FEEDS.values())}")
+    print("🚫 VietStock sources removed - Only CafeF + International")
     print("=" * 50)
     
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
