@@ -1,4 +1,4 @@
-// E-con News Portal - Tiền Phong Classic + iOS Modern JavaScript 2025
+// E-con News Portal - Tiền Phong Classic + iOS Modern JavaScript 2025 - script.js
 class TienPhongNewsPortal {
     constructor() {
         this.currentPage = 1;
