@@ -117,19 +117,11 @@ class TerminalMessage:
 # ===============================
 
 class TerminalWebSocketManager:
-    """
-    Advanced WebSocket manager for terminal interface
-    Features: Real-time command execution, session management, broadcasting
-    """
-    
-    def __init__(self, app: Flask = None):
+    def __init__(self, app: Flask, socketio: SocketIO, terminal_processor):
         self.app = app
-        self.socketio = None
-        
-        # Session management
+        self.socketio = socketio
+        self.terminal_processor = terminal_processor
         self.active_sessions: Dict[str, TerminalSession] = {}
-        self.session_rooms: Dict[str, Set[str]] = defaultdict(set)
-        self.command_queue = queue.Queue()
         
         # Message history and monitoring
         self.message_history = deque(maxlen=1000)
@@ -157,7 +149,7 @@ class TerminalWebSocketManager:
         if app:
             self.init_app(app)
     
-    def init_app(self, app: Flask):
+    def __init__(self, app: Flask):
         """Initialize WebSocket manager with Flask app"""
         self.app = app
         
@@ -174,7 +166,7 @@ class TerminalWebSocketManager:
         )
         
         # Register event handlers
-        self._register_handlers()
+        self.register_handlers()
         
         # Start background processing
         self.start_background_processing()
@@ -237,6 +229,7 @@ class TerminalWebSocketManager:
             except Exception as e:
                 logger.error(f"Connection error: {e}")
                 emit('error', {'message': 'Connection failed', 'details': str(e)})
+            pass
         
         @self.socketio.on('disconnect')
         def handle_disconnect():
@@ -266,6 +259,7 @@ class TerminalWebSocketManager:
                 
             except Exception as e:
                 logger.error(f"Disconnection error: {e}")
+            pass
         
         @self.socketio.on('terminal_command')
         def handle_terminal_command(data):
@@ -465,7 +459,7 @@ Real-time mode: ACTIVE | Background sync: ENABLED | AI: READY
                 
                 # Execute command
                 if APP_MODULES_AVAILABLE:
-                    result = terminal_processor.execute(command)
+                    result = self.terminal_processor.execute(command)
                 else:
                     result = self._handle_basic_command(command)
                 
@@ -818,58 +812,3 @@ Real-time mode: ACTIVE | Background sync: ENABLED | AI: READY
             'broadcast_subscribers': len(self.broadcast_subscribers),
             'message_history_size': len(self.message_history)
         }
-
-# ===============================
-# GLOBAL WEBSOCKET MANAGER
-# ===============================
-
-# Global instance
-_global_websocket_manager = None
-
-def get_websocket_manager() -> TerminalWebSocketManager:
-    """Get or create global WebSocket manager"""
-    global _global_websocket_manager
-    
-    if _global_websocket_manager is None:
-        _global_websocket_manager = TerminalWebSocketManager()
-    
-    return _global_websocket_manager
-
-def setup_websocket_manager(app: Flask) -> TerminalWebSocketManager:
-    """Setup WebSocket manager for Flask app"""
-    manager = get_websocket_manager()
-    manager.init_app(app)
-    
-    # Store reference in app
-    app.websocket_manager = manager
-    
-    logger.info("🔌 WebSocket manager setup complete")
-    return manager
-
-# ===============================
-# FLASK INTEGRATION
-# ===============================
-
-def create_websocket_app(app: Flask = None) -> SocketIO:
-    """Create WebSocket-enabled Flask app"""
-    if app is None:
-        app = Flask(__name__)
-        app.config['SECRET_KEY'] = 'terminal-websocket-secret'
-    
-    # Setup WebSocket manager
-    manager = setup_websocket_manager(app)
-    
-    return manager.socketio
-
-if __name__ == "__main__":
-    # Test WebSocket manager
-    from flask import Flask
-    
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'test-secret'
-    
-    # Setup WebSocket
-    manager = setup_websocket_manager(app)
-    
-    # Run with SocketIO
-    manager.socketio.run(app, debug=True, host='0.0.0.0', port=5000)
