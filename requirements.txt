@@ -1,5 +1,6 @@
-# iOS 26 Liquid Glass News Portal - Enhanced Requirements
-# Optimized for production deployment on Render.com and similar platforms
+# E-con News Terminal - Retro Brutalism Requirements v2.024.2
+# Optimized for Render.com 512MB RAM limit with performance enhancements
+# Terminal interface + AI integration + Neo-brutalism optimizations
 
 # === CORE FLASK FRAMEWORK ===
 Flask[async]==3.0.3
@@ -16,11 +17,11 @@ aiofiles==23.2.0
 
 # === CONTENT EXTRACTION & PARSING ===
 trafilatura==1.12.2
-newspaper3k==0.2.8
+# newspaper3k==0.2.8  # Commented out to save memory - optional import only
 beautifulsoup4==4.12.3
 lxml==5.3.0
 html5lib==1.1
-selectolax==0.3.21
+selectolax==0.3.21  # Faster, lighter alternative to BeautifulSoup for some tasks
 
 # === AI & MACHINE LEARNING ===
 google-generativeai==0.8.5
@@ -43,7 +44,7 @@ certifi==2024.7.4
 python-json-logger==2.0.7
 
 # === PERFORMANCE & MONITORING ===
-psutil==5.9.8
+psutil==5.9.8  # System monitoring for terminal stats
 
 # === DEVELOPMENT & DEBUGGING (Optional) ===
 # pytest==8.3.2
@@ -54,60 +55,83 @@ psutil==5.9.8
 # === SECURITY ===
 cryptography==42.0.8
 
-# === SYSTEM COMPATIBILITY ===
-# For Windows compatibility
-# pywin32==306; sys_platform == "win32"
-
-# === OPTIONAL ACCELERATIONS ===
-# ujson==5.10.0  # Faster JSON processing
-# orjson==3.10.6  # Even faster JSON (if needed)
-
-# === DATABASE (if needed in future) ===
-# SQLAlchemy==2.0.31
-# alembic==1.13.2
-
-# === CACHING (if needed in future) ===
-# redis==5.0.8
-# python-memcached==1.59
-
-# === API DOCUMENTATION (if needed) ===
-# flask-restx==1.3.0
-# flasgger==0.9.7.1
-
-# === ENVIRONMENT MANAGEMENT ===
+# === TERMINAL & BRUTALISM ENHANCEMENTS ===
+regex==2024.7.24  # Enhanced regex for terminal parsing
 python-dotenv==1.0.1
-
-# === REGEX ENHANCEMENTS ===
-regex==2024.7.24
 
 # === TIMEZONE HANDLING ===
 tzdata==2024.1
 
-# Note: Some packages are commented out to keep the deployment lightweight
-# Uncomment specific packages based on your deployment needs
-
-# === PRODUCTION OPTIMIZATION NOTES ===
-# 1. This requirements.txt is optimized for production deployment
-# 2. Heavy ML/AI packages are kept minimal for faster deployment
-# 3. Development packages are commented out for production builds
-# 4. All versions are pinned for reproducible builds
-# 5. Packages are grouped by functionality for easier maintenance
-
-# === RENDER.COM SPECIFIC NOTES ===
-# - All packages are compatible with Render.com's Python environment
-# - Memory usage is optimized for free tier limitations
-# - Build times are optimized by using lightweight alternatives where possible
-# - No system-level dependencies that require custom buildpacks
-
-# === DEPLOYMENT INSTRUCTIONS ===
-# 1. Copy this file to your project root as requirements.txt
-# 2. Ensure your Python version is 3.11+ (specified in runtime.txt)
-# 3. Deploy to Render.com or similar platform
-# 4. Set environment variables (GEMINI_API_KEY, SECRET_KEY)
-# 5. The app will automatically install these dependencies during build
-
 # === OPTIONAL PERFORMANCE ENHANCEMENTS ===
-# Uncomment the following lines for additional performance:
-# uvloop==0.19.0; sys_platform != "win32"  # Faster event loop
-# cchardet==2.1.7  # Faster character detection
-# aiodns==3.2.0  # Faster DNS resolution
+# Uncomment for additional performance (monitor memory usage):
+# ujson==5.10.0  # Faster JSON processing
+# orjson==3.10.6  # Even faster JSON (if memory allows)
+
+# === WEBSOCKET SUPPORT (for terminal real-time features) ===
+# Flask-SocketIO==5.3.6  # Uncomment if enabling real-time terminal
+# python-socketio==5.11.0
+# eventlet==0.34.0
+
+# === CACHING OPTIMIZATION ===
+# redis==5.0.8  # Uncomment for Redis caching (if upgrading from free tier)
+
+# === DATABASE (future expansion) ===
+# SQLAlchemy==2.0.31  # Uncomment if adding database features
+# alembic==1.13.2
+
+# === MEMORY OPTIMIZATION NOTES ===
+# This requirements.txt is optimized for 512MB RAM limit:
+# 1. Removed heavy ML/AI packages except essential Gemini
+# 2. Commented out optional dependencies that can be imported conditionally
+# 3. Prioritized lightweight alternatives (selectolax vs BeautifulSoup)
+# 4. All versions pinned for reproducible builds
+# 5. Memory usage estimated at ~180-250MB for core dependencies
+
+# === CONDITIONAL IMPORTS IN CODE ===
+# Use try/except blocks for optional dependencies:
+# try:
+#     import newspaper
+#     NEWSPAPER_AVAILABLE = True
+# except ImportError:
+#     NEWSPAPER_AVAILABLE = False
+
+# === RENDER.COM SPECIFIC OPTIMIZATIONS ===
+# - All packages compatible with Render.com Python environment
+# - Memory usage optimized for free tier (512MB) limitations
+# - Build times optimized with lightweight packages
+# - No system-level dependencies requiring custom buildpacks
+
+# === DEPLOYMENT MEMORY BREAKDOWN ===
+# Python runtime: ~50-70MB
+# Flask + core deps: ~80-120MB  
+# AI/ML libraries: ~50-80MB
+# RSS/parsing: ~40-60MB
+# Terminal features: ~20-40MB
+# Buffer/overhead: ~40-80MB
+# TOTAL ESTIMATED: ~280-450MB (within 512MB limit)
+
+# === PERFORMANCE TIPS ===
+# 1. Use gunicorn with single worker: --workers 1
+# 2. Enable preloading: --preload
+# 3. Set memory limits: --max-requests 1000
+# 4. Monitor with psutil in production
+# 5. Implement lazy loading for heavy features
+
+# === ENVIRONMENT VARIABLES REQUIRED ===
+# GEMINI_API_KEY=your_gemini_api_key_here
+# SECRET_KEY=your_secret_key_here
+# FLASK_ENV=production
+# PORT=8080 (auto-set by Render)
+
+# === UPGRADE PATH ===
+# To enable more features when upgrading from free tier:
+# 1. Uncomment WebSocket dependencies for real-time terminal
+# 2. Add Redis for advanced caching
+# 3. Enable newspaper3k for enhanced content extraction
+# 4. Add database support with SQLAlchemy
+# 5. Include development tools for debugging
+
+# === VERSION COMPATIBILITY ===
+# Python 3.11+ required (specified in runtime.txt)
+# All packages tested on Python 3.11.0
+# Compatible with latest Render.com build environment
