@@ -1,5 +1,5 @@
-// E-con News Portal - VietStock Style JavaScript 2025
-class VietStockNewsPortal {
+// E-con News Portal - Tiền Phong Classic + iOS Modern JavaScript 2025
+class TienPhongNewsPortal {
     constructor() {
         this.currentPage = 1;
         this.currentCategory = 'all';
@@ -16,48 +16,25 @@ class VietStockNewsPortal {
     }
 
     async init() {
-        console.log('🚀 Initializing VietStock News Portal...');
+        console.log('🚀 Initializing Tiền Phong News Portal...');
         
         try {
-            this.createParticles();
             this.bindEvents();
-            this.setupMarketData();
             this.setupErrorHandling();
             
             // Load initial news
             await this.loadNews('all', 1);
             
-            console.log('✅ VietStock News Portal initialized successfully!');
+            console.log('✅ Tiền Phong News Portal initialized successfully!');
         } catch (error) {
             console.error('❌ Failed to initialize:', error);
             this.showToast('Lỗi khởi tạo ứng dụng: ' + error.message, 'error');
         }
     }
 
-    createParticles() {
-        const container = document.querySelector('.particles-container');
-        if (!container) {
-            // Create particles container
-            const particlesDiv = document.createElement('div');
-            particlesDiv.className = 'particles-container';
-            document.body.appendChild(particlesDiv);
-            
-            // Create particles
-            for (let i = 0; i < 15; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (6 + Math.random() * 4) + 's';
-                particlesDiv.appendChild(particle);
-            }
-        }
-    }
-
     bindEvents() {
         // Category links
-        document.querySelectorAll('.econ-category-link').forEach(link => {
+        document.querySelectorAll('.tp-category-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const category = e.currentTarget.dataset.category;
@@ -65,8 +42,17 @@ class VietStockNewsPortal {
             });
         });
 
+        // Navigation items
+        document.querySelectorAll('.tp-nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = e.currentTarget.dataset.category;
+                this.switchCategory(category);
+            });
+        });
+
         // Filter tabs
-        document.querySelectorAll('.econ-filter-tab').forEach(tab => {
+        document.querySelectorAll('.tp-filter-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
                 const type = e.currentTarget.dataset.type;
@@ -75,8 +61,8 @@ class VietStockNewsPortal {
         });
 
         // Pagination
-        const prevBtn = document.getElementById('econPrevPageBtn');
-        const nextBtn = document.getElementById('econNextPageBtn');
+        const prevBtn = document.getElementById('tpPrevPageBtn');
+        const nextBtn = document.getElementById('tpNextPageBtn');
         
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
@@ -88,7 +74,7 @@ class VietStockNewsPortal {
 
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
-                const totalPages = parseInt(document.querySelector('.econ-pagination-total')?.textContent || '1');
+                const totalPages = parseInt(document.querySelector('.tp-pagination-total')?.textContent || '1');
                 if (this.currentPage < totalPages) {
                     this.loadNews(this.currentCategory, this.currentPage + 1);
                 }
@@ -96,9 +82,19 @@ class VietStockNewsPortal {
         }
 
         // Article modal close
-        const closeBtn = document.getElementById('econCloseBtn');
+        const closeBtn = document.getElementById('tpCloseBtn');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closeArticleModal());
+        }
+
+        // Modal close on background click
+        const modal = document.getElementById('tpArticleModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeArticleModal();
+                }
+            });
         }
 
         // Chat functionality
@@ -106,13 +102,38 @@ class VietStockNewsPortal {
 
         // Keyboard shortcuts
         this.setupKeyboardShortcuts();
+
+        // Search functionality
+        this.setupSearch();
+    }
+
+    setupSearch() {
+        const searchBtn = document.querySelector('.tp-search-btn');
+        const searchInput = document.querySelector('.tp-search-input');
+
+        if (searchBtn && searchInput) {
+            const performSearch = () => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    this.showToast(`🔍 Tìm kiếm: "${query}"`, 'info');
+                    // TODO: Implement search functionality
+                }
+            };
+
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
     }
 
     setupChatEvents() {
-        const chatBubble = document.getElementById('econChatBubble');
-        const chatWindow = document.getElementById('econChatWindow');
-        const chatMinimize = document.getElementById('econChatMinimize');
-        const chatClose = document.getElementById('econChatClose');
+        const chatBubble = document.getElementById('tpChatBubble');
+        const chatWindow = document.getElementById('tpChatWindow');
+        const chatMinimize = document.getElementById('tpChatMinimize');
+        const chatClose = document.getElementById('tpChatClose');
 
         // Show chat window
         if (chatBubble) {
@@ -129,22 +150,21 @@ class VietStockNewsPortal {
             chatClose.addEventListener('click', () => this.closeChatWindow());
         }
 
-        // FIXED: Chat input and buttons
+        // Chat input and buttons
         this.setupChatInputEvents();
     }
 
     setupChatInputEvents() {
-        const summaryBtn = document.getElementById('econSummaryBtn');
-        const debateBtn = document.getElementById('econDebateBtn');
-        const sendBtn = document.getElementById('econSendBtn');
-        const chatInput = document.getElementById('econChatInput');
+        const summaryBtn = document.getElementById('tpSummaryBtn');
+        const debateBtn = document.getElementById('tpDebateBtn');
+        const sendBtn = document.getElementById('tpSendBtn');
+        const chatInput = document.getElementById('tpChatInput');
 
-        // FIXED: Summary button click handler
+        // Summary button
         if (summaryBtn) {
             summaryBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('📋 Summary button clicked');
                 
                 if (this.aiRequestInProgress) {
                     this.showToast('AI đang xử lý yêu cầu khác...', 'info');
@@ -155,12 +175,11 @@ class VietStockNewsPortal {
             });
         }
 
-        // FIXED: Debate button click handler  
+        // Debate button - Enhanced for separate character responses
         if (debateBtn) {
             debateBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🎭 Debate button clicked');
                 
                 if (this.aiRequestInProgress) {
                     this.showToast('AI đang xử lý yêu cầu khác...', 'info');
@@ -206,7 +225,7 @@ class VietStockNewsPortal {
         console.log('🔄 Processing summary request...');
         
         if (!this.currentArticle) {
-            this.showToast('Vui lòng mở một bài báo trước khi yêu cầu tóm tắt', 'warning');
+            this.showToast('Vui lòng mở một bài báo trước khi yêu cầu tóm tắt', 'error');
             return;
         }
 
@@ -237,7 +256,8 @@ class VietStockNewsPortal {
                 throw new Error(data.error);
             }
 
-            this.addChatMessage(data.response, 'ai');
+            // Format and display summary with proper line breaks
+            this.addFormattedAIMessage(data.response, '📋 Tóm tắt');
             this.showToast('✅ Tóm tắt hoàn thành', 'success');
 
         } catch (error) {
@@ -254,7 +274,7 @@ class VietStockNewsPortal {
         console.log('🔄 Processing debate request...');
         
         if (!this.currentArticle) {
-            this.showToast('Vui lòng mở một bài báo trước khi yêu cầu bàn luận', 'warning');
+            this.showToast('Vui lòng mở một bài báo trước khi yêu cầu bàn luận', 'error');
             return;
         }
 
@@ -285,7 +305,8 @@ class VietStockNewsPortal {
                 throw new Error(data.error);
             }
 
-            this.addChatMessage(data.response, 'ai');
+            // Parse and display debate as separate character messages
+            this.displayDebateAsCharacters(data.response);
             this.showToast('✅ Cuộc bàn luận hoàn thành', 'success');
 
         } catch (error) {
@@ -298,6 +319,134 @@ class VietStockNewsPortal {
         }
     }
 
+    displayDebateAsCharacters(debateText) {
+        // Parse debate response and split by characters
+        const characters = [
+            { name: 'Nhà Đầu Tư Ngân Hàng', emoji: '🏦', color: '#374151' },
+            { name: 'Trader Chuyên Nghiệp', emoji: '📈', color: '#059669' },
+            { name: 'Giáo Sư Kinh Tế', emoji: '🎓', color: '#3b82f6' },
+            { name: 'CEO Doanh Nghiệp', emoji: '💼', color: '#7c3aed' },
+            { name: 'Nhà Phân Tích Quốc Tế', emoji: '🌍', color: '#f59e0b' },
+            { name: 'AI Gemini', emoji: '🤖', color: '#dc2626' }
+        ];
+
+        // Split debate text by character sections
+        let currentText = debateText;
+        
+        characters.forEach((character, index) => {
+            // Find character section using various patterns
+            const patterns = [
+                new RegExp(`\\*\\*${character.name}.*?\\*\\*([\\s\\S]*?)(?=\\*\\*|$)`, 'i'),
+                new RegExp(`${character.emoji}\\s*\\*\\*${character.name}[^\\*]*\\*\\*([\\s\\S]*?)(?=${characters[index + 1]?.emoji}|🤖|$)`, 'i'),
+                new RegExp(`${character.name}.*?:([\\s\\S]*?)(?=\\n\\n\\*\\*|\\n\\n${characters[index + 1]?.name}|$)`, 'i')
+            ];
+
+            for (const pattern of patterns) {
+                const match = currentText.match(pattern);
+                if (match && match[1]) {
+                    const characterMessage = match[1].trim();
+                    if (characterMessage.length > 20) {
+                        // Add character message with delay for realistic effect
+                        setTimeout(() => {
+                            this.addCharacterMessage(character, characterMessage);
+                        }, index * 1500); // 1.5 second delay between characters
+                        
+                        // Remove processed text
+                        currentText = currentText.replace(match[0], '');
+                        break;
+                    }
+                }
+            }
+        });
+
+        // If no character sections found, display as regular AI message
+        if (currentText.trim().length > 100) {
+            this.addFormattedAIMessage(debateText, '🎭 Bàn luận');
+        }
+    }
+
+    addCharacterMessage(character, message) {
+        const chatMessages = document.getElementById('tpChatMessages');
+        if (!chatMessages) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'tp-message tp-message-character';
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('vi-VN', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+
+        // Clean and format the message
+        const cleanMessage = this.formatAIResponse(message);
+
+        messageDiv.innerHTML = `
+            <div class="tp-character-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span style="font-size: 20px;">${character.emoji}</span>
+                <strong style="color: ${character.color}; font-size: 14px;">${character.name}</strong>
+            </div>
+            <div class="tp-message-bubble tp-character-bubble" style="border-left: 3px solid ${character.color};">
+                ${cleanMessage}
+            </div>
+            <div class="tp-message-time">${timeStr}</div>
+        `;
+
+        // Add custom styling for character messages
+        messageDiv.style.maxWidth = '90%';
+        messageDiv.style.alignSelf = 'flex-start';
+        messageDiv.style.animation = 'fadeInUp 0.5s ease-out';
+
+        chatMessages.appendChild(messageDiv);
+
+        // Scroll to bottom with smooth animation
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+
+        // Store message
+        this.chatMessages.push({ 
+            content: `${character.emoji} ${character.name}: ${message}`, 
+            sender: 'character', 
+            timestamp: now,
+            character: character
+        });
+    }
+
+    addFormattedAIMessage(content, prefix = '') {
+        const formattedContent = this.formatAIResponse(content);
+        const fullMessage = prefix ? `${prefix}\n\n${formattedContent}` : formattedContent;
+        this.addChatMessage(fullMessage, 'ai');
+    }
+
+    formatAIResponse(content) {
+        if (!content) return content;
+
+        // Split into paragraphs and format
+        let formatted = content
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .map(line => {
+                // Convert **text** to <strong>text</strong>
+                line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Convert bullet points
+                line = line.replace(/^[-•]\s*/, '• ');
+                
+                // Convert numbered lists
+                line = line.replace(/^(\d+)[\.\)]\s*/, '$1. ');
+                
+                return line;
+            })
+            .join('<br><br>');
+
+        // Clean up multiple line breaks
+        formatted = formatted.replace(/(<br>){3,}/g, '<br><br>');
+        
+        return formatted;
+    }
+
     async sendChatMessage(message) {
         if (!message.trim() || this.aiRequestInProgress) return;
 
@@ -305,7 +454,7 @@ class VietStockNewsPortal {
         this.addChatMessage(message, 'user');
         
         // Clear input
-        const chatInput = document.getElementById('econChatInput');
+        const chatInput = document.getElementById('tpChatInput');
         if (chatInput) {
             chatInput.value = '';
             chatInput.style.height = 'auto';
@@ -338,7 +487,7 @@ class VietStockNewsPortal {
                 throw new Error(data.error);
             }
 
-            this.addChatMessage(data.response, 'ai');
+            this.addFormattedAIMessage(data.response);
 
         } catch (error) {
             console.error('❌ Chat error:', error);
@@ -351,38 +500,51 @@ class VietStockNewsPortal {
 
     showTypingIndicator() {
         const typingDiv = document.createElement('div');
-        typingDiv.className = 'econ-message econ-message-ai';
-        typingDiv.id = 'econ-typing-indicator';
+        typingDiv.className = 'tp-message tp-message-ai';
+        typingDiv.id = 'tp-typing-indicator';
         typingDiv.innerHTML = `
-            <div class="econ-message-bubble">
+            <div class="tp-message-bubble">
                 <div style="display: flex; gap: 4px; align-items: center;">
-                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: bounce 1s infinite;"></div>
-                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: bounce 1s infinite 0.2s;"></div>
-                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: bounce 1s infinite 0.4s;"></div>
+                    <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: bounce 1.4s infinite 0s;"></div>
+                    <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: bounce 1.4s infinite 0.2s;"></div>
+                    <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: bounce 1.4s infinite 0.4s;"></div>
                 </div>
             </div>
         `;
 
-        const chatMessages = document.getElementById('econChatMessages');
+        const chatMessages = document.getElementById('tpChatMessages');
         if (chatMessages) {
             chatMessages.appendChild(typingDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        // Add bounce animation if not exists
+        if (!document.getElementById('bounce-animation')) {
+            const style = document.createElement('style');
+            style.id = 'bounce-animation';
+            style.textContent = `
+                @keyframes bounce {
+                    0%, 60%, 100% { transform: translateY(0); }
+                    30% { transform: translateY(-10px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     hideTypingIndicator() {
-        const typingIndicator = document.getElementById('econ-typing-indicator');
+        const typingIndicator = document.getElementById('tp-typing-indicator');
         if (typingIndicator) {
             typingIndicator.remove();
         }
     }
 
     addChatMessage(content, sender = 'ai') {
-        const chatMessages = document.getElementById('econChatMessages');
+        const chatMessages = document.getElementById('tpChatMessages');
         if (!chatMessages) return;
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = `econ-message econ-message-${sender}`;
+        messageDiv.className = `tp-message tp-message-${sender}`;
         
         const now = new Date();
         const timeStr = now.toLocaleTimeString('vi-VN', { 
@@ -390,9 +552,17 @@ class VietStockNewsPortal {
             minute: '2-digit' 
         });
 
+        // Format content based on sender
+        let displayContent = content;
+        if (sender === 'ai') {
+            displayContent = this.formatAIResponse(content);
+        } else {
+            displayContent = this.escapeHtml(content);
+        }
+
         messageDiv.innerHTML = `
-            <div class="econ-message-bubble">${this.escapeHtml(content)}</div>
-            <div class="econ-message-time">${timeStr}</div>
+            <div class="tp-message-bubble">${displayContent}</div>
+            <div class="tp-message-time">${timeStr}</div>
         `;
 
         chatMessages.appendChild(messageDiv);
@@ -412,8 +582,8 @@ class VietStockNewsPortal {
     }
 
     openChatWindow() {
-        const chatBubble = document.getElementById('econChatBubble');
-        const chatWindow = document.getElementById('econChatWindow');
+        const chatBubble = document.getElementById('tpChatBubble');
+        const chatWindow = document.getElementById('tpChatWindow');
         
         if (chatBubble && chatWindow) {
             chatBubble.style.display = 'none';
@@ -421,7 +591,7 @@ class VietStockNewsPortal {
             
             // Focus on input
             setTimeout(() => {
-                const chatInput = document.getElementById('econChatInput');
+                const chatInput = document.getElementById('tpChatInput');
                 if (chatInput) {
                     chatInput.focus();
                 }
@@ -430,8 +600,8 @@ class VietStockNewsPortal {
     }
 
     minimizeChatWindow() {
-        const chatBubble = document.getElementById('econChatBubble');
-        const chatWindow = document.getElementById('econChatWindow');
+        const chatBubble = document.getElementById('tpChatBubble');
+        const chatWindow = document.getElementById('tpChatWindow');
         
         if (chatBubble && chatWindow) {
             chatWindow.style.display = 'none';
@@ -440,7 +610,7 @@ class VietStockNewsPortal {
     }
 
     closeChatWindow() {
-        const floatingChat = document.getElementById('econFloatingChat');
+        const floatingChat = document.getElementById('tpFloatingChat');
         
         if (floatingChat) {
             floatingChat.style.opacity = '0';
@@ -452,44 +622,18 @@ class VietStockNewsPortal {
         }
     }
 
-    setupMarketData() {
-        // Simulate real-time market data updates
-        this.updateMarketData();
-        setInterval(() => this.updateMarketData(), 30000); // Update every 30 seconds
-    }
-
-    updateMarketData() {
-        const marketItems = document.querySelectorAll('.econ-market-item');
-        marketItems.forEach(item => {
-            const valueEl = item.querySelector('.econ-market-value');
-            const changeEl = item.querySelector('.econ-market-change');
-            
-            if (valueEl && changeEl) {
-                // Simulate small random changes
-                const currentValue = parseFloat(valueEl.textContent) || 1000;
-                const change = (Math.random() - 0.5) * 10;
-                const newValue = currentValue + change;
-                const changePercent = ((change / currentValue) * 100).toFixed(2);
-                
-                valueEl.textContent = newValue.toFixed(2);
-                changeEl.textContent = `${change >= 0 ? '+' : ''}${changePercent}%`;
-                changeEl.className = `econ-market-change ${change >= 0 ? 'positive' : 'negative'}`;
-            }
-        });
-    }
-
     async switchCategory(category) {
         if (this.isLoading || category === this.currentCategory) return;
 
         // Update active states
-        document.querySelectorAll('.econ-category-link, .econ-filter-tab').forEach(link => {
+        document.querySelectorAll('.tp-category-link, .tp-filter-tab, .tp-nav-item').forEach(link => {
             link.classList.remove('active');
         });
         
-        const activeLink = document.querySelector(`[data-category="${category}"], [data-type="${category}"]`);
-        if (activeLink) {
-            activeLink.classList.add('active');
-        }
+        const activeElements = document.querySelectorAll(
+            `[data-category="${category}"], [data-type="${category}"]`
+        );
+        activeElements.forEach(el => el.classList.add('active'));
 
         this.currentCategory = category;
         await this.loadNews(category, 1);
@@ -551,14 +695,14 @@ class VietStockNewsPortal {
     }
 
     renderNews(newsItems) {
-        const newsGrid = document.getElementById('econNewsGrid');
+        const newsGrid = document.getElementById('tpNewsGrid');
         if (!newsGrid) return;
 
         newsGrid.innerHTML = '';
 
         if (newsItems.length === 0) {
             newsGrid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--vs-text-secondary);">
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--tp-text-secondary); font-family: var(--tp-font-sans);">
                     📰 Không có tin tức nào được tìm thấy
                 </div>
             `;
@@ -569,7 +713,7 @@ class VietStockNewsPortal {
             const newsCard = this.createNewsCard(news, index);
             newsGrid.appendChild(newsCard);
             
-            // FAST 0.5s animation
+            // Staggered animation
             requestAnimationFrame(() => {
                 newsCard.style.opacity = '0';
                 newsCard.style.transform = 'translateY(20px)';
@@ -578,35 +722,34 @@ class VietStockNewsPortal {
                     newsCard.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
                     newsCard.style.opacity = '1';
                     newsCard.style.transform = 'translateY(0)';
-                }, index * 50); // Stagger animation
+                }, index * 100); // Stagger animation
             });
         });
     }
 
     createNewsCard(news, index) {
         const card = document.createElement('div');
-        card.className = 'econ-news-card';
+        card.className = 'tp-news-card';
         card.dataset.articleId = news.id;
         
         card.innerHTML = `
-            <div class="econ-news-card-header">
-                <div class="econ-news-source">
-                    <div class="econ-source-icon">${news.emoji || '📰'}</div>
-                    <span class="econ-source-name">${this.escapeHtml(news.source)}</span>
+            <div class="tp-news-card-header">
+                <div class="tp-news-source">
+                    <div class="tp-source-icon">${news.emoji || '📰'}</div>
+                    <span class="tp-source-name">${this.escapeHtml(news.source)}</span>
                 </div>
-                <span class="econ-news-time">${this.escapeHtml(news.published)}</span>
+                <span class="tp-news-time">${this.escapeHtml(news.published)}</span>
             </div>
-            <div class="econ-news-card-body">
-                <h3 class="econ-news-title">${this.escapeHtml(news.title)}</h3>
-                <p class="econ-news-description">${this.escapeHtml(news.description)}</p>
+            <div class="tp-news-card-body">
+                <h3 class="tp-news-title">${this.escapeHtml(news.title)}</h3>
+                <p class="tp-news-description">${this.escapeHtml(news.description)}</p>
             </div>
         `;
 
         // Event listeners
-        const clickHandler = () => this.showArticleDetail(news.id);
-        card.addEventListener('click', clickHandler);
+        card.addEventListener('click', () => this.showArticleDetail(news.id));
 
-        // Hover effects
+        // Hover effects for desktop
         if (window.matchMedia('(hover: hover)').matches) {
             card.addEventListener('mouseenter', () => {
                 card.style.transform = 'translateY(-8px)';
@@ -638,18 +781,17 @@ class VietStockNewsPortal {
             this.currentArticle = article;
 
             // Update article modal content
-            const titleEl = document.getElementById('econArticleTitle');
-            const sourceEl = document.getElementById('econArticleSource');
-            const timeEl = document.getElementById('econArticleTime');
-            const linkEl = document.getElementById('econArticleLink');
-            const contentEl = document.getElementById('econArticleContent');
+            const titleEl = document.getElementById('tpArticleTitle');
+            const sourceEl = document.getElementById('tpArticleSource');
+            const timeEl = document.getElementById('tpArticleTime');
+            const linkEl = document.getElementById('tpArticleLink');
+            const contentEl = document.getElementById('tpArticleContent');
 
             if (titleEl) titleEl.textContent = article.title;
             if (sourceEl) sourceEl.textContent = article.source;
             if (timeEl) timeEl.textContent = article.published;
             if (linkEl) linkEl.href = article.link;
             if (contentEl) {
-                // Enhanced content formatting
                 contentEl.innerHTML = this.formatArticleContent(article.content);
             }
 
@@ -674,35 +816,39 @@ class VietStockNewsPortal {
             .map(paragraph => paragraph.trim())
             .filter(paragraph => paragraph.length > 0)
             .map(paragraph => {
-                // Check if it's a headline (all caps, short, or starts with specific patterns)
+                // Remove markdown bold markers for headlines
+                paragraph = paragraph.replace(/^\*\*(.*)\*\*$/, '$1');
+                
+                // Check if it's a headline
                 if (paragraph.length < 100 && 
                     (paragraph === paragraph.toUpperCase() || 
-                     paragraph.match(/^[A-Z][^.]*:/) ||
-                     paragraph.match(/^\*\*.*\*\*$/))) {
-                    return `<h3>${paragraph.replace(/\*\*/g, '')}</h3>`;
+                     paragraph.match(/^[A-ZÀ-Ý][^.]*:/) ||
+                     paragraph.match(/^\d+\./) ||
+                     paragraph.includes('📷') ||
+                     paragraph.includes('Ảnh'))) {
+                    return `<h3 style="font-family: var(--tp-font-serif); color: var(--tp-primary); font-weight: 700; margin: 1.5rem 0 1rem 0; font-size: 1.2rem;">${paragraph}</h3>`;
+                }
+                
+                // Check for image references
+                if (paragraph.includes('📷') || paragraph.includes('[Ảnh') || paragraph.includes('minh họa')) {
+                    return `<div style="background: linear-gradient(135deg, var(--tp-bg-secondary) 0%, var(--tp-border) 100%); border-radius: 12px; padding: 2rem; text-align: center; margin: 1.5rem 0; color: var(--tp-text-secondary); border: 1px solid var(--tp-border);"><span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">📷</span>${paragraph}</div>`;
                 }
                 
                 // Regular paragraph
-                return `<p>${paragraph}</p>`;
+                return `<p style="margin-bottom: 1rem; text-align: justify; line-height: 1.8;">${paragraph}</p>`;
             })
             .join('');
             
-        // Add image placeholder if content mentions images
-        if (content.includes('ảnh') || content.includes('hình') || content.includes('image')) {
-            formatted = `<div class="article-image-placeholder" style="width: 100%; height: 200px; background: linear-gradient(135deg, var(--vs-bg-secondary) 0%, var(--vs-border) 100%); border-radius: var(--vs-radius-md); display: flex; align-items: center; justify-content: center; margin: var(--vs-space-lg) 0; color: var(--vs-text-secondary);"><span>📷 Ảnh minh họa</span></div>` + formatted;
-        }
-        
         return formatted;
     }
 
     showArticleModal() {
-        const modal = document.getElementById('econArticleModal');
-        const mainContent = document.querySelector('.econ-main-content');
+        const modal = document.getElementById('tpArticleModal');
         
-        if (modal && mainContent) {
+        if (modal) {
             modal.style.display = 'flex';
             
-            // FAST 0.5s animation
+            // Smooth animation
             modal.style.opacity = '0';
             modal.style.transform = 'scale(0.95)';
             
@@ -715,7 +861,7 @@ class VietStockNewsPortal {
     }
 
     closeArticleModal() {
-        const modal = document.getElementById('econArticleModal');
+        const modal = document.getElementById('tpArticleModal');
         
         if (modal) {
             modal.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
@@ -730,9 +876,9 @@ class VietStockNewsPortal {
     }
 
     showChatWithContext() {
-        const floatingChat = document.getElementById('econFloatingChat');
-        const chatBubbleTitle = document.querySelector('.econ-chat-bubble-title');
-        const chatBubbleSubtitle = document.querySelector('.econ-chat-bubble-subtitle');
+        const floatingChat = document.getElementById('tpFloatingChat');
+        const chatBubbleTitle = document.querySelector('.tp-chat-bubble-title');
+        const chatBubbleSubtitle = document.querySelector('.tp-chat-bubble-subtitle');
         
         if (floatingChat) {
             // Update bubble text
@@ -753,11 +899,11 @@ class VietStockNewsPortal {
     }
 
     updatePagination(currentPage, totalPages) {
-        const paginationContainer = document.getElementById('econPaginationContainer');
-        const prevBtn = document.getElementById('econPrevPageBtn');
-        const nextBtn = document.getElementById('econNextPageBtn');
-        const currentPageSpan = document.querySelector('.econ-pagination-current');
-        const totalPagesSpan = document.querySelector('.econ-pagination-total');
+        const paginationContainer = document.getElementById('tpPaginationContainer');
+        const prevBtn = document.getElementById('tpPrevPageBtn');
+        const nextBtn = document.getElementById('tpNextPageBtn');
+        const currentPageSpan = document.querySelector('.tp-pagination-current');
+        const totalPagesSpan = document.querySelector('.tp-pagination-total');
 
         if (currentPageSpan) currentPageSpan.textContent = currentPage;
         if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
@@ -771,9 +917,9 @@ class VietStockNewsPortal {
     }
 
     showLoading() {
-        const loadingContainer = document.getElementById('econLoadingContainer');
-        const newsGrid = document.getElementById('econNewsGrid');
-        const paginationContainer = document.getElementById('econPaginationContainer');
+        const loadingContainer = document.getElementById('tpLoadingContainer');
+        const newsGrid = document.getElementById('tpNewsGrid');
+        const paginationContainer = document.getElementById('tpPaginationContainer');
 
         if (loadingContainer) {
             loadingContainer.style.display = 'flex';
@@ -788,8 +934,8 @@ class VietStockNewsPortal {
     }
 
     hideLoading() {
-        const loadingContainer = document.getElementById('econLoadingContainer');
-        const newsGrid = document.getElementById('econNewsGrid');
+        const loadingContainer = document.getElementById('tpLoadingContainer');
+        const newsGrid = document.getElementById('tpNewsGrid');
         
         if (loadingContainer) {
             loadingContainer.style.transition = 'opacity 0.3s ease';
@@ -802,16 +948,16 @@ class VietStockNewsPortal {
     }
 
     renderError() {
-        const newsGrid = document.getElementById('econNewsGrid');
+        const newsGrid = document.getElementById('tpNewsGrid');
         if (!newsGrid) return;
 
         newsGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center; gap: 1rem;">
-                <div style="font-size: 3rem;">❌</div>
-                <h3 style="color: var(--vs-text-primary); margin: 0;">Lỗi khi tải tin tức</h3>
-                <p style="color: var(--vs-text-secondary); margin: 0;">Vui lòng thử lại sau</p>
-                <button onclick="vietStockPortal.loadNews(vietStockPortal.currentCategory, vietStockPortal.currentPage)" 
-                        style="padding: 0.5rem 1rem; background: var(--vs-primary); color: white; border: none; border-radius: var(--vs-radius-md); cursor: pointer; transition: all 0.3s ease;">
+            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem; text-align: center; gap: 1.5rem;">
+                <div style="font-size: 4rem;">❌</div>
+                <h3 style="color: var(--tp-primary); margin: 0; font-family: var(--tp-font-serif); font-size: 1.5rem;">Lỗi khi tải tin tức</h3>
+                <p style="color: var(--tp-text-secondary); margin: 0; font-family: var(--tp-font-sans);">Vui lòng thử lại sau</p>
+                <button onclick="tienPhongPortal.loadNews(tienPhongPortal.currentCategory, tienPhongPortal.currentPage)" 
+                        style="padding: 1rem 2rem; background: var(--tp-primary); color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-family: var(--tp-font-sans); font-weight: 600;">
                     🔄 Thử lại
                 </button>
             </div>
@@ -835,7 +981,7 @@ class VietStockNewsPortal {
                     }
                     break;
                 case 'ArrowRight':
-                    const totalPages = parseInt(document.querySelector('.econ-pagination-total')?.textContent || '1');
+                    const totalPages = parseInt(document.querySelector('.tp-pagination-total')?.textContent || '1');
                     if (this.currentPage < totalPages) {
                         this.loadNews(this.currentCategory, this.currentPage + 1);
                     }
@@ -855,20 +1001,20 @@ class VietStockNewsPortal {
     }
 
     showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('econToastContainer');
+        const toastContainer = document.getElementById('tpToastContainer');
         if (!toastContainer) {
             // Create toast container if it doesn't exist
             const container = document.createElement('div');
-            container.id = 'econToastContainer';
-            container.className = 'econ-toast-container';
+            container.id = 'tpToastContainer';
+            container.className = 'tp-toast-container';
             document.body.appendChild(container);
         }
         
         const toast = document.createElement('div');
-        toast.className = `econ-toast ${type}`;
+        toast.className = `tp-toast ${type}`;
         toast.textContent = message;
 
-        document.getElementById('econToastContainer').appendChild(toast);
+        document.getElementById('tpToastContainer').appendChild(toast);
 
         // Show with animation
         requestAnimationFrame(() => {
@@ -876,7 +1022,7 @@ class VietStockNewsPortal {
             toast.style.transform = 'translateX(0)';
         });
 
-        // Hide after 3 seconds
+        // Hide after 4 seconds
         setTimeout(() => {
             toast.style.transition = 'all 0.5s ease';
             toast.style.opacity = '0';
@@ -886,7 +1032,7 @@ class VietStockNewsPortal {
                     toast.parentNode.removeChild(toast);
                 }
             }, 500);
-        }, 3000);
+        }, 4000);
     }
 
     escapeHtml(text) {
@@ -914,44 +1060,34 @@ class VietStockNewsPortal {
 }
 
 // Initialize when DOM is loaded
-let vietStockPortal;
+let tienPhongPortal;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, initializing VietStock News Portal...');
+    console.log('🚀 DOM loaded, initializing Tiền Phong News Portal...');
     
     try {
-        vietStockPortal = new VietStockNewsPortal();
+        tienPhongPortal = new TienPhongNewsPortal();
         
-        // Add CSS animation for bounce effect
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes bounce {
-                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-                40% { transform: translateY(-5px); }
-                60% { transform: translateY(-3px); }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        console.log('✅ VietStock News Portal initialized successfully!');
-        console.log('🎨 Theme: VietStock Professional with 3D Particles');
+        console.log('✅ Tiền Phong News Portal initialized successfully!');
+        console.log('🎨 Theme: Classic Tiền Phong + Modern iOS/iPadOS Elements');
+        console.log('📱 Enhanced chat with character-based debate system');
         
         // Performance report after 10 seconds
         setTimeout(() => {
-            console.log('📊 Performance Report:', vietStockPortal.getPerformanceReport());
+            console.log('📊 Performance Report:', tienPhongPortal.getPerformanceReport());
         }, 10000);
 
     } catch (error) {
-        console.error('❌ Failed to initialize VietStock News Portal:', error);
+        console.error('❌ Failed to initialize Tiền Phong News Portal:', error);
         
         // Show error message
         document.body.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; font-family: var(--tp-font-sans);">
                 <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
-                <h1 style="color: var(--vs-danger); margin-bottom: 1rem;">Lỗi khởi tạo VietStock Portal</h1>
-                <p style="color: var(--vs-text-secondary); margin-bottom: 2rem;">${error.message}</p>
+                <h1 style="color: var(--tp-primary); margin-bottom: 1rem; font-family: var(--tp-font-serif);">Lỗi khởi tạo Tiền Phong Portal</h1>
+                <p style="color: var(--tp-text-secondary); margin-bottom: 2rem;">${error.message}</p>
                 <button onclick="location.reload()" 
-                        style="padding: 1rem 2rem; background: var(--vs-primary); color: white; border: none; border-radius: var(--vs-radius-md); cursor: pointer; font-size: 1rem;">
+                        style="padding: 1rem 2rem; background: var(--tp-primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem; font-family: var(--tp-font-sans);">
                     🔄 Tải lại trang
                 </button>
             </div>
@@ -961,12 +1097,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Global error handling
 window.addEventListener('error', (e) => {
-    console.error('🚨 Global VietStock error:', e.error);
+    console.error('🚨 Global Tiền Phong error:', e.error);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
-    console.error('🚨 VietStock promise rejection:', e.reason);
+    console.error('🚨 Tiền Phong promise rejection:', e.reason);
 });
 
 // Make portal globally accessible for debugging
-window.vietStockPortal = vietStockPortal;
+window.tienPhongPortal = tienPhongPortal;
