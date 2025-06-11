@@ -1660,8 +1660,51 @@ def create_app():
             'timestamp': get_terminal_timestamp()
         }), 500
 
+    def configure_async_support(app):
+    """Configure proper async support cho Flask"""
+    
+    import asyncio
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    
+    # Check Flask async support
+    try:
+        from flask import __version__ as flask_version
+        app.logger.info(f"🔧 Flask version: {flask_version}")
+        
+        # Check if Flask[async] is available
+        try:
+            import flask.async_
+            app.logger.info("✅ Flask async support detected")
+            app.config['ASYNC_SUPPORT'] = True
+        except ImportError:
+            app.logger.warning("⚠️ Flask async not available, using threaded fallback")
+            app.config['ASYNC_SUPPORT'] = False
+            
+    except Exception as e:
+        app.logger.error(f"❌ Error checking Flask async: {e}")
+        app.config['ASYNC_SUPPORT'] = False
+    
+    # Setup thread pool for async operations
+    if not app.config.get('ASYNC_SUPPORT', False):
+        try:
+            app.config['THREAD_POOL'] = ThreadPoolExecutor(max_workers=4)
+            app.logger.info("🔄 Thread pool configured for async operations")
+        except Exception as e:
+            app.logger.error(f"❌ Failed to setup thread pool: {e}")
+    
+    # Configure asyncio cho development
+    if app.debug:
+        try:
+            # Set asyncio debug mode
+            asyncio.get_event_loop().set_debug(True)
+            app.logger.debug("🐛 Asyncio debug mode enabled")
+        except Exception as e:
+            app.logger.debug(f"⚠️ Could not enable asyncio debug: {e}")
+            
     # Gán terminal_processor vào app context để có thể truy cập
     app.terminal_processor = terminal_processor
+    add_enhanced_error_handling(app)
 
     return app
 
@@ -1676,3 +1719,81 @@ print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print(f"Terminal Commands: ✅ {len(terminal_processor.commands)} available")
 print("=" * 60)
+
+# THÊM VÀO CUỐI APP.PY:
+
+def add_enhanced_error_handling(app):
+    """Enhanced error handling với debug capabilities"""
+    
+    import traceback
+    import sys
+    from datetime import datetime
+    
+    # Setup logging for app
+    app_logger = logging.getLogger('econ_news')
+    
+    @app.before_request  
+    def log_request_info():
+        """Log detailed request information trong debug mode"""
+        if app.debug:
+            app_logger.debug(f"🌐 Request: {request.method} {request.path}")
+            app_logger.debug(f"📍 Remote addr: {request.remote_addr}")
+            app_logger.debug(f"🖥️ User agent: {request.headers.get('User-Agent', 'Unknown')}")
+            if request.args:
+                app_logger.debug(f"📝 Query params: {dict(request.args)}")
+    
+    @app.after_request
+    def log_response_info(response):
+        """Log response information"""
+        if app.debug:
+            app_logger.debug(f"📤 Response: {response.status_code} for {request.path}")
+        return response
+    
+    @app.errorhandler(500)
+    def enhanced_500_handler(error):
+        """Enhanced 500 error handler với debug info"""
+        error_id = str(uuid.uuid4())[:8]
+        
+        app_logger.error(f"🚨 Internal Server Error [ID: {error_id}]")
+        app_logger.error(f"📍 Path: {request.path}")
+        app_logger.error(f"🔍 Method: {request.method}")
+        app_logger.error(f"❌ Error: {str(error)}")
+        app_logger.debug(f"📋 Full traceback:\n{traceback.format_exc()}")
+        
+        # Chi tiết response dựa trên debug mode
+        if app.debug:
+            return jsonify({
+                'error': 'Internal Server Error',
+                'error_id': error_id,
+                'details': str(error),
+                'path': request.path,
+                'method': request.method,
+                'timestamp': datetime.now().isoformat(),
+                'traceback': traceback.format_exc().split('\n'),
+                'debug_mode': True
+            }), 500
+        else:
+            return jsonify({
+                'error': 'Internal Server Error', 
+                'error_id': error_id,
+                'message': 'Something went wrong. Please try again later.',
+                'timestamp': datetime.now().isoformat()
+            }), 500
+    
+    @app.errorhandler(Exception)
+    def catch_all_exceptions(error):
+        """Catch tất cả unhandled exceptions"""
+        error_id = str(uuid.uuid4())[:8]
+        
+        app_logger.error(f"🚨 Unhandled Exception [ID: {error_id}]: {type(error).__name__}")
+        app_logger.error(f"📍 Path: {request.path if request else 'Unknown'}")
+        app_logger.error(f"❌ Error: {str(error)}")
+        app_logger.debug(f"📋 Exception traceback:\n{traceback.format_exc()}")
+        
+        return jsonify({
+            'error': 'Internal Server Error',
+            'error_id': error_id,
+            'type': type(error).__name__,
+            'message': 'An unexpected error occurred',
+            'timestamp': datetime.now().isoformat()
+        }), 500
