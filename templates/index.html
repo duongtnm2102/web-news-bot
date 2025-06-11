@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>📊 E-con News - VietStock Style Financial Portal</title>
+    <title>📰 E-con News - Tin Tức Tài Chính</title>
     
     <!-- SEO & Social Meta -->
-    <meta name="description" content="E-con News - Professional financial news portal with VietStock-style interface, 3D particles, and AI analysis.">
-    <meta name="keywords" content="VietStock, financial news, stock market, AI analysis, Vietnam finance">
+    <meta name="description" content="E-con News - Cổng thông tin tài chính, kinh tế hàng đầu với giao diện hiện đại theo phong cách báo Tiền Phong">
+    <meta name="keywords" content="tin tức tài chính, chứng khoán, kinh tế, báo Tiền Phong, E-con News">
     <meta name="author" content="E-con News Portal">
     <meta name="robots" content="index, follow">
     
@@ -16,261 +16,162 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="E-con News">
-    <meta name="theme-color" content="#1e3a8a">
-    <meta name="msapplication-navbutton-color" content="#1e3a8a">
+    <meta name="theme-color" content="#dc2626">
+    <meta name="msapplication-navbutton-color" content="#dc2626">
     
-    <!-- Fonts -->
+    <!-- Fonts - Combining Serif for Headlines with Sans-serif for Content -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='tien-phong-style.css') }}">
     
     <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
-    
-    <style>
-        /* Additional 3D particles animation */
-        @keyframes particleFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
-            25% { transform: translateY(-15px) rotate(90deg); opacity: 1; }
-            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.8; }
-            75% { transform: translateY(-15px) rotate(270deg); opacity: 1; }
-        }
-        
-        .particle-large {
-            width: 4px;
-            height: 4px;
-            background: #06b6d4;
-            border-radius: 50%;
-            position: absolute;
-            animation: particleFloat 12s ease-in-out infinite;
-            box-shadow: 0 0 10px #06b6d4;
-        }
-        
-        .particle-medium {
-            width: 3px;
-            height: 3px;
-            background: #3b82f6;
-            border-radius: 50%;
-            position: absolute;
-            animation: particleFloat 8s ease-in-out infinite;
-            box-shadow: 0 0 8px #3b82f6;
-        }
-    </style>
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
 </head>
 <body>
-    <!-- 3D Particles Background -->
-    <div class="particles-container">
-        <!-- Regular particles -->
-        <div class="particle" style="left: 5%; top: 15%;"></div>
-        <div class="particle" style="left: 15%; top: 75%;"></div>
-        <div class="particle" style="left: 25%; top: 35%;"></div>
-        <div class="particle" style="left: 35%; top: 55%;"></div>
-        <div class="particle" style="left: 45%; top: 25%;"></div>
-        <div class="particle" style="left: 55%; top: 65%;"></div>
-        <div class="particle" style="left: 65%; top: 45%;"></div>
-        <div class="particle" style="left: 75%; top: 85%;"></div>
-        <div class="particle" style="left: 85%; top: 15%;"></div>
-        <div class="particle" style="left: 95%; top: 45%;"></div>
-        
-        <!-- Large particles -->
-        <div class="particle-large" style="left: 20%; top: 60%;"></div>
-        <div class="particle-large" style="left: 60%; top: 20%;"></div>
-        <div class="particle-large" style="left: 80%; top: 70%;"></div>
-        
-        <!-- Medium particles -->
-        <div class="particle-medium" style="left: 10%; top: 40%;"></div>
-        <div class="particle-medium" style="left: 40%; top: 80%;"></div>
-        <div class="particle-medium" style="left: 70%; top: 10%;"></div>
-        <div class="particle-medium" style="left: 90%; top: 60%;"></div>
-    </div>
-
-    <!-- E-con App Container -->
-    <div class="econ-app">
-        <!-- Header -->
-        <header class="econ-header">
-            <!-- Top Market Data Bar -->
-            <div class="econ-header-top">
-                <div class="container">
-                    <div class="econ-market-data">
-                        <div class="econ-market-item">
-                            <span class="econ-market-label">VN-Index:</span>
-                            <span class="econ-market-value">1,316.23</span>
-                            <span class="econ-market-change positive">+0.43%</span>
+    <!-- E-con News App Container -->
+    <div class="tp-app">
+        <!-- Header - Tiền Phong Style -->
+        <header class="tp-header">
+            <div class="tp-header-container">
+                <!-- Logo Section -->
+                <div class="tp-logo-section">
+                    <a href="/" class="tp-logo">
+                        <div class="tp-logo-icon">📰</div>
+                        <div class="tp-logo-text">
+                            <h1 class="tp-logo-main">E-con News</h1>
+                            <p class="tp-logo-subtitle">Tin Tức Tài Chính</p>
                         </div>
-                        <div class="econ-market-item">
-                            <span class="econ-market-label">HNX-Index:</span>
-                            <span class="econ-market-value">226.40</span>
-                            <span class="econ-market-change negative">-0.04%</span>
-                        </div>
-                        <div class="econ-market-item">
-                            <span class="econ-market-label">VN30:</span>
-                            <span class="econ-market-value">1,404.82</span>
-                            <span class="econ-market-change positive">+0.59%</span>
-                        </div>
-                        <div class="econ-market-item">
-                            <span class="econ-market-label">USD/VND:</span>
-                            <span class="econ-market-value">24,992</span>
-                            <span class="econ-market-change positive">+0.02%</span>
-                        </div>
+                    </a>
+                    
+                    <!-- Current Date & Time -->
+                    <div class="tp-date-section">
+                        <div class="tp-current-date" id="tpCurrentDate">Thứ Ba, 10/06/2025</div>
+                        <div class="tp-current-time" id="tpCurrentTime">23:10</div>
                     </div>
-                    <div class="econ-header-time">
-                        <span id="currentTime">10:37 - 10/06/2025</span>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="tp-nav">
+                    <a href="#" class="tp-nav-item active" data-category="all">TRANG CHỦ</a>
+                    <a href="#" class="tp-nav-item" data-category="stocks">CHỨNG KHOÁN</a>
+                    <a href="#" class="tp-nav-item" data-category="business">DOANH NGHIỆP</a>
+                    <a href="#" class="tp-nav-item" data-category="finance">TÀI CHÍNH</a>
+                    <a href="#" class="tp-nav-item" data-category="realestate">BẤT ĐỘNG SẢN</a>
+                    <a href="#" class="tp-nav-item" data-category="world">THẾ GIỚI</a>
+                </nav>
+
+                <!-- Search & Tools -->
+                <div class="tp-tools">
+                    <div class="tp-search-container">
+                        <input type="search" class="tp-search-input" placeholder="Tìm kiếm tin tức...">
+                        <button class="tp-search-btn">🔍</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Main Navigation -->
-            <nav class="econ-nav">
-                <div class="container">
-                    <a href="/" class="econ-logo">
-                        <div class="econ-logo-icon">📊</div>
-                        <span class="econ-logo-text">E-con News</span>
-                    </a>
-
-                    <div class="econ-nav-menu">
-                        <a href="#" class="econ-nav-item active" data-category="all">Trang chủ</a>
-                        <a href="#" class="econ-nav-item" data-category="stocks">Chứng khoán</a>
-                        <a href="#" class="econ-nav-item" data-category="business">Doanh nghiệp</a>
-                        <a href="#" class="econ-nav-item" data-category="real-estate">Bất động sản</a>
-                        <a href="#" class="econ-nav-item" data-category="finance">Tài chính</a>
-                        <a href="#" class="econ-nav-item" data-category="macro">Vĩ mô</a>
-                        <a href="#" class="econ-nav-item" data-category="world">Thế giới</a>
-                    </div>
-
-                    <div class="econ-search-container" style="display: flex; align-items: center; gap: 1rem;">
-                        <input type="search" placeholder="Tìm kiếm..." style="padding: 0.5rem; border: 1px solid var(--vs-border); border-radius: var(--vs-radius-md); background: white;">
-                        <button style="padding: 0.5rem 1rem; background: var(--vs-primary); color: white; border: none; border-radius: var(--vs-radius-md); cursor: pointer;">🔍</button>
-                    </div>
-                </div>
-            </nav>
         </header>
 
-        <!-- Main Layout -->
-        <div class="econ-layout">
-            <!-- Sidebar - Panel theo Lĩnh vực -->
-            <aside class="econ-sidebar">
-                <!-- Chứng khoán -->
-                <div class="econ-sidebar-section">
-                    <h3 class="econ-sidebar-title">📈 Chứng khoán</h3>
-                    <ul class="econ-category-list">
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link active" data-category="all">
-                                <span class="econ-category-icon">🌍</span>
+        <!-- Main Layout - Full Width -->
+        <div class="tp-layout">
+            <!-- Sidebar - Tiền Phong Style -->
+            <aside class="tp-sidebar">
+                <!-- CHỨNG KHOÁN -->
+                <div class="tp-sidebar-section">
+                    <h3 class="tp-sidebar-title">📈 CHỨNG KHOÁN</h3>
+                    <ul class="tp-category-list">
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link active" data-category="all">
+                                <span class="tp-category-icon">🌍</span>
                                 <span>Tất cả tin tức</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="domestic">
-                                <span class="econ-category-icon">🇻🇳</span>
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="domestic">
+                                <span class="tp-category-icon">🇻🇳</span>
                                 <span>Thị trường trong nước</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="international">
-                                <span class="econ-category-icon">🌐</span>
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="international">
+                                <span class="tp-category-icon">🌐</span>
                                 <span>Thị trường quốc tế</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="derivatives">
-                                <span class="econ-category-icon">📊</span>
-                                <span>Phái sinh</span>
-                            </a>
-                        </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="analysis">
-                                <span class="econ-category-icon">🔍</span>
-                                <span>Phân tích</span>
-                            </a>
-                        </li>
                     </ul>
                 </div>
 
-                <!-- Doanh nghiệp -->
-                <div class="econ-sidebar-section">
-                    <h3 class="econ-sidebar-title">🏢 Doanh nghiệp</h3>
-                    <ul class="econ-category-list">
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="companies">
-                                <span class="econ-category-icon">🏭</span>
+                <!-- DOANH NGHIỆP -->
+                <div class="tp-sidebar-section">
+                    <h3 class="tp-sidebar-title">🏢 DOANH NGHIỆP</h3>
+                    <ul class="tp-category-list">
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="business">
+                                <span class="tp-category-icon">🏭</span>
                                 <span>Tin doanh nghiệp</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="earnings">
-                                <span class="econ-category-icon">💰</span>
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="earnings">
+                                <span class="tp-category-icon">💰</span>
                                 <span>Kết quả kinh doanh</span>
-                            </a>
-                        </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="mergers">
-                                <span class="econ-category-icon">🤝</span>
-                                <span>M&A</span>
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Tài chính -->
-                <div class="econ-sidebar-section">
-                    <h3 class="econ-sidebar-title">💳 Tài chính</h3>
-                    <ul class="econ-category-list">
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="banking">
-                                <span class="econ-category-icon">🏦</span>
-                                <span>Ngân hàng</span>
+                <!-- TÀI CHÍNH -->
+                <div class="tp-sidebar-section">
+                    <h3 class="tp-sidebar-title">💳 TÀI CHÍNH</h3>
+                    <ul class="tp-category-list">
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="finance">
+                                <span class="tp-category-icon">🏦</span>
+                                <span>Tài chính - Ngân hàng</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="fintech">
-                                <span class="econ-category-icon">💻</span>
-                                <span>Fintech</span>
-                            </a>
-                        </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="crypto">
-                                <span class="econ-category-icon">₿</span>
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="crypto">
+                                <span class="tp-category-icon">₿</span>
                                 <span>Tiền số</span>
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Bất động sản -->
-                <div class="econ-sidebar-section">
-                    <h3 class="econ-sidebar-title">🏠 Bất động sản</h3>
-                    <ul class="econ-category-list">
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="real-estate">
-                                <span class="econ-category-icon">🏘️</span>
+                <!-- BẤT ĐỘNG SẢN -->
+                <div class="tp-sidebar-section">
+                    <h3 class="tp-sidebar-title">🏠 BẤT ĐỘNG SẢN</h3>
+                    <ul class="tp-category-list">
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="realestate">
+                                <span class="tp-category-icon">🏘️</span>
                                 <span>Thị trường BĐS</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" data-category="projects">
-                                <span class="econ-category-icon">🏗️</span>
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" data-category="projects">
+                                <span class="tp-category-icon">🏗️</span>
                                 <span>Dự án</span>
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Công cụ nhanh -->
-                <div class="econ-sidebar-section">
-                    <h3 class="econ-sidebar-title">⚡ Công cụ</h3>
-                    <ul class="econ-category-list">
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" onclick="vietStockPortal.openChatWindow(); return false;">
-                                <span class="econ-category-icon">🤖</span>
+                <!-- CÔNG CỤ -->
+                <div class="tp-sidebar-section">
+                    <h3 class="tp-sidebar-title">⚡ CÔNG CỤ</h3>
+                    <ul class="tp-category-list">
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" onclick="tienPhongPortal.openChatWindow(); return false;">
+                                <span class="tp-category-icon">🤖</span>
                                 <span>AI Phân tích</span>
                             </a>
                         </li>
-                        <li class="econ-category-item">
-                            <a href="#" class="econ-category-link" onclick="vietStockPortal.loadNews(vietStockPortal.currentCategory, 1); return false;">
-                                <span class="econ-category-icon">🔄</span>
+                        <li class="tp-category-item">
+                            <a href="#" class="tp-category-link" onclick="tienPhongPortal.loadNews(tienPhongPortal.currentCategory, 1); return false;">
+                                <span class="tp-category-icon">🔄</span>
                                 <span>Làm mới</span>
                             </a>
                         </li>
@@ -278,47 +179,46 @@
                 </div>
             </aside>
 
-            <!-- Main Content -->
-            <main class="econ-main-content">
+            <!-- Main Content Area -->
+            <main class="tp-main-content">
                 <!-- Content Header -->
-                <div class="econ-content-header">
-                    <h1 class="econ-content-title">Tin tức tài chính - chứng khoán</h1>
-                    <p class="econ-content-subtitle">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
+                <div class="tp-content-header">
+                    <h1 class="tp-content-title">Tin Tức Tài Chính - Chứng Khoán</h1>
+                    <p class="tp-content-subtitle">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
                 </div>
 
                 <!-- Filter Tabs -->
-                <div class="econ-filter-tabs">
-                    <a href="#" class="econ-filter-tab active" data-type="all">Tất cả</a>
-                    <a href="#" class="econ-filter-tab" data-type="domestic">Trong nước</a>
-                    <a href="#" class="econ-filter-tab" data-type="international">Quốc tế</a>
-                    <a href="#" class="econ-filter-tab" data-type="hot">Nổi bật</a>
-                    <a href="#" class="econ-filter-tab" data-type="analysis">Phân tích</a>
+                <div class="tp-filter-tabs">
+                    <a href="#" class="tp-filter-tab active" data-type="all">Tất cả</a>
+                    <a href="#" class="tp-filter-tab" data-type="domestic">Trong nước</a>
+                    <a href="#" class="tp-filter-tab" data-type="international">Quốc tế</a>
+                    <a href="#" class="tp-filter-tab" data-type="hot">Nổi bật</a>
                 </div>
 
                 <!-- News Content -->
-                <div class="econ-news-content">
+                <div class="tp-news-content">
                     <!-- Loading State -->
-                    <div class="econ-loading" id="econLoadingContainer">
-                        <div class="econ-spinner"></div>
-                        <p class="econ-loading-text">Đang tải tin tức...</p>
+                    <div class="tp-loading" id="tpLoadingContainer">
+                        <div class="tp-spinner"></div>
+                        <p class="tp-loading-text">Đang tải tin tức...</p>
                     </div>
 
                     <!-- News Grid -->
-                    <div class="econ-news-grid" id="econNewsGrid" style="display: none;">
+                    <div class="tp-news-grid" id="tpNewsGrid" style="display: none;">
                         <!-- News items will be dynamically loaded here -->
                     </div>
 
                     <!-- Pagination -->
-                    <div class="econ-pagination" id="econPaginationContainer" style="display: none;">
-                        <button class="econ-pagination-btn" id="econPrevPageBtn">
+                    <div class="tp-pagination" id="tpPaginationContainer" style="display: none;">
+                        <button class="tp-pagination-btn" id="tpPrevPageBtn">
                             ← Trang trước
                         </button>
-                        <div class="econ-pagination-info">
-                            <span class="econ-pagination-current">1</span>
+                        <div class="tp-pagination-info">
+                            <span class="tp-pagination-current">1</span>
                             <span>/</span>
-                            <span class="econ-pagination-total">1</span>
+                            <span class="tp-pagination-total">1</span>
                         </div>
-                        <button class="econ-pagination-btn" id="econNextPageBtn">
+                        <button class="tp-pagination-btn" id="tpNextPageBtn">
                             Trang sau →
                         </button>
                     </div>
@@ -326,90 +226,90 @@
             </main>
         </div>
 
-        <!-- iPad-style Article Modal -->
-        <div class="econ-article-modal" id="econArticleModal" style="display: none;">
-            <div class="econ-article-container">
-                <div class="econ-article-header">
-                    <h2 class="econ-article-title" id="econArticleTitle"></h2>
-                    <button class="econ-close-btn" id="econCloseBtn">×</button>
+        <!-- iPad/iOS Style Article Modal -->
+        <div class="tp-article-modal" id="tpArticleModal" style="display: none;">
+            <div class="tp-article-container">
+                <div class="tp-article-header">
+                    <h2 class="tp-article-title" id="tpArticleTitle"></h2>
+                    <button class="tp-close-btn" id="tpCloseBtn">×</button>
                 </div>
                 
-                <div class="econ-article-meta">
-                    <span class="econ-article-source" id="econArticleSource"></span>
-                    <span class="econ-article-time" id="econArticleTime"></span>
-                    <a href="#" class="econ-article-link" id="econArticleLink" target="_blank" rel="noopener noreferrer">
+                <div class="tp-article-meta">
+                    <span class="tp-article-source" id="tpArticleSource"></span>
+                    <span class="tp-article-time" id="tpArticleTime"></span>
+                    <a href="#" class="tp-article-link" id="tpArticleLink" target="_blank" rel="noopener noreferrer">
                         🔗 Đọc bài gốc
                     </a>
                 </div>
                 
-                <div class="econ-article-content" id="econArticleContent">
+                <div class="tp-article-content" id="tpArticleContent">
                     <!-- Article content will be loaded here -->
                 </div>
             </div>
         </div>
 
-        <!-- iPhone-style Floating Chat Widget -->
-        <div class="econ-floating-chat" id="econFloatingChat">
+        <!-- iOS Style Floating Chat Widget -->
+        <div class="tp-floating-chat" id="tpFloatingChat">
             <!-- Chat Bubble (Minimized State) -->
-            <div class="econ-chat-bubble" id="econChatBubble">
-                <div class="econ-chat-bubble-avatar">
+            <div class="tp-chat-bubble" id="tpChatBubble">
+                <div class="tp-chat-bubble-avatar">
                     <span>🤖</span>
-                    <div class="econ-chat-bubble-pulse"></div>
+                    <div class="tp-chat-bubble-pulse"></div>
                 </div>
-                <div class="econ-chat-bubble-text">
-                    <div class="econ-chat-bubble-title">AI Assistant</div>
-                    <div class="econ-chat-bubble-subtitle">Hỏi tôi về bài báo!</div>
+                <div class="tp-chat-bubble-text">
+                    <div class="tp-chat-bubble-title">AI Assistant</div>
+                    <div class="tp-chat-bubble-subtitle">Hỏi tôi về bài báo!</div>
                 </div>
             </div>
 
             <!-- Chat Window (Maximized State) -->
-            <div class="econ-chat-window" id="econChatWindow" style="display: none;">
+            <div class="tp-chat-window" id="tpChatWindow" style="display: none;">
                 <!-- Chat Header -->
-                <div class="econ-chat-header">
-                    <div class="econ-chat-avatar">🤖</div>
-                    <div class="econ-chat-info">
-                        <div class="econ-chat-title">AI Assistant</div>
-                        <div class="econ-chat-status">Online</div>
+                <div class="tp-chat-header">
+                    <div class="tp-chat-avatar">🤖</div>
+                    <div class="tp-chat-info">
+                        <div class="tp-chat-title">AI Assistant</div>
+                        <div class="tp-chat-status">Online</div>
                     </div>
-                    <div class="econ-chat-actions">
-                        <button class="econ-chat-minimize" id="econChatMinimize">−</button>
-                        <button class="econ-chat-close" id="econChatClose">×</button>
+                    <div class="tp-chat-actions">
+                        <button class="tp-chat-minimize" id="tpChatMinimize">−</button>
+                        <button class="tp-chat-close" id="tpChatClose">×</button>
                     </div>
                 </div>
 
                 <!-- Chat Messages -->
-                <div class="econ-chat-messages" id="econChatMessages">
-                    <div class="econ-message econ-message-ai">
-                        <div class="econ-message-bubble">
+                <div class="tp-chat-messages" id="tpChatMessages">
+                    <div class="tp-message tp-message-ai">
+                        <div class="tp-message-bubble">
                             Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về tin tức tài chính hoặc sử dụng các nút bên dưới! 🤖✨
                         </div>
-                        <div class="econ-message-time">Bây giờ</div>
+                        <div class="tp-message-time">Bây giờ</div>
                     </div>
                 </div>
 
                 <!-- Chat Input Area -->
-                <div class="econ-chat-input-area">
+                <div class="tp-chat-input-area">
                     <!-- Quick Action Buttons -->
-                    <div class="econ-quick-actions">
-                        <button class="econ-quick-btn econ-summary-btn" id="econSummaryBtn">
+                    <div class="tp-quick-actions">
+                        <button class="tp-quick-btn tp-summary-btn" id="tpSummaryBtn">
                             📋 Tóm tắt
                         </button>
-                        <button class="econ-quick-btn econ-debate-btn" id="econDebateBtn">
+                        <button class="tp-quick-btn tp-debate-btn" id="tpDebateBtn">
                             🎭 Bàn luận
                         </button>
                     </div>
 
                     <!-- Input Row -->
-                    <div class="econ-input-row">
-                        <div class="econ-input-container">
+                    <div class="tp-input-row">
+                        <div class="tp-input-container">
                             <textarea 
-                                class="econ-chat-input" 
-                                id="econChatInput" 
+                                class="tp-chat-input" 
+                                id="tpChatInput" 
                                 placeholder="Tin nhắn..."
                                 rows="1"
                             ></textarea>
                         </div>
-                        <button class="econ-send-btn" id="econSendBtn">
+                        <button class="tp-send-btn" id="tpSendBtn">
                             <svg viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
                             </svg>
@@ -420,36 +320,41 @@
         </div>
 
         <!-- Toast Notifications -->
-        <div class="econ-toast-container" id="econToastContainer">
+        <div class="tp-toast-container" id="tpToastContainer">
             <!-- Toast messages will appear here -->
         </div>
     </div>
 
-    <!-- Enhanced JavaScript for performance -->
+    <!-- Enhanced JavaScript for Time Display -->
     <script>
-        // Real-time clock update
+        // Real-time clock update with Vietnamese formatting
         function updateTime() {
             const now = new Date();
-            const timeStr = now.toLocaleString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit',
+            const dateStr = now.toLocaleDateString('vi-VN', {
+                weekday: 'long',
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
-            const timeEl = document.getElementById('currentTime');
-            if (timeEl) {
-                timeEl.textContent = timeStr.replace(',', ' -');
-            }
+            const timeStr = now.toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const dateEl = document.getElementById('tpCurrentDate');
+            const timeEl = document.getElementById('tpCurrentTime');
+            
+            if (dateEl) dateEl.textContent = dateStr;
+            if (timeEl) timeEl.textContent = timeStr;
         }
         
-        // Update time every minute
+        // Update time immediately and every minute
         updateTime();
         setInterval(updateTime, 60000);
 
-        // Enhanced error handling
+        // Error handling
         window.addEventListener('error', function(e) {
-            console.error('🚨 Global VietStock Error:', {
+            console.error('🚨 Tiền Phong Portal Error:', {
                 message: e.message,
                 filename: e.filename,
                 lineno: e.lineno,
@@ -461,7 +366,7 @@
         window.addEventListener('load', function() {
             if ('performance' in window) {
                 const perfData = performance.getEntriesByType('navigation')[0];
-                console.log('📊 VietStock Page Performance:', {
+                console.log('📊 Tiền Phong Page Performance:', {
                     loadTime: Math.round(performance.now()),
                     domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
                     resources: performance.getEntriesByType('resource').length
@@ -481,12 +386,12 @@
         });
         handleViewportChanges();
 
-        console.log('🚀 VietStock News Portal HTML loaded successfully!');
-        console.log('🎨 Theme: VietStock Professional with 3D Particles');
-        console.log('📱 Optimized for all devices with 0.5s animations');
+        console.log('🚀 Tiền Phong News Portal HTML loaded successfully!');
+        console.log('🎨 Theme: Classic Tiền Phong with Modern iOS/iPadOS Elements');
+        console.log('📱 Responsive design for all devices');
     </script>
 
     <!-- Main Application Script -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='tien-phong-script.js') }}"></script>
 </body>
 </html>
