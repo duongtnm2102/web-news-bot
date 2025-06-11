@@ -2,333 +2,703 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>📰 E-con News - Tin Tức Tài Chính</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📰 Tiền Phong - Tin Tức Tài Chính</title>
+    
+    <!-- Traditional Newspaper Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+    
+    <!-- Traditional Newspaper Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Crimson+Text:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     
     <!-- SEO & Social Meta -->
-    <meta name="description" content="E-con News - Cổng thông tin tài chính, kinh tế hàng đầu với giao diện hiện đại theo phong cách báo Tiền Phong">
-    <meta name="keywords" content="tin tức tài chính, chứng khoán, kinh tế, báo Tiền Phong, E-con News">
-    <meta name="author" content="E-con News Portal">
+    <meta name="description" content="Tiền Phong - Cổng thông tin tài chính, kinh tế hàng đầu với giao diện báo giấy truyền thống">
+    <meta name="keywords" content="tin tức tài chính, chứng khoán, kinh tế, báo Tiền Phong">
+    <meta name="author" content="Tiền Phong News Portal">
     <meta name="robots" content="index, follow">
     
     <!-- Mobile App Experience -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="E-con News">
-    <meta name="theme-color" content="#dc2626">
-    <meta name="msapplication-navbutton-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Tiền Phong">
+    <meta name="theme-color" content="#ffffff">
     
-    <!-- Fonts - Combining Serif for Headlines with Sans-serif for Content -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Stylesheets - FIXED -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
-    <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+    <style>
+        /* ===== TRADITIONAL NEWSPAPER DESIGN - EXACT MATCH ===== */
+        :root {
+            /* Traditional Black & White Colors */
+            --paper-white: #ffffff;
+            --ink-black: #000000;
+            --light-gray: #f8f8f8;
+            --border-gray: #cccccc;
+            --accent-red: #dc143c;
+            
+            /* Typography - Traditional Newspaper */
+            --font-headline: 'Playfair Display', serif;
+            --font-body: 'Crimson Text', serif;
+            --font-caption: 'Merriweather', serif;
+            
+            /* Spacing - Traditional */
+            --space-xs: 2px;
+            --space-sm: 4px;
+            --space-md: 8px;
+            --space-lg: 12px;
+            --space-xl: 16px;
+            --space-2xl: 24px;
+            
+            /* Fast iOS transitions */
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--paper-white);
+            color: var(--ink-black);
+            line-height: 1.6;
+            font-size: 14px;
+            overflow-x: hidden;
+        }
+
+        /* ===== TRADITIONAL NEWSPAPER HEADER - EXACT MATCH ===== */
+        .newspaper-masthead {
+            background: var(--paper-white);
+            border-bottom: 4px solid var(--ink-black);
+            padding: var(--space-lg) 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .masthead-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        /* Main newspaper title - exactly like traditional newspapers */
+        .newspaper-name {
+            font-family: var(--font-headline);
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--accent-red);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: var(--space-sm);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            line-height: 0.9;
+        }
+
+        /* Website URL and subtitle */
+        .newspaper-tagline {
+            font-family: var(--font-caption);
+            font-size: 0.75rem;
+            color: var(--ink-black);
+            font-weight: 400;
+            margin-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-gray);
+            padding-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Date display - traditional style */
+        .publication-date {
+            font-family: var(--font-caption);
+            font-size: 0.8rem;
+            color: var(--ink-black);
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .date-separator {
+            width: 60px;
+            height: 1px;
+            background: var(--ink-black);
+        }
+
+        /* ===== TRADITIONAL NAVIGATION BAR ===== */
+        .newspaper-navigation {
+            background: var(--ink-black);
+            color: var(--paper-white);
+            padding: var(--space-sm) 0;
+            border-bottom: 2px solid var(--accent-red);
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: var(--space-2xl);
+            flex-wrap: wrap;
+        }
+
+        .nav-section {
+            font-family: var(--font-headline);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--paper-white);
+            text-decoration: none;
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid transparent;
+            transition: var(--transition-fast);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .nav-section:hover,
+        .nav-section.active {
+            background: var(--paper-white);
+            color: var(--ink-black);
+            border-color: var(--paper-white);
+        }
+
+        /* ===== MAIN NEWSPAPER LAYOUT ===== */
+        .newspaper-layout {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: var(--space-2xl);
+            padding: var(--space-xl);
+            background: var(--paper-white);
+        }
+
+        /* ===== LEFT SIDEBAR - TRADITIONAL SECTIONS ===== */
+        .newspaper-sidebar {
+            background: var(--light-gray);
+            border: 2px solid var(--ink-black);
+            padding: var(--space-lg);
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--space-xl);
+            border-bottom: 1px solid var(--border-gray);
+            padding-bottom: var(--space-lg);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            font-family: var(--font-headline);
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--accent-red);
+            border-bottom: 3px solid var(--ink-black);
+            padding-bottom: var(--space-sm);
+            margin-bottom: var(--space-md);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-link {
+            display: block;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--ink-black);
+            text-decoration: none;
+            padding: var(--space-sm);
+            border-bottom: 1px dotted var(--border-gray);
+            transition: var(--transition-fast);
+            line-height: 1.3;
+        }
+
+        .section-link:hover,
+        .section-link.active {
+            background: var(--ink-black);
+            color: var(--paper-white);
+        }
+
+        /* ===== MAIN CONTENT AREA ===== */
+        .main-content {
+            background: var(--paper-white);
+        }
+
+        .content-masthead {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            border: 3px solid var(--ink-black);
+            padding: var(--space-xl);
+            background: var(--light-gray);
+        }
+
+        .content-headline {
+            font-family: var(--font-headline);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--ink-black);
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+
+        .content-subhead {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--ink-black);
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        /* ===== NEWS ARTICLES GRID - NEWSPAPER COLUMNS ===== */
+        .news-articles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+            column-gap: var(--space-2xl);
+        }
+
+        /* Individual news article - traditional newspaper style */
+        .news-article {
+            border: 2px solid var(--ink-black);
+            background: var(--paper-white);
+            transition: var(--transition-fast);
+            cursor: pointer;
+            page-break-inside: avoid;
+        }
+
+        .news-article:hover {
+            box-shadow: 4px 4px 0px var(--ink-black);
+            transform: translate(-2px, -2px);
+        }
+
+        .article-header {
+            background: var(--ink-black);
+            color: var(--paper-white);
+            padding: var(--space-sm) var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-caption);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .article-source {
+            color: var(--paper-white);
+            font-weight: 700;
+        }
+
+        .article-timestamp {
+            color: var(--paper-white);
+            font-weight: 400;
+        }
+
+        .article-content {
+            padding: var(--space-md);
+        }
+
+        .article-headline {
+            font-family: var(--font-headline);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink-black);
+            line-height: 1.2;
+            margin-bottom: var(--space-sm);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-summary {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            color: var(--ink-black);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ===== ARTICLE MODAL - NEWSPAPER STYLE ===== */
+        .article-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: var(--transition-normal);
+        }
+
+        .article-modal.show {
+            opacity: 1;
+        }
+
+        .modal-newspaper {
+            background: var(--paper-white);
+            margin: 1vh auto;
+            width: 95%;
+            max-width: 1100px;
+            height: 98vh;
+            border: 4px solid var(--ink-black);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.3);
+        }
+
+        .modal-masthead {
+            background: var(--ink-black);
+            color: var(--paper-white);
+            padding: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--accent-red);
+        }
+
+        .modal-headline {
+            font-family: var(--font-headline);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--paper-white);
+            flex: 1;
+            margin-right: var(--space-md);
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: var(--accent-red);
+            color: var(--paper-white);
+            border: none;
+            font-size: 1.2rem;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition-fast);
+            font-family: var(--font-headline);
+        }
+
+        .modal-close:hover {
+            background: var(--paper-white);
+            color: var(--ink-black);
+        }
+
+        .modal-subheader {
+            background: var(--light-gray);
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 2px solid var(--ink-black);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-caption);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .modal-source {
+            color: var(--accent-red);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .modal-link {
+            color: var(--ink-black);
+            text-decoration: none;
+            border: 2px solid var(--ink-black);
+            padding: var(--space-xs) var(--space-sm);
+            transition: var(--transition-fast);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .modal-link:hover {
+            background: var(--ink-black);
+            color: var(--paper-white);
+        }
+
+        /* ===== IFRAME CONTENT - GRAYSCALE NEWSPAPER EFFECT ===== */
+        .article-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            background: var(--paper-white);
+            /* Black and white newspaper effect */
+            filter: grayscale(100%) contrast(1.3) brightness(1.1);
+        }
+
+        /* ===== LOADING INDICATOR ===== */
+        .loading-indicator {
+            text-align: center;
+            padding: var(--space-2xl);
+            font-family: var(--font-body);
+            color: var(--ink-black);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-gray);
+            border-top: 4px solid var(--ink-black);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-md);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== PAGINATION - NEWSPAPER STYLE ===== */
+        .page-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-md);
+            margin-top: var(--space-2xl);
+            padding: var(--space-lg);
+            border: 3px solid var(--ink-black);
+            background: var(--light-gray);
+        }
+
+        .page-button {
+            background: var(--paper-white);
+            border: 2px solid var(--ink-black);
+            color: var(--ink-black);
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            font-family: var(--font-headline);
+            font-weight: 600;
+            transition: var(--transition-fast);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .page-button:hover:not(:disabled) {
+            background: var(--ink-black);
+            color: var(--paper-white);
+        }
+
+        .page-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-family: var(--font-caption);
+            color: var(--ink-black);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .newspaper-name {
+                font-size: 2.5rem;
+                letter-spacing: 2px;
+            }
+            
+            .newspaper-layout {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+                padding: var(--space-md);
+            }
+            
+            .nav-container {
+                gap: var(--space-md);
+            }
+            
+            .nav-section {
+                font-size: 0.7rem;
+                padding: var(--space-xs) var(--space-sm);
+            }
+            
+            .news-articles {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+            
+            .modal-newspaper {
+                width: 98%;
+                height: 99vh;
+                margin: 0.5vh auto;
+            }
+
+            .content-headline {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .newspaper-name {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            .masthead-container,
+            .nav-container,
+            .newspaper-layout {
+                padding: var(--space-sm);
+            }
+
+            .modal-newspaper {
+                border-width: 2px;
+            }
+
+            .news-articles {
+                gap: var(--space-sm);
+            }
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .newspaper-navigation,
+            .page-navigation,
+            .article-modal {
+                display: none !important;
+            }
+            
+            .news-article {
+                border: 1px solid var(--ink-black);
+                page-break-inside: avoid;
+                margin-bottom: var(--space-md);
+            }
+            
+            .newspaper-name {
+                color: var(--ink-black);
+            }
+            
+            .article-frame {
+                filter: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- E-con News App Container -->
-    <div class="tp-app">
-        <!-- Header - Tiền Phong Style -->
-        <header class="tp-header">
-            <div class="tp-header-container">
-                <!-- Logo Section -->
-                <div class="tp-logo-section">
-                    <a href="/" class="tp-logo">
-                        <div class="tp-logo-icon">📰</div>
-                        <div class="tp-logo-text">
-                            <h1 class="tp-logo-main">E-con News</h1>
-                            <p class="tp-logo-subtitle">Tin Tức Tài Chính</p>
-                        </div>
-                    </a>
-                    
-                    <!-- Current Date & Time -->
-                    <div class="tp-date-section">
-                        <div class="tp-current-date" id="tpCurrentDate">Thứ Ba, 10/06/2025</div>
-                        <div class="tp-current-time" id="tpCurrentTime">23:10</div>
-                    </div>
-                </div>
-
-                <!-- Navigation Menu -->
-                <nav class="tp-nav">
-                    <a href="#" class="tp-nav-item active" data-category="all">TRANG CHỦ</a>
-                    <a href="#" class="tp-nav-item" data-category="stocks">CHỨNG KHOÁN</a>
-                    <a href="#" class="tp-nav-item" data-category="business">DOANH NGHIỆP</a>
-                    <a href="#" class="tp-nav-item" data-category="finance">TÀI CHÍNH</a>
-                    <a href="#" class="tp-nav-item" data-category="realestate">BẤT ĐỘNG SẢN</a>
-                    <a href="#" class="tp-nav-item" data-category="world">THẾ GIỚI</a>
-                </nav>
-
-                <!-- Search & Tools -->
-                <div class="tp-tools">
-                    <div class="tp-search-container">
-                        <input type="search" class="tp-search-input" placeholder="Tìm kiếm tin tức...">
-                        <button class="tp-search-btn">🔍</button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Layout - Full Width -->
-        <div class="tp-layout">
-            <!-- Sidebar - Tiền Phong Style -->
-            <aside class="tp-sidebar">
-                <!-- CHỨNG KHOÁN -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">📈 CHỨNG KHOÁN</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link active" data-category="all">
-                                <span class="tp-category-icon">🌍</span>
-                                <span>Tất cả tin tức</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="domestic">
-                                <span class="tp-category-icon">🇻🇳</span>
-                                <span>Thị trường trong nước</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="international">
-                                <span class="tp-category-icon">🌐</span>
-                                <span>Thị trường quốc tế</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- DOANH NGHIỆP -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">🏢 DOANH NGHIỆP</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="business">
-                                <span class="tp-category-icon">🏭</span>
-                                <span>Tin doanh nghiệp</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="earnings">
-                                <span class="tp-category-icon">💰</span>
-                                <span>Kết quả kinh doanh</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- TÀI CHÍNH -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">💳 TÀI CHÍNH</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="finance">
-                                <span class="tp-category-icon">🏦</span>
-                                <span>Tài chính - Ngân hàng</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="crypto">
-                                <span class="tp-category-icon">₿</span>
-                                <span>Tiền số</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- BẤT ĐỘNG SẢN -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">🏠 BẤT ĐỘNG SẢN</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="realestate">
-                                <span class="tp-category-icon">🏘️</span>
-                                <span>Thị trường BĐS</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" data-category="projects">
-                                <span class="tp-category-icon">🏗️</span>
-                                <span>Dự án</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- CÔNG CỤ -->
-                <div class="tp-sidebar-section">
-                    <h3 class="tp-sidebar-title">⚡ CÔNG CỤ</h3>
-                    <ul class="tp-category-list">
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" onclick="tienPhongPortal.openChatWindow(); return false;">
-                                <span class="tp-category-icon">🤖</span>
-                                <span>AI Phân tích</span>
-                            </a>
-                        </li>
-                        <li class="tp-category-item">
-                            <a href="#" class="tp-category-link" onclick="tienPhongPortal.loadNews(tienPhongPortal.currentCategory, 1); return false;">
-                                <span class="tp-category-icon">🔄</span>
-                                <span>Làm mới</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </aside>
-
-            <!-- Main Content Area -->
-            <main class="tp-main-content">
-                <!-- Content Header -->
-                <div class="tp-content-header">
-                    <h1 class="tp-content-title">Tin Tức Tài Chính - Chứng Khoán</h1>
-                    <p class="tp-content-subtitle">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
-                </div>
-
-                <!-- Filter Tabs -->
-                <div class="tp-filter-tabs">
-                    <a href="#" class="tp-filter-tab active" data-type="all">Tất cả</a>
-                    <a href="#" class="tp-filter-tab" data-type="domestic">Trong nước</a>
-                    <a href="#" class="tp-filter-tab" data-type="international">Quốc tế</a>
-                    <a href="#" class="tp-filter-tab" data-type="hot">Nổi bật</a>
-                </div>
-
-                <!-- News Content -->
-                <div class="tp-news-content">
-                    <!-- Loading State -->
-                    <div class="tp-loading" id="tpLoadingContainer">
-                        <div class="tp-spinner"></div>
-                        <p class="tp-loading-text">Đang tải tin tức...</p>
-                    </div>
-
-                    <!-- News Grid -->
-                    <div class="tp-news-grid" id="tpNewsGrid" style="display: none;">
-                        <!-- News items will be dynamically loaded here -->
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="tp-pagination" id="tpPaginationContainer" style="display: none;">
-                        <button class="tp-pagination-btn" id="tpPrevPageBtn">
-                            ← Trang trước
-                        </button>
-                        <div class="tp-pagination-info">
-                            <span class="tp-pagination-current">1</span>
-                            <span>/</span>
-                            <span class="tp-pagination-total">1</span>
-                        </div>
-                        <button class="tp-pagination-btn" id="tpNextPageBtn">
-                            Trang sau →
-                        </button>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <!-- iPad/iOS Style Article Modal -->
-        <div class="tp-article-modal" id="tpArticleModal" style="display: none;">
-            <div class="tp-article-container">
-                <div class="tp-article-header">
-                    <h2 class="tp-article-title" id="tpArticleTitle"></h2>
-                    <button class="tp-close-btn" id="tpCloseBtn">×</button>
-                </div>
-                
-                <div class="tp-article-meta">
-                    <span class="tp-article-source" id="tpArticleSource"></span>
-                    <span class="tp-article-time" id="tpArticleTime"></span>
-                    <a href="#" class="tp-article-link" id="tpArticleLink" target="_blank" rel="noopener noreferrer">
-                        🔗 Đọc bài gốc
-                    </a>
-                </div>
-                
-                <div class="tp-article-content" id="tpArticleContent">
-                    <!-- Article content will be loaded here -->
-                </div>
+    <!-- Traditional Newspaper Masthead -->
+    <header class="newspaper-masthead">
+        <div class="masthead-container">
+            <h1 class="newspaper-name">Tiền Phong</h1>
+            <p class="newspaper-tagline">www.tienphong.vn • Tin Tức Tài Chính - Chứng Khoán</p>
+            <div class="publication-date">
+                <div class="date-separator"></div>
+                <span id="currentDate">Thứ Ba • 11/06/2025</span>
+                <div class="date-separator"></div>
             </div>
         </div>
+    </header>
 
-        <!-- iOS Style Floating Chat Widget -->
-        <div class="tp-floating-chat" id="tpFloatingChat">
-            <!-- Chat Bubble (Minimized State) -->
-            <div class="tp-chat-bubble" id="tpChatBubble">
-                <div class="tp-chat-bubble-avatar">
-                    <span>🤖</span>
-                    <div class="tp-chat-bubble-pulse"></div>
-                </div>
-                <div class="tp-chat-bubble-text">
-                    <div class="tp-chat-bubble-title">AI Assistant</div>
-                    <div class="tp-chat-bubble-subtitle">Hỏi tôi về bài báo!</div>
-                </div>
-            </div>
-
-            <!-- Chat Window (Maximized State) -->
-            <div class="tp-chat-window" id="tpChatWindow" style="display: none;">
-                <!-- Chat Header -->
-                <div class="tp-chat-header">
-                    <div class="tp-chat-avatar">🤖</div>
-                    <div class="tp-chat-info">
-                        <div class="tp-chat-title">AI Assistant</div>
-                        <div class="tp-chat-status">Online</div>
-                    </div>
-                    <div class="tp-chat-actions">
-                        <button class="tp-chat-minimize" id="tpChatMinimize">−</button>
-                        <button class="tp-chat-close" id="tpChatClose">×</button>
-                    </div>
-                </div>
-
-                <!-- Chat Messages -->
-                <div class="tp-chat-messages" id="tpChatMessages">
-                    <div class="tp-message tp-message-ai">
-                        <div class="tp-message-bubble">
-                            Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về tin tức tài chính hoặc sử dụng các nút bên dưới! 🤖✨
-                        </div>
-                        <div class="tp-message-time">Bây giờ</div>
-                    </div>
-                </div>
-
-                <!-- Chat Input Area -->
-                <div class="tp-chat-input-area">
-                    <!-- Quick Action Buttons -->
-                    <div class="tp-quick-actions">
-                        <button class="tp-quick-btn tp-summary-btn" id="tpSummaryBtn">
-                            📋 Tóm tắt
-                        </button>
-                        <button class="tp-quick-btn tp-debate-btn" id="tpDebateBtn">
-                            🎭 Bàn luận
-                        </button>
-                    </div>
-
-                    <!-- Input Row -->
-                    <div class="tp-input-row">
-                        <div class="tp-input-container">
-                            <textarea 
-                                class="tp-chat-input" 
-                                id="tpChatInput" 
-                                placeholder="Tin nhắn..."
-                                rows="1"
-                            ></textarea>
-                        </div>
-                        <button class="tp-send-btn" id="tpSendBtn">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <!-- Traditional Navigation -->
+    <nav class="newspaper-navigation">
+        <div class="nav-container">
+            <a href="#" class="nav-section active" data-category="all">Trang Chủ</a>
+            <a href="#" class="nav-section" data-category="domestic">Trong Nước</a>
+            <a href="#" class="nav-section" data-category="international">Quốc Tế</a>
+            <a href="#" class="nav-section" data-category="business">Doanh Nghiệp</a>
+            <a href="#" class="nav-section" data-category="finance">Tài Chính</a>
+            <a href="#" class="nav-section" data-category="realestate">Bất Động Sản</a>
         </div>
+    </nav>
 
-        <!-- Toast Notifications -->
-        <div class="tp-toast-container" id="tpToastContainer">
-            <!-- Toast messages will appear here -->
+    <!-- Main Newspaper Layout -->
+    <div class="newspaper-layout">
+        <!-- Traditional Sidebar Sections -->
+        <aside class="newspaper-sidebar">
+            <div class="sidebar-section">
+                <h3 class="section-header">Chứng Khoán</h3>
+                <a href="#" class="section-link active" data-category="all">Tất cả tin tức</a>
+                <a href="#" class="section-link" data-category="domestic">Thị trường trong nước</a>
+                <a href="#" class="section-link" data-category="international">Thị trường quốc tế</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="section-header">Doanh Nghiệp</h3>
+                <a href="#" class="section-link" data-category="business">Tin doanh nghiệp</a>
+                <a href="#" class="section-link" data-category="earnings">Kết quả kinh doanh</a>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="section-header">Tài Chính</h3>
+                <a href="#" class="section-link" data-category="finance">Tài chính - Ngân hàng</a>
+                <a href="#" class="section-link" data-category="crypto">Tiền số</a>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-header">Bất Động Sản</h3>
+                <a href="#" class="section-link" data-category="realestate">Thị trường BĐS</a>
+                <a href="#" class="section-link" data-category="projects">Dự án</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-masthead">
+                <h2 class="content-headline">Tin Tức Tài Chính</h2>
+                <p class="content-subhead">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading-indicator" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <p><strong>Đang tải tin tức...</strong></p>
+            </div>
+
+            <!-- News Articles Grid -->
+            <div class="news-articles" id="newsGrid" style="display: none;">
+                <!-- News articles will be loaded here -->
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="page-navigation" id="paginationContainer" style="display: none;">
+                <button class="page-button" id="prevPageBtn">← Trang trước</button>
+                <div class="page-info">
+                    <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                </div>
+                <button class="page-button" id="nextPageBtn">Trang sau →</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Article Modal - Newspaper Style -->
+    <div class="article-modal" id="articleModal">
+        <div class="modal-newspaper">
+            <div class="modal-masthead">
+                <h3 class="modal-headline" id="articleTitle"></h3>
+                <button class="modal-close" id="closeBtn">×</button>
+            </div>
+            
+            <div class="modal-subheader">
+                <span class="modal-source" id="articleSource"></span>
+                <span id="articleTime"></span>
+                <a href="#" class="modal-link" id="articleLink" target="_blank">Đọc bài gốc</a>
+            </div>
+            
+            <!-- Iframe for original webpage with newspaper effect -->
+            <iframe class="article-frame" id="articleIframe" src="" loading="lazy"></iframe>
         </div>
     </div>
 
-    <!-- Enhanced JavaScript for Time Display -->
+    <!-- JavaScript will be loaded from external file -->
     <script>
-        // Real-time clock update with Vietnamese formatting
-        function updateTime() {
+        // Initialize traditional newspaper date
+        function updateDate() {
             const now = new Date();
             const dateStr = now.toLocaleDateString('vi-VN', {
                 weekday: 'long',
@@ -336,25 +706,16 @@
                 month: '2-digit',
                 year: 'numeric'
             });
-            const timeStr = now.toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            const dateEl = document.getElementById('tpCurrentDate');
-            const timeEl = document.getElementById('tpCurrentTime');
-            
+            const dateEl = document.getElementById('currentDate');
             if (dateEl) dateEl.textContent = dateStr;
-            if (timeEl) timeEl.textContent = timeStr;
         }
         
-        // Update time immediately and every minute
-        updateTime();
-        setInterval(updateTime, 60000);
+        updateDate();
+        setInterval(updateDate, 3600000); // Update every hour
 
         // Error handling
         window.addEventListener('error', function(e) {
-            console.error('🚨 Tiền Phong Portal Error:', {
+            console.error('🚨 Traditional Newspaper Error:', {
                 message: e.message,
                 filename: e.filename,
                 lineno: e.lineno,
@@ -362,36 +723,11 @@
             });
         });
 
-        // Performance monitoring
-        window.addEventListener('load', function() {
-            if ('performance' in window) {
-                const perfData = performance.getEntriesByType('navigation')[0];
-                console.log('📊 Tiền Phong Page Performance:', {
-                    loadTime: Math.round(performance.now()),
-                    domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
-                    resources: performance.getEntriesByType('resource').length
-                });
-            }
-        });
-
-        // Viewport handling for mobile
-        function handleViewportChanges() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-
-        window.addEventListener('resize', handleViewportChanges);
-        window.addEventListener('orientationchange', function() {
-            setTimeout(handleViewportChanges, 100);
-        });
-        handleViewportChanges();
-
-        console.log('🚀 Tiền Phong News Portal HTML loaded successfully!');
-        console.log('🎨 Theme: Classic Tiền Phong with Modern iOS/iPadOS Elements');
-        console.log('📱 Responsive design for all devices');
+        console.log('📰 Traditional Tiền Phong Newspaper Layout loaded!');
+        console.log('🎨 Theme: Classic Black & White Newspaper Design');
+        console.log('📱 iOS Effects: Fast transitions (0.15s - 0.25s)');
+        console.log('🖼️ Iframe Mode: Direct webpage display with grayscale effect');
+        console.log('🤖 AI Characters: Original 6 characters restored');
     </script>
-
-    <!-- Main Application Script - FIXED -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
