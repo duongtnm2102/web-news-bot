@@ -1,0 +1,792 @@
+/* 
+ * Mobile Optimization - Retro Brutalism Mobile Enhancement v2.024
+ * Optimized for touch interfaces while maintaining brutalist aesthetic
+ * Performance-first approach for mobile networks
+ */
+
+/* === MOBILE-FIRST CUSTOM PROPERTIES === */
+@media (max-width: 768px) {
+  :root {
+    /* Mobile-optimized spacing */
+    --mobile-space-xs: 2px;
+    --mobile-space-sm: 4px;
+    --mobile-space-md: 8px;
+    --mobile-space-lg: 12px;
+    --mobile-space-xl: 16px;
+    --mobile-space-2xl: 20px;
+    
+    /* Touch-friendly sizes */
+    --touch-target-min: 44px;
+    --touch-target-comfort: 48px;
+    
+    /* Mobile typography */
+    --mobile-font-xs: 11px;
+    --mobile-font-sm: 13px;
+    --mobile-font-base: 15px;
+    --mobile-font-lg: 17px;
+    --mobile-font-xl: 20px;
+    
+    /* Mobile-optimized transitions */
+    --mobile-transition: 0.2s ease-out;
+    
+    /* Viewport units for mobile */
+    --vh-mobile: calc(var(--vh, 1vh) * 100);
+    --vw-mobile: calc(100vw);
+  }
+}
+
+/* === MOBILE VIEWPORT HANDLING === */
+/* Handle iOS Safari viewport changes */
+@supports (-webkit-touch-callout: none) {
+  .mobile-vh-fix {
+    height: -webkit-fill-available;
+  }
+}
+
+/* === MOBILE ASCII ART OPTIMIZATION === */
+@media (max-width: 768px) {
+  .ascii-header {
+    padding: var(--mobile-space-lg);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .ascii-header::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .ascii-art {
+    font-size: clamp(4px, 2.5vw, 8px);
+    min-width: 320px;
+    white-space: nowrap;
+  }
+}
+
+/* === MOBILE COMMAND BAR === */
+@media (max-width: 768px) {
+  .command-bar {
+    padding: var(--mobile-space-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-dark);
+    border-bottom: 2px solid var(--terminal-green);
+  }
+  
+  .command-prompt {
+    flex-direction: column;
+    gap: var(--mobile-space-sm);
+    margin-bottom: var(--mobile-space-sm);
+  }
+  
+  .prompt-text {
+    font-size: var(--mobile-font-sm);
+    order: 2;
+  }
+  
+  .command-input {
+    font-size: var(--mobile-font-base);
+    padding: var(--mobile-space-md);
+    border: 1px solid var(--terminal-green);
+    background: var(--bg-black);
+    order: 1;
+    min-height: var(--touch-target-min);
+  }
+  
+  .command-help {
+    font-size: var(--mobile-font-xs);
+    text-align: center;
+    order: 3;
+  }
+}
+
+/* === MOBILE NAVIGATION TABS === */
+@media (max-width: 768px) {
+  .nav-tabs {
+    padding: var(--mobile-space-sm);
+    gap: var(--mobile-space-xs);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--terminal-green) var(--bg-gray);
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .nav-tab {
+    flex-shrink: 0;
+    min-width: var(--touch-target-comfort);
+    min-height: var(--touch-target-min);
+    padding: var(--mobile-space-sm) var(--mobile-space-md);
+    font-size: var(--mobile-font-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    
+    /* Enhanced touch feedback */
+    transition: all var(--mobile-transition);
+    transform: scale(1);
+  }
+  
+  .nav-tab:active {
+    transform: scale(0.95);
+    background: var(--terminal-cyan);
+    color: var(--bg-black);
+  }
+  
+  .nav-tab.active {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--terminal-amber);
+  }
+}
+
+/* === MOBILE STATS GRID === */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--mobile-space-sm);
+    padding: var(--mobile-space-md);
+  }
+  
+  .stat-box {
+    padding: var(--mobile-space-md);
+    min-height: 100px;
+    
+    /* Touch-friendly hover states */
+    transition: all var(--mobile-transition);
+  }
+  
+  .stat-box:active {
+    transform: scale(0.98);
+    border-color: var(--terminal-cyan);
+  }
+  
+  .stat-emoji {
+    font-size: 24px;
+    margin-bottom: var(--mobile-space-xs);
+  }
+  
+  .stat-label {
+    font-size: var(--mobile-font-xs);
+    margin-bottom: var(--mobile-space-xs);
+  }
+  
+  .stat-value {
+    font-size: var(--mobile-font-lg);
+    margin: var(--mobile-space-xs) 0;
+  }
+  
+  .stat-status {
+    font-size: var(--mobile-font-xs);
+  }
+}
+
+/* === MOBILE NEWS ARTICLES === */
+@media (max-width: 768px) {
+  .news-container {
+    padding: var(--mobile-space-md);
+    padding-bottom: 100px; /* Space for bottom navigation */
+  }
+  
+  .news-article {
+    margin-bottom: var(--mobile-space-lg);
+    
+    /* Enhanced touch interaction */
+    cursor: pointer;
+    transition: all var(--mobile-transition);
+    transform: scale(1);
+  }
+  
+  .news-article:active {
+    transform: scale(0.99);
+    border-color: var(--terminal-cyan);
+  }
+  
+  .article-header {
+    padding: var(--mobile-space-md);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mobile-space-sm);
+  }
+  
+  .article-meta {
+    gap: var(--mobile-space-md);
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .priority-tag,
+  .category-tag,
+  .file-type {
+    font-size: var(--mobile-font-xs);
+    padding: var(--mobile-space-xs) var(--mobile-space-sm);
+  }
+  
+  .timestamp {
+    font-size: var(--mobile-font-xs);
+    margin-left: auto;
+  }
+  
+  .article-content {
+    padding: var(--mobile-space-md);
+  }
+  
+  .article-icon {
+    font-size: 32px;
+    float: none;
+    display: block;
+    text-align: center;
+    margin: 0 0 var(--mobile-space-md) 0;
+  }
+  
+  .article-title {
+    font-size: var(--mobile-font-lg);
+    line-height: 1.3;
+    margin-bottom: var(--mobile-space-md);
+    text-align: left;
+    clear: both;
+  }
+  
+  .article-preview {
+    font-size: var(--mobile-font-sm);
+    line-height: 1.5;
+    margin-bottom: var(--mobile-space-md);
+  }
+  
+  .article-tags {
+    gap: var(--mobile-space-xs);
+    margin-bottom: var(--mobile-space-md);
+  }
+  
+  .tag {
+    font-size: var(--mobile-font-xs);
+    padding: var(--mobile-space-xs) var(--mobile-space-sm);
+    
+    /* Touch-friendly */
+    min-height: var(--mobile-space-xl);
+    display: flex;
+    align-items: center;
+  }
+  
+  .article-stats {
+    flex-direction: column;
+    gap: var(--mobile-space-md);
+    padding: var(--mobile-space-md);
+    font-size: var(--mobile-font-xs);
+  }
+  
+  .stats-left {
+    gap: var(--mobile-space-lg);
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .action-buttons {
+    gap: var(--mobile-space-sm);
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .btn {
+    min-height: var(--touch-target-min);
+    min-width: 80px;
+    padding: var(--mobile-space-sm) var(--mobile-space-md);
+    font-size: var(--mobile-font-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Enhanced touch feedback */
+    transition: all var(--mobile-transition);
+    transform: scale(1);
+  }
+  
+  .btn:active {
+    transform: scale(0.95);
+  }
+}
+
+/* === MOBILE CHAT WIDGET === */
+@media (max-width: 768px) {
+  .chat-widget {
+    bottom: var(--mobile-space-md);
+    right: var(--mobile-space-md);
+    left: var(--mobile-space-md);
+  }
+  
+  .chat-bubble {
+    max-width: 100%;
+    padding: var(--mobile-space-md);
+    
+    /* Mobile-specific bubble styling */
+    border-radius: 0;
+    box-shadow: 0 4px 20px rgba(0, 255, 0, 0.3);
+  }
+  
+  .chat-header {
+    gap: var(--mobile-space-md);
+    margin-bottom: var(--mobile-space-sm);
+  }
+  
+  .chat-avatar {
+    font-size: var(--mobile-font-xl);
+  }
+  
+  .chat-title {
+    font-size: var(--mobile-font-sm);
+  }
+  
+  .chat-subtitle {
+    font-size: var(--mobile-font-xs);
+  }
+  
+  .chat-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: none;
+    border-radius: 0;
+    
+    /* Mobile-specific chat window */
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-window-header {
+    padding: var(--mobile-space-lg);
+    background: var(--bg-black);
+    border-bottom: 2px solid var(--terminal-green);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .chat-window-title {
+    font-size: var(--mobile-font-base);
+  }
+  
+  .chat-btn {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    font-size: var(--mobile-font-sm);
+    border: 2px solid var(--terminal-green);
+  }
+  
+  .chat-messages {
+    flex: 1;
+    padding: var(--mobile-space-lg);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .chat-message {
+    margin-bottom: var(--mobile-space-lg);
+    padding: var(--mobile-space-md);
+    font-size: var(--mobile-font-sm);
+    line-height: 1.5;
+  }
+  
+  .chat-message.user {
+    margin-left: var(--mobile-space-md);
+    margin-right: 0;
+  }
+  
+  .chat-message.ai {
+    margin-right: var(--mobile-space-md);
+    margin-left: 0;
+  }
+  
+  .chat-input-area {
+    padding: var(--mobile-space-lg);
+    background: var(--bg-black);
+    border-top: 2px solid var(--terminal-green);
+    position: sticky;
+    bottom: 0;
+  }
+  
+  .quick-actions {
+    gap: var(--mobile-space-sm);
+    margin-bottom: var(--mobile-space-md);
+    flex-wrap: wrap;
+  }
+  
+  .quick-btn {
+    min-height: var(--touch-target-min);
+    padding: var(--mobile-space-sm) var(--mobile-space-md);
+    font-size: var(--mobile-font-xs);
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .chat-input-row {
+    gap: var(--mobile-space-md);
+    align-items: stretch;
+  }
+  
+  .chat-input {
+    flex: 1;
+    padding: var(--mobile-space-md);
+    font-size: var(--mobile-font-base);
+    min-height: var(--touch-target-min);
+    border: 2px solid var(--terminal-green);
+  }
+  
+  .send-btn {
+    min-height: var(--touch-target-min);
+    min-width: 80px;
+    padding: var(--mobile-space-md);
+    font-size: var(--mobile-font-sm);
+    border: none;
+  }
+}
+
+/* === MOBILE MODAL === */
+@media (max-width: 768px) {
+  .modal {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-header {
+    padding: var(--mobile-space-lg);
+    background: var(--bg-black);
+    border-bottom: 2px solid var(--terminal-green);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .modal-title {
+    font-size: var(--mobile-font-lg);
+  }
+  
+  .close-btn {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    font-size: var(--mobile-font-xl);
+  }
+  
+  .modal-body {
+    flex: 1;
+    padding: var(--mobile-space-lg);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: var(--mobile-font-sm);
+    line-height: 1.6;
+  }
+  
+  .modal-body h3 {
+    font-size: var(--mobile-font-lg);
+    margin: var(--mobile-space-xl) 0 var(--mobile-space-md) 0;
+  }
+  
+  .modal-body p {
+    margin-bottom: var(--mobile-space-lg);
+  }
+}
+
+/* === MOBILE BOTTOM BAR === */
+@media (max-width: 768px) {
+  .bottom-bar {
+    flex-direction: column;
+    gap: var(--mobile-space-md);
+    padding: var(--mobile-space-lg);
+    text-align: center;
+    font-size: var(--mobile-font-xs);
+    
+    /* Ensure it doesn't interfere with chat */
+    z-index: 500;
+  }
+  
+  .hotkeys {
+    justify-content: center;
+    gap: var(--mobile-space-md);
+    flex-wrap: wrap;
+  }
+  
+  .hotkey {
+    min-height: var(--mobile-space-xl);
+    padding: var(--mobile-space-xs) var(--mobile-space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--terminal-cyan);
+    background: var(--bg-black);
+    
+    /* Touch-friendly hotkeys */
+    transition: all var(--mobile-transition);
+  }
+  
+  .hotkey:active {
+    background: var(--terminal-cyan);
+    color: var(--bg-black);
+    transform: scale(0.95);
+  }
+  
+  .system-info {
+    gap: var(--mobile-space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* === MOBILE TOAST NOTIFICATIONS === */
+@media (max-width: 768px) {
+  .toast-container {
+    top: var(--mobile-space-md);
+    right: var(--mobile-space-md);
+    left: var(--mobile-space-md);
+  }
+  
+  .toast {
+    max-width: none;
+    width: 100%;
+    padding: var(--mobile-space-lg);
+    font-size: var(--mobile-font-sm);
+    text-align: center;
+    
+    /* Mobile-specific toast styling */
+    border-radius: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* === MOBILE LOADING STATES === */
+@media (max-width: 768px) {
+  .loading {
+    padding: var(--mobile-space-xl);
+  }
+  
+  .loading-text {
+    font-size: var(--mobile-font-base);
+    margin-top: var(--mobile-space-lg);
+  }
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+}
+
+/* === MOBILE ACCESSIBILITY ENHANCEMENTS === */
+@media (max-width: 768px) {
+  /* Ensure touch targets are large enough */
+  button,
+  .nav-tab,
+  .chat-btn,
+  .btn,
+  .quick-btn,
+  .hotkey {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+  
+  /* Enhanced focus indicators for touch navigation */
+  *:focus-visible {
+    outline: 3px solid var(--terminal-cyan);
+    outline-offset: 2px;
+  }
+  
+  /* Improve text readability */
+  body {
+    font-size: var(--mobile-font-base);
+    line-height: 1.5;
+  }
+  
+  /* Ensure sufficient color contrast */
+  .terminal-green {
+    filter: brightness(1.1);
+  }
+}
+
+/* === MOBILE PERFORMANCE OPTIMIZATIONS === */
+@media (max-width: 768px) {
+  /* Reduce animations for better performance */
+  * {
+    animation-duration: 0.3s !important;
+  }
+  
+  /* Optimize transforms for mobile GPUs */
+  .news-article,
+  .nav-tab,
+  .btn,
+  .chat-bubble {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* === MOBILE ORIENTATION HANDLING === */
+@media (max-width: 768px) and (orientation: landscape) {
+  .ascii-header {
+    padding: var(--mobile-space-sm);
+  }
+  
+  .ascii-art {
+    font-size: clamp(3px, 1.5vw, 6px);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    padding: var(--mobile-space-sm);
+  }
+  
+  .stat-box {
+    padding: var(--mobile-space-sm);
+    min-height: 80px;
+  }
+  
+  .stat-emoji {
+    font-size: 20px;
+  }
+  
+  .chat-window {
+    flex-direction: row;
+  }
+  
+  .chat-messages {
+    flex: 1;
+  }
+  
+  .chat-input-area {
+    width: 300px;
+    border-left: 2px solid var(--terminal-green);
+    border-top: none;
+  }
+}
+
+/* === ULTRA-SMALL SCREENS (< 375px) === */
+@media (max-width: 374px) {
+  .ascii-art {
+    font-size: clamp(3px, 3vw, 6px);
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-tabs {
+    flex-direction: column;
+  }
+  
+  .nav-tab {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .article-stats .stats-left {
+    flex-direction: column;
+    gap: var(--mobile-space-sm);
+    align-items: center;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+
+/* === MOBILE DARK MODE OPTIMIZATIONS === */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  :root {
+    --terminal-green: #00ff00;
+    --bg-black: #000000;
+  }
+  
+  /* Ensure better contrast on mobile OLED screens */
+  .news-article {
+    background: #111111;
+  }
+  
+  .modal-content,
+  .chat-window {
+    background: #111111;
+  }
+}
+
+/* === MOBILE PWA ENHANCEMENTS === */
+@media (max-width: 768px) {
+  /* Full-screen PWA styling */
+  @media (display-mode: standalone) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    
+    .status-bar {
+      margin-top: env(safe-area-inset-top);
+    }
+    
+    .bottom-bar {
+      padding-bottom: calc(var(--mobile-space-lg) + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* === MOBILE DEBUGGING (Development only) === */
+/* Uncomment for mobile debugging */
+/*
+@media (max-width: 768px) {
+  * {
+    border: 1px solid rgba(255, 0, 0, 0.1) !important;
+  }
+  
+  .mobile-debug {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  
+  .mobile-debug::after {
+    content: 'Screen: ' screen('width') 'x' screen('height') ' | Viewport: ' attr(data-vw) 'x' attr(data-vh);
+  }
+}
+*/
