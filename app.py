@@ -67,7 +67,7 @@ def create_app():
     # ===============================
     
         @app.route('/')
-                def index():
+        def index():
                 """Main page with enhanced retro brutalism theme"""
                     response = make_response(render_template('index.html'))
         
@@ -80,19 +80,19 @@ def create_app():
         # Cache control
                     response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutes
         
-                return render_template('index.html')
+             return render_template('index.html')
     
         @app.route('/api/terminal/command', methods=['POST'])
         @track_request
         @require_session
-                def terminal_command():
+        def terminal_command():
                 """Enhanced terminal command API endpoint"""
-                try:
+            try:
                     data = request.get_json()
                     command = data.get('command', '').strip()
             
-                if not command:
-                return jsonify({
+            if not command:
+            return jsonify({
                     'status': 'error',
                     'message': 'No command provided'
                         }), 400
@@ -101,11 +101,11 @@ def create_app():
                     result = terminal_processor.execute(command)
             
                     app.logger.info(f"Terminal command executed: {command}")
-                return jsonify(result)
+            return jsonify(result)
             
-                except Exception as e:
+            except Exception as e:
                     app.logger.error(f"Terminal command error: {e}")
-                return jsonify({
+            return jsonify({
                         'status': 'error',
                         'message': f'Command processing failed: {str(e)}'
                         }), 500
@@ -113,38 +113,38 @@ def create_app():
         @app.route('/api/news/<news_type>')
         @track_request
         @require_session
-                async def get_news_api(news_type):
+        async def get_news_api(news_type):
                 """Enhanced API endpoint for getting news with better error handling"""
-                try:
+            try:
                     page = int(request.args.get('page', 1))
                     limit = int(request.args.get('limit', 12))
                     user_id = get_or_create_user_session()
             
             # Validate parameters
-                if page < 1:
+            if page < 1:
                         page = 1
-                if limit < 1 or limit > 50:
+            if limit < 1 or limit > 50:
                         limit = 12
             
-                if news_type == 'all':
+            if news_type == 'all':
                 # Collect from all sources
                     all_sources = {**RSS_FEEDS['cafef'], **RSS_FEEDS['international']}
                     all_news = await collect_news_enhanced(all_sources, 15)
                 
-                elif news_type == 'domestic':
+            elif news_type == 'domestic':
                 # Vietnamese sources only (CafeF)
                     all_news = await collect_news_enhanced(RSS_FEEDS['cafef'], 20)
                 
-                elif news_type == 'international':
+            elif news_type == 'international':
                 # International sources only
                     all_news = await collect_news_enhanced(RSS_FEEDS['international'], 25)
                     
-                elif news_type in RSS_FEEDS:
+            elif news_type in RSS_FEEDS:
                 # Specific category
                     all_news = await collect_news_enhanced(RSS_FEEDS[news_type], 25)
                 
-                else:
-                return jsonify({
+            else:
+            return jsonify({
                         'error': 'Invalid news type',
                         'valid_types': ['all', 'domestic', 'international'] + list(RSS_FEEDS.keys())
                             }), 400
@@ -160,7 +160,7 @@ def create_app():
             
             # Format news for frontend
                     formatted_news = []
-                for i, news in enumerate(page_news):
+            for i, news in enumerate(page_news):
                       emoji = emoji_map.get(news['source'], '📰')
                       source_display = source_names.get(news['source'], news['source'])
                 
@@ -177,7 +177,7 @@ def create_app():
             
                         total_pages = (len(all_news) + items_per_page - 1) // items_per_page
             
-                return jsonify({
+            return jsonify({
                         'news': formatted_news,
                         'page': page,
                         'total_pages': total_pages,
@@ -187,25 +187,25 @@ def create_app():
                         'status': 'success'
                             })
             
-                except Exception as e:
+            except Exception as e:
                        app.logger.error(f"❌ API error: {e}")
-                return jsonify({
+            return jsonify({
                         'error': str(e),
                         'status': 'error',
                         'timestamp': get_terminal_timestamp()
                             }), 500
-                pass
+            pass
     
             @app.route('/api/article/<int:article_id>')
             @track_request
             @require_session
-                async def get_article_detail(article_id):
+            async def get_article_detail(article_id):
                 """Enhanced article detail with better content extraction"""
-                try:
+            try:
                         user_id = get_or_create_user_session()
             
-                if user_id not in user_news_cache:
-                return jsonify({
+            if user_id not in user_news_cache:
+            return jsonify({
                         'error': 'Session expired. Please refresh the page.',
                         'error_code': 'SESSION_EXPIRED',
                         'timestamp': get_terminal_timestamp()
@@ -214,8 +214,8 @@ def create_app():
                     user_data = user_news_cache[user_id]
                     news_list = user_data['news']
             
-                if not news_list or article_id < 0 or article_id >= len(news_list):
-                return jsonify({
+            if not news_list or article_id < 0 or article_id >= len(news_list):
+            return jsonify({
                         'error': f'Invalid article ID. Valid range: 0-{len(news_list)-1}.',
                         'error_code': 'INVALID_ARTICLE_ID',
                         'timestamp': get_terminal_timestamp()
@@ -227,19 +227,19 @@ def create_app():
                     save_user_last_detail(user_id, news)
             
             # Enhanced content extraction
-                try:
-                if is_international_source(news['source']):
+            try:
+            if is_international_source(news['source']):
                     full_content = await extract_content_with_gemini(news['link'], news['source'])
-                else:
+            else:
                     # Use traditional methods for CafeF sources
                     full_content = await extract_content_enhanced(news['link'], news['source'], news)
-                except Exception as content_error:
+            except Exception as content_error:
                     app.logger.error(f"⚠️ Content extraction error: {content_error}")
                     full_content = create_fallback_content(news['link'], news['source'], str(content_error))
             
                     source_display = source_names.get(news['source'], news['source'])
             
-                return jsonify({
+            return jsonify({
                         'title': news['title'],
                         'content': full_content,
                         'source': source_display,
@@ -250,9 +250,9 @@ def create_app():
                         'success': True
                             })
             
-                except Exception as e:
+            except Exception as e:
                     app.logger.error(f"❌ Article detail error: {e}")
-                return jsonify({
+            return jsonify({
                         'error': 'System error while loading article.',
                         'error_code': 'SYSTEM_ERROR',
                         'details': str(e),
@@ -263,53 +263,53 @@ def create_app():
             @app.route('/api/ai/ask', methods=['POST'])
             @track_request
             @require_session
-                async def ai_ask():
+            async def ai_ask():
                 """Enhanced AI ask endpoint with better context handling"""
-                try:
+            try:
                     data = request.get_json()
                     question = data.get('question', '')
                     user_id = get_or_create_user_session()
             
             # Check for recent article context
                     context = ""
-                if user_id in user_last_detail_cache:
+            if user_id in user_last_detail_cache:
                     last_detail = user_last_detail_cache[user_id]
                     time_diff = get_current_vietnam_datetime() - last_detail['timestamp']
                 
-                 if time_diff.total_seconds() < 1800:  # 30 minutes
+            if time_diff.total_seconds() < 1800:  # 30 minutes
                     article = last_detail['article']
                     
                     # Extract content for context
-                    try:
-                        if is_international_source(article['source']):
+                try:
+                    if is_international_source(article['source']):
                             article_content = await extract_content_with_gemini(article['link'], article['source'])
-                        else:
+                    else:
                             article_content = await extract_content_enhanced(article['link'], article['source'], article)
                         
-                        if article_content:
+                    if article_content:
                             context = f"CURRENT_ARTICLE:\nTitle: {article['title']}\nSource: {article['source']}\nContent: {article_content[:2000]}"
                     except Exception as e:
                         app.logger.error(f"Context extraction error: {e}")
             
             # Get AI response
-                if context and not question:
+            if context and not question:
                 # Auto-summarize if no question provided
                     response = await gemini_engine.analyze_article(context, "Provide comprehensive summary and analysis of this article")
-                elif context:
+            elif context:
                     response = await gemini_engine.analyze_article(context, question)
-                else:
+            else:
                     response = await gemini_engine.ask_question(question, context)
             
-                return jsonify({
+            return jsonify({
                         'response': response,
                         'timestamp': get_terminal_timestamp(),
                         'has_context': bool(context),
                         'status': 'success'
                             })
             
-                except Exception as e:
+            except Exception as e:
                     app.logger.error(f"❌ AI ask error: {e}")
-                return jsonify({
+            return jsonify({
                         'error': str(e),
                         'timestamp': get_terminal_timestamp(),
                         'status': 'error'
@@ -318,74 +318,74 @@ def create_app():
             @app.route('/api/ai/debate', methods=['POST'])
             @track_request
             @require_session
-    async def ai_debate():
-        """Enhanced AI debate endpoint"""
-        try:
-            data = request.get_json()
-            topic = data.get('topic', '')
-            user_id = get_or_create_user_session()
-            
-            # Check for context if no topic provided
-            if not topic:
-                if user_id in user_last_detail_cache:
-                    last_detail = user_last_detail_cache[user_id]
-                    time_diff = get_current_vietnam_datetime() - last_detail['timestamp']
-                    
-                    if time_diff.total_seconds() < 1800:
-                        article = last_detail['article']
-                        topic = f"Article Analysis: {article['title']}"
+            async def ai_debate():
+            """Enhanced AI debate endpoint"""
+            try:
+                data = request.get_json()
+                topic = data.get('topic', '')
+                user_id = get_or_create_user_session()
+                
+                # Check for context if no topic provided
+                if not topic:
+                    if user_id in user_last_detail_cache:
+                        last_detail = user_last_detail_cache[user_id]
+                        time_diff = get_current_vietnam_datetime() - last_detail['timestamp']
+                        
+                        if time_diff.total_seconds() < 1800:
+                            article = last_detail['article']
+                            topic = f"Article Analysis: {article['title']}"
+                        else:
+                            return jsonify({
+                                'error': 'No topic provided and no recent article context',
+                                'timestamp': get_terminal_timestamp()
+                            }), 400
                     else:
                         return jsonify({
-                            'error': 'No topic provided and no recent article context',
+                            'error': 'Topic required for debate',
                             'timestamp': get_terminal_timestamp()
                         }), 400
-                else:
-                    return jsonify({
-                        'error': 'Topic required for debate',
-                        'timestamp': get_terminal_timestamp()
-                    }), 400
-            
-            response = await gemini_engine.debate_perspectives(topic)
-            
-            return jsonify({
-                'response': response,
-                'topic': topic,
-                'timestamp': get_terminal_timestamp(),
-                'status': 'success'
-            })
-            
-        except Exception as e:
-            app.logger.error(f"❌ AI debate error: {e}")
-            return jsonify({
-                'error': str(e),
-                'timestamp': get_terminal_timestamp(),
-                'status': 'error'
-            }), 500
+                
+                response = await gemini_engine.debate_perspectives(topic)
+                
+                return jsonify({
+                    'response': response,
+                    'topic': topic,
+                    'timestamp': get_terminal_timestamp(),
+                    'status': 'success'
+                })
+                
+            except Exception as e:
+                app.logger.error(f"❌ AI debate error: {e}")
+                return jsonify({
+                    'error': str(e),
+                    'timestamp': get_terminal_timestamp(),
+                    'status': 'error'
+                }), 500
     
-    @app.route('/api/system/stats')
-    @track_request
-    def system_stats_api():
-        """Enhanced system statistics API"""
-        try:
-            uptime = get_system_uptime()
-            
-            return jsonify({
-                'uptime': uptime,
-                'uptime_formatted': f"{uptime//3600}h {(uptime%3600)//60}m {uptime%60}s",
-                'active_users': system_stats['active_users'],
-                'ai_queries': system_stats['ai_queries'],
-                'news_parsed': system_stats['news_parsed'],
-                'system_load': system_stats['system_load'],
-                'total_requests': system_stats['total_requests'],
-                'error_count': system_stats['errors'],
-                'cache_size': len(global_seen_articles),
-                'session_count': len(user_news_cache),
-                'timestamp': get_terminal_timestamp(),
-                'success_rate': round((system_stats['total_requests'] - system_stats['errors']) / max(system_stats['total_requests'], 1) * 100, 2)
-            })
-        except Exception as e:
-            app.logger.error(f"System stats error: {e}")
-            return jsonify({'error': str(e)}), 500
+            @app.route('/api/system/stats')
+            @track_request
+            def system_stats_api():
+                """Enhanced system statistics API"""
+                try:
+                    uptime = get_system_uptime()
+                    
+                    return jsonify({
+                        'uptime': uptime,
+                        'uptime_formatted': f"{uptime//3600}h {(uptime%3600)//60}m {uptime%60}s",
+                        'active_users': system_stats['active_users'],
+                        'ai_queries': system_stats['ai_queries'],
+                        'news_parsed': system_stats['news_parsed'],
+                        'system_load': system_stats['system_load'],
+                        'total_requests': system_stats['total_requests'],
+                        'error_count': system_stats['errors'],
+                        'cache_size': len(global_seen_articles),
+                        'session_count': len(user_news_cache),
+                        'timestamp': get_terminal_timestamp(),
+                        'success_rate': round((system_stats['total_requests'] - system_stats['errors']) / max(system_stats['total_requests'], 1) * 100, 2)
+                    })
+                except Exception as e:
+                    app.logger.error(f"System stats error: {e}")
+                    return jsonify({'error': str(e)}), 500
     
     # Gán terminal_processor vào app context để có thể truy cập
         app.terminal_processor = terminal_processor
