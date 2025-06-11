@@ -22,9 +22,6 @@ import uuid
 import time
 import logging
 from functools import wraps
-from flask_socketio import SocketIO
-from api.terminal_websocket import setup_websocket_manager
-import eventlet
 
 
 # Enhanced libraries for better content extraction
@@ -1609,28 +1606,3 @@ print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print(f"Terminal Commands: ✅ {len(terminal_processor.commands)} available")
 print("=" * 60)
-
-# ===============================
-# WEBSOCKET INITIALIZATION
-# ===============================
-
-# Tắt logging mặc định của engineio để terminal sạch hơn
-import logging
-logging.getLogger('engineio').setLevel(logging.WARNING)
-
-# Sử dụng hàm setup từ api/terminal-websocket.py
-# Hàm này sẽ tự động khởi tạo SocketIO và đăng ký các event handlers
-socketio = setup_websocket_manager(app)
-
-if __name__ == '__main__':
-    print("🚀 Retro Brutalism E-con News Backend starting with WebSocket...")
-    print(f"📊 Total RSS sources: {sum(len(feeds) for feeds in RSS_FEEDS.values())}")
-    print(f"🖥️ Terminal interface: {len(terminal_processor.commands)} commands")
-    print(f"🤖 AI Engine: {'Gemini 2.0 Flash' if GEMINI_AVAILABLE and GEMINI_API_KEY else 'Offline'}")
-    print("🔌 WebSocket Real-time Terminal: ENABLED")
-    print("=" * 60)
-
-    # Chạy ứng dụng thông qua socketio thay vì app.run()
-    # host và port sẽ được gunicorn quản lý khi triển khai
-    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=DEBUG_MODE)
-
