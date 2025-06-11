@@ -1,16 +1,18 @@
-# Tiền Phong E-con News Portal - FIXED SYNC VERSION
-# Optimized dependencies for reliable deployment on Render.com
+# iOS 26 Liquid Glass News Portal - Enhanced Requirements
+# Optimized for production deployment on Render.com and similar platforms
 
 # === CORE FLASK FRAMEWORK ===
-Flask==3.0.3
+Flask[async]==3.0.3
+Flask-CORS==4.0.0
 
 # === RSS & FEED PROCESSING ===
 feedparser==6.0.11
 python-dateutil==2.8.2
 pytz==2024.1
 
-# === SYNC HTTP & NETWORKING (NO MORE ASYNC) ===
-requests==2.31.0
+# === ASYNC HTTP & NETWORKING ===
+aiohttp==3.12.2
+aiofiles==23.2.0
 
 # === CONTENT EXTRACTION & PARSING ===
 trafilatura==1.12.2
@@ -18,16 +20,94 @@ newspaper3k==0.2.8
 beautifulsoup4==4.12.3
 lxml==5.3.0
 html5lib==1.1
+selectolax==0.3.21
 
 # === AI & MACHINE LEARNING ===
 google-generativeai==0.8.5
 
-# === TEXT PROCESSING ===
+# === TEXT PROCESSING & UTILITIES ===
 chardet==5.2.0
 dateparser==1.2.0
+Unidecode==1.3.8
 
 # === DEPLOYMENT & PRODUCTION ===
 gunicorn==22.0.0
+Werkzeug==3.0.3
 
-# === UTILITY LIBRARIES ===
-# requests already included above
+# === HTTP REQUESTS & NETWORKING ===
+requests==2.31.0
+urllib3==2.1.0
+certifi==2024.7.4
+
+# === DATA PROCESSING ===
+python-json-logger==2.0.7
+
+# === PERFORMANCE & MONITORING ===
+psutil==5.9.8
+
+# === DEVELOPMENT & DEBUGGING (Optional) ===
+# pytest==8.3.2
+# pytest-asyncio==0.23.8
+# black==24.4.2
+# flake8==7.1.0
+
+# === SECURITY ===
+cryptography==42.0.8
+
+# === SYSTEM COMPATIBILITY ===
+# For Windows compatibility
+# pywin32==306; sys_platform == "win32"
+
+# === OPTIONAL ACCELERATIONS ===
+# ujson==5.10.0  # Faster JSON processing
+# orjson==3.10.6  # Even faster JSON (if needed)
+
+# === DATABASE (if needed in future) ===
+# SQLAlchemy==2.0.31
+# alembic==1.13.2
+
+# === CACHING (if needed in future) ===
+# redis==5.0.8
+# python-memcached==1.59
+
+# === API DOCUMENTATION (if needed) ===
+# flask-restx==1.3.0
+# flasgger==0.9.7.1
+
+# === ENVIRONMENT MANAGEMENT ===
+python-dotenv==1.0.1
+
+# === REGEX ENHANCEMENTS ===
+regex==2024.7.24
+
+# === TIMEZONE HANDLING ===
+tzdata==2024.1
+
+# Note: Some packages are commented out to keep the deployment lightweight
+# Uncomment specific packages based on your deployment needs
+
+# === PRODUCTION OPTIMIZATION NOTES ===
+# 1. This requirements.txt is optimized for production deployment
+# 2. Heavy ML/AI packages are kept minimal for faster deployment
+# 3. Development packages are commented out for production builds
+# 4. All versions are pinned for reproducible builds
+# 5. Packages are grouped by functionality for easier maintenance
+
+# === RENDER.COM SPECIFIC NOTES ===
+# - All packages are compatible with Render.com's Python environment
+# - Memory usage is optimized for free tier limitations
+# - Build times are optimized by using lightweight alternatives where possible
+# - No system-level dependencies that require custom buildpacks
+
+# === DEPLOYMENT INSTRUCTIONS ===
+# 1. Copy this file to your project root as requirements.txt
+# 2. Ensure your Python version is 3.11+ (specified in runtime.txt)
+# 3. Deploy to Render.com or similar platform
+# 4. Set environment variables (GEMINI_API_KEY, SECRET_KEY)
+# 5. The app will automatically install these dependencies during build
+
+# === OPTIONAL PERFORMANCE ENHANCEMENTS ===
+# Uncomment the following lines for additional performance:
+# uvloop==0.19.0; sys_platform != "win32"  # Faster event loop
+# cchardet==2.1.7  # Faster character detection
+# aiodns==3.2.0  # Faster DNS resolution
