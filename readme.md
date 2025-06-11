@@ -64,6 +64,7 @@ Modern AI-powered financial news aggregation with **retro brutalism design** and
 ```
 ## 📁 Architecture - Retro Brutalism Stack
 
+```
 e-con-news-terminal/
 ├── 🎨 Frontend (Retro Brutalism)
 │   ├── templates/index.html          # Terminal-inspired HTML
