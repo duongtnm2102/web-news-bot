@@ -11,7 +11,7 @@ Modern AI-powered financial news aggregation with **retro brutalism design** and
 ║  ███████╗      ╚██████╗╚██████╔╝██║ ╚████║    ██║ ╚████║███████╗╚███╔███╔╝███████║  ║
 ║  ╚══════╝       ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝ ╚══════╝  ║
 ║                           [ TERMINAL INTERFACE v2.024 ]                             ║
-║                        [ AI-POWERED FINANCIAL PROTOCOL ]                            ║
+║                         [ AI-POWERED FINANCIAL PROTOCOL ]                           ║
 ╚═════════════════════════════════════════════════════════════════════════════════════╝
 ```
 
