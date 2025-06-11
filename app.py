@@ -1038,7 +1038,7 @@ emoji_map = {
 # Flask Routes
 @app.route('/')
 def index():
-    """Main page"""
+    """Main page with Tiền Phong theme"""
     return render_template('index.html')
 
 @app.route('/api/news/<news_type>')
