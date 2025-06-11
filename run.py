@@ -1,5 +1,5 @@
 """
-run_fixed.py - Fixed eventlet and WebSocket issues với proper error handling
+run.py - Fixed eventlet and WebSocket issues với proper error handling
 IMPORTANT: eventlet.monkey_patch() MUST be first import
 """
 
@@ -10,8 +10,9 @@ import os
 import sys
 import logging
 import traceback
+import importlib
+from datetime import datetime
 from flask_socketio import SocketIO
-from app import create_app
 
 # =============================================================================
 # ENHANCED LOGGING SETUP
@@ -33,6 +34,10 @@ def setup_debug_logging():
     # Setup root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
+    
+    # Clear any existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
@@ -67,16 +72,8 @@ def safe_import_module(module_path, fallback_name=None):
         module_path: đường dẫn module (có thể có dấu gạch ngang)
         fallback_name: tên fallback nếu import thất bại
     """
-    import importlib
-    
     try:
         logger.debug(f"🔄 Attempting to import module: {module_path}")
-        
-        # Try standard import first
-        if '.' in module_path and '-' not in module_path:
-            module = importlib.import_module(module_path)
-            logger.info(f"✅ Successfully imported {module_path}")
-            return module
         
         # Use importlib for modules with dash/hyphen
         module = importlib.import_module(module_path)
@@ -133,6 +130,8 @@ def create_app_with_error_handling():
         logger.info("🚀 Starting E-con News Terminal v2.024.2")
         logger.info("📊 Creating Flask app instance...")
         
+        # Import app module
+        from app import create_app
         app = create_app()
         
         if app is None:
@@ -185,7 +184,7 @@ def setup_websocket_manager(app, socketio):
     try:
         logger.info("🔌 Setting up WebSocket terminal manager...")
         
-        # Import WebSocket module using safe import
+        # Import WebSocket module using safe import với dấu gạch ngang
         terminal_websocket_module = safe_import_module('api.terminal-websocket')
         
         if terminal_websocket_module is None:
@@ -264,31 +263,32 @@ def setup_websocket_manager(app, socketio):
         return None
 
 # =============================================================================
-# ENHANCED ERROR HANDLERS
+# ENHANCED ERROR HANDLERS FOR PRODUCTION
 # =============================================================================
 
-def add_comprehensive_error_handlers(app):
-    """Add comprehensive error handlers với debug info"""
+def add_production_error_handlers(app):
+    """Add production-ready error handlers"""
     
     @app.errorhandler(500)
     def handle_500_error(error):
         logger.error(f"🚨 Internal Server Error: {error}")
         logger.debug(f"📋 Error details: {traceback.format_exc()}")
         
-        # Return detailed error in debug mode
+        # Return detailed error in debug mode only
         if app.debug or os.getenv('DEBUG_MODE', 'False').lower() == 'true':
             return {
                 'error': 'Internal Server Error',
                 'details': str(error),
                 'traceback': traceback.format_exc().split('\n'),
-                'timestamp': str(datetime.now()),
+                'timestamp': datetime.now().isoformat(),
                 'debug_mode': True
             }, 500
         else:
             return {
                 'error': 'Internal Server Error',
                 'message': 'Something went wrong on the server',
-                'timestamp': str(datetime.now())
+                'timestamp': datetime.now().isoformat(),
+                'error_id': str(hash(str(error)))[:8]
             }, 500
     
     @app.errorhandler(404)
@@ -297,7 +297,7 @@ def add_comprehensive_error_handlers(app):
         return {
             'error': 'Not Found',
             'message': 'The requested resource was not found',
-            'timestamp': str(datetime.now())
+            'timestamp': datetime.now().isoformat()
         }, 404
     
     @app.errorhandler(400)
@@ -306,7 +306,7 @@ def add_comprehensive_error_handlers(app):
         return {
             'error': 'Bad Request',
             'message': 'Invalid request data',
-            'timestamp': str(datetime.now())
+            'timestamp': datetime.now().isoformat()
         }, 400
     
     # Generic exception handler
@@ -318,8 +318,9 @@ def add_comprehensive_error_handlers(app):
         return {
             'error': 'Internal Server Error',
             'message': 'An unexpected error occurred',
-            'timestamp': str(datetime.now()),
-            'type': type(error).__name__
+            'timestamp': datetime.now().isoformat(),
+            'type': type(error).__name__,
+            'error_id': str(hash(str(error)))[:8]
         }, 500
 
 # =============================================================================
@@ -342,22 +343,31 @@ def main():
         logger.info("📊 Step 1: Creating Flask application...")
         app = create_app_with_error_handling()
         
-        # Add error handlers
-        add_comprehensive_error_handlers(app)
+        # Add production error handlers
+        add_production_error_handlers(app)
         
-        # Step 2: Initialize SocketIO
+        # Step 2: Initialize SocketIO (optional)
         logger.info("🔌 Step 2: Initializing SocketIO...")
-        socketio = initialize_socketio_with_fallback(app)
+        try:
+            socketio = initialize_socketio_with_fallback(app)
+        except Exception as socketio_init_error:
+            logger.warning(f"⚠️ SocketIO initialization failed: {socketio_init_error}")
+            logger.info("🔧 Continuing without SocketIO...")
+            socketio = None
         
         # Step 3: Setup WebSocket manager (optional)
         if socketio is not None:
             logger.info("🔌 Step 3: Setting up WebSocket manager...")
-            websocket_manager = setup_websocket_manager(app, socketio)
-            
-            if websocket_manager:
-                logger.info("✅ WebSocket terminal features enabled")
-            else:
-                logger.warning("⚠️ Running without WebSocket terminal features")
+            try:
+                websocket_manager = setup_websocket_manager(app, socketio)
+                
+                if websocket_manager:
+                    logger.info("✅ WebSocket terminal features enabled")
+                else:
+                    logger.warning("⚠️ Running without WebSocket terminal features")
+            except Exception as ws_error:
+                logger.warning(f"⚠️ WebSocket setup failed: {ws_error}")
+                websocket_manager = None
         else:
             logger.warning("⚠️ SocketIO not available, skipping WebSocket setup")
         
@@ -372,9 +382,10 @@ def main():
         logger.info(f"   • Debug Mode: {debug_mode}")
         logger.info(f"   • SocketIO: {'Enabled' if socketio else 'Disabled'}")
         logger.info(f"   • WebSocket Terminal: {'Enabled' if websocket_manager else 'Disabled'}")
+        logger.info(f"   • Environment: {os.getenv('FLASK_ENV', 'production')}")
         
         # Step 5: Start server
-        logger.info("🚀 Step 4: Starting server...")
+        logger.info("🚀 Step 5: Starting server...")
         
         if socketio is not None:
             try:
@@ -388,11 +399,12 @@ def main():
                     log_output=debug_mode
                 )
             except Exception as socketio_error:
-                logger.error(f"🔄 SocketIO failed, falling back to Flask: {socketio_error}")
-                app.run(host=host, port=port, debug=debug_mode)
+                logger.error(f"🔄 SocketIO server failed, falling back to Flask: {socketio_error}")
+                logger.info("🔧 Starting with regular Flask...")
+                app.run(host=host, port=port, debug=debug_mode, threaded=True)
         else:
             logger.info("🔧 Starting with regular Flask...")
-            app.run(host=host, port=port, debug=debug_mode)
+            app.run(host=host, port=port, debug=debug_mode, threaded=True)
             
     except KeyboardInterrupt:
         logger.info("⏹️ Server stopped by user (Ctrl+C)")
@@ -402,11 +414,11 @@ def main():
         logger.error(f"❌ Error: {e}")
         logger.debug(f"📋 Full traceback: {traceback.format_exc()}")
         
-        # Emergency fallback
+        # Emergency fallback - simple Flask server
         if app is not None:
             try:
                 logger.info("🆘 Attempting emergency fallback server...")
-                app.run(host='0.0.0.0', port=8080, debug=False)
+                app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False, threaded=True)
             except Exception as emergency_error:
                 logger.error(f"🆘 Emergency fallback also failed: {emergency_error}")
         
@@ -415,7 +427,29 @@ def main():
     finally:
         logger.info("🏁 Server shutdown complete")
 
+# =============================================================================
+# CREATE WSGI APPLICATION FOR GUNICORN
+# =============================================================================
+
+# Create app instance for Gunicorn
+try:
+    logger.info("🔧 Creating WSGI app instance for Gunicorn...")
+    app = create_app_with_error_handling()
+    add_production_error_handlers(app)
+    logger.info("✅ WSGI app created successfully for Gunicorn")
+except Exception as e:
+    logger.error(f"❌ Failed to create WSGI app: {e}")
+    # Create minimal fallback app
+    from flask import Flask
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def health_check():
+        return {'status': 'Server running but with limited functionality', 'error': str(e)}
+    
+    @app.route('/health')  
+    def simple_health():
+        return {'status': 'ok', 'timestamp': datetime.now().isoformat()}
+
 if __name__ == '__main__':
-    # Import datetime for timestamps
-    from datetime import datetime
     main()
