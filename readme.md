@@ -62,7 +62,6 @@ Modern AI-powered financial news aggregation with **retro brutalism design** and
 -   `FLASK_ENV`: `production` khi triển khai.
   
 ```
-
 ## 📁 Architecture - Retro Brutalism Stack
 
 ```
