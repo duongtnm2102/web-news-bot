@@ -60,6 +60,7 @@ Modern AI-powered financial news aggregation with **retro brutalism design** and
 -   `GEMINI_API_KEY`: API Key cho Google Gemini.
 -   `SECRET_KEY`: Khóa bí mật cho Flask session.
 -   `FLASK_ENV`: `production` khi triển khai.
+  
 ```
 
 ## 📁 Architecture - Retro Brutalism Stack
