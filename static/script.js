@@ -1,4 +1,4 @@
-// E-con News Portal - Tiền Phong Classic + iOS Modern JavaScript 2025 - script.js
+// Tiền Phong News Portal - Enhanced JavaScript with iOS Effects and Fixed Characters
 class TienPhongNewsPortal {
     constructor() {
         this.currentPage = 1;
@@ -10,7 +10,7 @@ class TienPhongNewsPortal {
         
         // Performance optimization
         this.cache = new Map();
-        this.maxCacheSize = 20;
+        this.maxCacheSize = 15;
         
         this.init();
     }
@@ -21,9 +21,13 @@ class TienPhongNewsPortal {
         try {
             this.bindEvents();
             this.setupErrorHandling();
+            this.updateDateTime();
             
-            // Load initial news
+            // Load initial news with fast loading
             await this.loadNews('all', 1);
+            
+            // iOS-style glassmorphism chat widget
+            this.initializeChatWidget();
             
             console.log('✅ Tiền Phong News Portal initialized successfully!');
         } catch (error) {
@@ -32,9 +36,25 @@ class TienPhongNewsPortal {
         }
     }
 
+    updateDateTime() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('vi-VN', {
+            weekday: 'long',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        
+        const dateEl = document.getElementById('currentDate');
+        if (dateEl) dateEl.textContent = dateStr;
+        
+        // Update every hour
+        setTimeout(() => this.updateDateTime(), 3600000);
+    }
+
     bindEvents() {
-        // Category links
-        document.querySelectorAll('.tp-category-link').forEach(link => {
+        // Category links with fast transitions
+        document.querySelectorAll('.nav-item, .sidebar-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const category = e.currentTarget.dataset.category;
@@ -42,27 +62,9 @@ class TienPhongNewsPortal {
             });
         });
 
-        // Navigation items
-        document.querySelectorAll('.tp-nav-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const category = e.currentTarget.dataset.category;
-                this.switchCategory(category);
-            });
-        });
-
-        // Filter tabs
-        document.querySelectorAll('.tp-filter-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                const type = e.currentTarget.dataset.type;
-                this.switchCategory(type);
-            });
-        });
-
-        // Pagination
-        const prevBtn = document.getElementById('tpPrevPageBtn');
-        const nextBtn = document.getElementById('tpNextPageBtn');
+        // Pagination with iOS-style animations
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
         
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
@@ -74,21 +76,20 @@ class TienPhongNewsPortal {
 
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
-                const totalPages = parseInt(document.querySelector('.tp-pagination-total')?.textContent || '1');
+                const totalPages = parseInt(document.getElementById('totalPages')?.textContent || '1');
                 if (this.currentPage < totalPages) {
                     this.loadNews(this.currentCategory, this.currentPage + 1);
                 }
             });
         }
 
-        // Article modal close
-        const closeBtn = document.getElementById('tpCloseBtn');
+        // Modal events with iOS-style transitions
+        const closeBtn = document.getElementById('closeBtn');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closeArticleModal());
         }
 
-        // Modal close on background click
-        const modal = document.getElementById('tpArticleModal');
+        const modal = document.getElementById('articleModal');
         if (modal) {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -102,40 +103,423 @@ class TienPhongNewsPortal {
 
         // Keyboard shortcuts
         this.setupKeyboardShortcuts();
-
-        // Search functionality
-        this.setupSearch();
     }
 
-    setupSearch() {
-        const searchBtn = document.querySelector('.tp-search-btn');
-        const searchInput = document.querySelector('.tp-search-input');
+    initializeChatWidget() {
+        // Create iOS-style floating chat widget
+        const chatWidget = document.createElement('div');
+        chatWidget.className = 'ios-chat-widget';
+        chatWidget.innerHTML = `
+            <div class="chat-bubble" id="chatBubble">
+                <div class="bubble-content">
+                    <div class="chat-avatar">🤖</div>
+                    <div class="chat-text">
+                        <div class="chat-title">AI Assistant</div>
+                        <div class="chat-subtitle">Sẵn sàng phân tích!</div>
+                    </div>
+                </div>
+                <div class="bubble-pulse"></div>
+            </div>
+            
+            <div class="chat-window" id="chatWindow" style="display: none;">
+                <div class="chat-header">
+                    <div class="header-content">
+                        <div class="chat-avatar">🤖</div>
+                        <div class="chat-info">
+                            <div class="chat-title">AI Assistant</div>
+                            <div class="chat-status">Online</div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="chat-btn" id="chatMinimize">−</button>
+                            <button class="chat-btn" id="chatClose">×</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-bubble">
+                            Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về tin tức tài chính! 🤖
+                        </div>
+                        <div class="message-time">Bây giờ</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <div class="quick-actions">
+                        <button class="quick-btn summary-btn" id="summaryBtn">📋 Tóm tắt</button>
+                        <button class="quick-btn debate-btn" id="debateBtn">🎭 Bàn luận</button>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-container">
+                            <textarea class="chat-input" id="chatInput" placeholder="Tin nhắn..." rows="1"></textarea>
+                        </div>
+                        <button class="send-btn" id="sendBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
 
-        if (searchBtn && searchInput) {
-            const performSearch = () => {
-                const query = searchInput.value.trim();
-                if (query) {
-                    this.showToast(`🔍 Tìm kiếm: "${query}"`, 'info');
-                    // TODO: Implement search functionality
-                }
-            };
+        // Add CSS for iOS-style chat widget
+        const chatCSS = document.createElement('style');
+        chatCSS.textContent = `
+            .ios-chat-widget {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 2000;
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            }
 
-            searchBtn.addEventListener('click', performSearch);
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    performSearch();
+            .chat-bubble {
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(20px);
+                border-radius: 25px;
+                padding: 16px 20px;
+                cursor: pointer;
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+                border: 1px solid rgba(255,255,255,0.2);
+                position: relative;
+                overflow: hidden;
+                max-width: 280px;
+            }
+
+            .chat-bubble:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            }
+
+            .bubble-content {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .chat-avatar {
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                position: relative;
+            }
+
+            .bubble-pulse {
+                position: absolute;
+                top: 12px;
+                right: 16px;
+                width: 8px;
+                height: 8px;
+                background: #22c55e;
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.7; transform: scale(1.3); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+
+            .chat-text {
+                flex: 1;
+            }
+
+            .chat-title {
+                font-weight: 600;
+                color: #1a1a1a;
+                font-size: 15px;
+                margin-bottom: 2px;
+            }
+
+            .chat-subtitle {
+                font-size: 13px;
+                color: #666;
+            }
+
+            .chat-window {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border-radius: 20px;
+                width: 360px;
+                height: 500px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,0.3);
+                animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px) scale(0.95); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
+            .chat-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 16px;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .header-content {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .chat-info {
+                flex: 1;
+            }
+
+            .chat-status {
+                font-size: 12px;
+                opacity: 0.9;
+            }
+
+            .chat-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            .chat-btn {
+                width: 28px;
+                height: 28px;
+                border: none;
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s ease;
+                font-size: 14px;
+                font-weight: bold;
+            }
+
+            .chat-btn:hover {
+                background: rgba(255,255,255,0.3);
+                transform: scale(1.1);
+            }
+
+            .chat-messages {
+                flex: 1;
+                padding: 16px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                background: rgba(250,250,250,0.5);
+            }
+
+            .message {
+                display: flex;
+                flex-direction: column;
+                max-width: 85%;
+                animation: fadeInUp 0.2s ease-out;
+            }
+
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .ai-message {
+                align-self: flex-start;
+            }
+
+            .user-message {
+                align-self: flex-end;
+            }
+
+            .character-message {
+                align-self: flex-start;
+                margin: 8px 0;
+            }
+
+            .message-bubble {
+                padding: 12px 16px;
+                border-radius: 18px;
+                font-size: 14px;
+                line-height: 1.4;
+                word-wrap: break-word;
+                white-space: pre-wrap;
+            }
+
+            .ai-message .message-bubble {
+                background: rgba(255,255,255,0.9);
+                color: #1a1a1a;
+                border-bottom-left-radius: 6px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .user-message .message-bubble {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-bottom-right-radius: 6px;
+            }
+
+            .character-message .message-bubble {
+                background: rgba(255,255,255,0.95);
+                color: #1a1a1a;
+                border-left: 3px solid #667eea;
+                border-bottom-left-radius: 6px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+
+            .character-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+                font-weight: 600;
+                font-size: 13px;
+                color: #667eea;
+            }
+
+            .message-time {
+                font-size: 11px;
+                color: #999;
+                margin-top: 4px;
+                text-align: center;
+            }
+
+            .chat-input-area {
+                padding: 16px;
+                background: rgba(255,255,255,0.9);
+                border-radius: 0 0 20px 20px;
+            }
+
+            .quick-actions {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .quick-btn {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 12px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.15s ease;
+                backdrop-filter: blur(10px);
+            }
+
+            .summary-btn {
+                background: rgba(102, 126, 234, 0.15);
+                color: #667eea;
+                border: 1px solid rgba(102, 126, 234, 0.3);
+            }
+
+            .debate-btn {
+                background: rgba(118, 75, 162, 0.15);
+                color: #764ba2;
+                border: 1px solid rgba(118, 75, 162, 0.3);
+            }
+
+            .quick-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+
+            .input-row {
+                display: flex;
+                gap: 8px;
+                align-items: end;
+            }
+
+            .input-container {
+                flex: 1;
+                background: rgba(255,255,255,0.9);
+                border: 1px solid rgba(0,0,0,0.1);
+                border-radius: 20px;
+                padding: 12px 16px;
+                backdrop-filter: blur(10px);
+            }
+
+            .chat-input {
+                width: 100%;
+                border: none;
+                outline: none;
+                resize: none;
+                font-family: inherit;
+                font-size: 14px;
+                line-height: 1.4;
+                max-height: 80px;
+                background: transparent;
+                color: #1a1a1a;
+            }
+
+            .send-btn {
+                width: 36px;
+                height: 36px;
+                border: none;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s ease;
+                flex-shrink: 0;
+            }
+
+            .send-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+
+            .send-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            @media (max-width: 768px) {
+                .ios-chat-widget {
+                    bottom: 10px;
+                    right: 10px;
                 }
-            });
-        }
+                
+                .chat-window {
+                    width: calc(100vw - 20px);
+                    height: calc(100vh - 100px);
+                    border-radius: 16px;
+                }
+                
+                .chat-bubble {
+                    max-width: 220px;
+                }
+            }
+        `;
+
+        document.head.appendChild(chatCSS);
+        document.body.appendChild(chatWidget);
+
+        // Bind chat events
+        this.setupChatEvents();
     }
 
     setupChatEvents() {
-        const chatBubble = document.getElementById('tpChatBubble');
-        const chatWindow = document.getElementById('tpChatWindow');
-        const chatMinimize = document.getElementById('tpChatMinimize');
-        const chatClose = document.getElementById('tpChatClose');
+        const chatBubble = document.getElementById('chatBubble');
+        const chatWindow = document.getElementById('chatWindow');
+        const chatMinimize = document.getElementById('chatMinimize');
+        const chatClose = document.getElementById('chatClose');
 
-        // Show chat window
+        // Show chat window with iOS animation
         if (chatBubble) {
             chatBubble.addEventListener('click', () => this.openChatWindow());
         }
@@ -155,12 +539,12 @@ class TienPhongNewsPortal {
     }
 
     setupChatInputEvents() {
-        const summaryBtn = document.getElementById('tpSummaryBtn');
-        const debateBtn = document.getElementById('tpDebateBtn');
-        const sendBtn = document.getElementById('tpSendBtn');
-        const chatInput = document.getElementById('tpChatInput');
+        const summaryBtn = document.getElementById('summaryBtn');
+        const debateBtn = document.getElementById('debateBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatInput = document.getElementById('chatInput');
 
-        // Summary button
+        // Summary button with fast response
         if (summaryBtn) {
             summaryBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -175,7 +559,7 @@ class TienPhongNewsPortal {
             });
         }
 
-        // Debate button - Enhanced for separate character responses
+        // Debate button with original characters
         if (debateBtn) {
             debateBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -190,7 +574,7 @@ class TienPhongNewsPortal {
             });
         }
 
-        // Send button
+        // Send button with fast processing
         if (sendBtn) {
             sendBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -201,7 +585,7 @@ class TienPhongNewsPortal {
             });
         }
 
-        // Chat input
+        // Chat input with auto-resize
         if (chatInput) {
             chatInput.addEventListener('keydown', async (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -213,10 +597,10 @@ class TienPhongNewsPortal {
                 }
             });
 
-            // Auto-resize
+            // iOS-style auto-resize
             chatInput.addEventListener('input', () => {
                 chatInput.style.height = 'auto';
-                chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+                chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
             });
         }
     }
@@ -256,7 +640,6 @@ class TienPhongNewsPortal {
                 throw new Error(data.error);
             }
 
-            // Format and display summary with proper line breaks
             this.addFormattedAIMessage(data.response, '📋 Tóm tắt');
             this.showToast('✅ Tóm tắt hoàn thành', 'success');
 
@@ -271,7 +654,7 @@ class TienPhongNewsPortal {
     }
 
     async handleDebateRequest() {
-        console.log('🔄 Processing debate request...');
+        console.log('🔄 Processing debate request with original characters...');
         
         if (!this.currentArticle) {
             this.showToast('Vui lòng mở một bài báo trước khi yêu cầu bàn luận', 'error');
@@ -280,7 +663,7 @@ class TienPhongNewsPortal {
 
         try {
             this.aiRequestInProgress = true;
-            this.addChatMessage('🎭 Đang tổ chức cuộc bàn luận...', 'user');
+            this.addChatMessage('🎭 Đang tổ chức cuộc bàn luận với 6 nhân vật...', 'user');
             this.showTypingIndicator();
 
             const response = await fetch('/api/ai/debate', {
@@ -305,8 +688,8 @@ class TienPhongNewsPortal {
                 throw new Error(data.error);
             }
 
-            // Parse and display debate as separate character messages
-            this.displayDebateAsCharacters(data.response);
+            // Display debate with original characters
+            this.displayDebateAsOriginalCharacters(data.response);
             this.showToast('✅ Cuộc bàn luận hoàn thành', 'success');
 
         } catch (error) {
@@ -319,15 +702,15 @@ class TienPhongNewsPortal {
         }
     }
 
-    displayDebateAsCharacters(debateText) {
-        // Parse debate response and split by characters
+    displayDebateAsOriginalCharacters(debateText) {
+        // Original characters as requested
         const characters = [
-            { name: 'Nhà Đầu Tư Ngân Hàng', emoji: '🏦', color: '#374151' },
-            { name: 'Trader Chuyên Nghiệp', emoji: '📈', color: '#059669' },
-            { name: 'Giáo Sư Kinh Tế', emoji: '🎓', color: '#3b82f6' },
-            { name: 'CEO Doanh Nghiệp', emoji: '💼', color: '#7c3aed' },
-            { name: 'Nhà Phân Tích Quốc Tế', emoji: '🌍', color: '#f59e0b' },
-            { name: 'AI Gemini', emoji: '🤖', color: '#dc2626' }
+            { name: 'GS Đại học', emoji: '🎓', color: '#2563eb' },
+            { name: 'Nhà kinh tế học', emoji: '💰', color: '#dc2626' },
+            { name: 'Nhân viên công sở', emoji: '🏢', color: '#059669' },
+            { name: 'Người nghèo', emoji: '😟', color: '#7c3aed' },
+            { name: 'Đại gia', emoji: '💎', color: '#f59e0b' },
+            { name: 'Shark', emoji: '🦈', color: '#0891b2' }
         ];
 
         // Split debate text by character sections
@@ -337,7 +720,7 @@ class TienPhongNewsPortal {
             // Find character section using various patterns
             const patterns = [
                 new RegExp(`\\*\\*${character.name}.*?\\*\\*([\\s\\S]*?)(?=\\*\\*|$)`, 'i'),
-                new RegExp(`${character.emoji}\\s*\\*\\*${character.name}[^\\*]*\\*\\*([\\s\\S]*?)(?=${characters[index + 1]?.emoji}|🤖|$)`, 'i'),
+                new RegExp(`${character.emoji}\\s*\\*\\*${character.name}[^\\*]*\\*\\*([\\s\\S]*?)(?=${characters[index + 1]?.emoji}|$)`, 'i'),
                 new RegExp(`${character.name}.*?:([\\s\\S]*?)(?=\\n\\n\\*\\*|\\n\\n${characters[index + 1]?.name}|$)`, 'i')
             ];
 
@@ -345,11 +728,11 @@ class TienPhongNewsPortal {
                 const match = currentText.match(pattern);
                 if (match && match[1]) {
                     const characterMessage = match[1].trim();
-                    if (characterMessage.length > 20) {
-                        // Add character message with delay for realistic effect
+                    if (characterMessage.length > 15) {
+                        // Add character message with staggered delay for iOS effect
                         setTimeout(() => {
                             this.addCharacterMessage(character, characterMessage);
-                        }, index * 1500); // 1.5 second delay between characters
+                        }, index * 800); // Reduced delay for faster display
                         
                         // Remove processed text
                         currentText = currentText.replace(match[0], '');
@@ -366,11 +749,11 @@ class TienPhongNewsPortal {
     }
 
     addCharacterMessage(character, message) {
-        const chatMessages = document.getElementById('tpChatMessages');
+        const chatMessages = document.getElementById('chatMessages');
         if (!chatMessages) return;
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'tp-message tp-message-character';
+        messageDiv.className = 'message character-message';
         
         const now = new Date();
         const timeStr = now.toLocaleTimeString('vi-VN', { 
@@ -382,27 +765,25 @@ class TienPhongNewsPortal {
         const cleanMessage = this.formatAIResponse(message);
 
         messageDiv.innerHTML = `
-            <div class="tp-character-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <span style="font-size: 20px;">${character.emoji}</span>
-                <strong style="color: ${character.color}; font-size: 14px;">${character.name}</strong>
+            <div class="character-header">
+                <span style="font-size: 16px;">${character.emoji}</span>
+                <strong style="color: ${character.color};">${character.name}</strong>
             </div>
-            <div class="tp-message-bubble tp-character-bubble" style="border-left: 3px solid ${character.color};">
+            <div class="message-bubble">
                 ${cleanMessage}
             </div>
-            <div class="tp-message-time">${timeStr}</div>
+            <div class="message-time">${timeStr}</div>
         `;
-
-        // Add custom styling for character messages
-        messageDiv.style.maxWidth = '90%';
-        messageDiv.style.alignSelf = 'flex-start';
-        messageDiv.style.animation = 'fadeInUp 0.5s ease-out';
 
         chatMessages.appendChild(messageDiv);
 
-        // Scroll to bottom with smooth animation
+        // iOS-style smooth scroll
         setTimeout(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 100);
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 50);
 
         // Store message
         this.chatMessages.push({ 
@@ -422,7 +803,7 @@ class TienPhongNewsPortal {
     formatAIResponse(content) {
         if (!content) return content;
 
-        // Split into paragraphs and format
+        // Split into paragraphs and format with reduced spacing
         let formatted = content
             .split('\n')
             .map(line => line.trim())
@@ -439,28 +820,26 @@ class TienPhongNewsPortal {
                 
                 return line;
             })
-            .join('<br><br>');
+            .join('<br>'); // Reduced spacing - single <br> instead of double
 
-        // Clean up multiple line breaks
-        formatted = formatted.replace(/(<br>){3,}/g, '<br><br>');
-        
         return formatted;
     }
 
     async sendChatMessage(message) {
         if (!message.trim() || this.aiRequestInProgress) return;
 
-        // Add user message
+        // Add user message with iOS animation
         this.addChatMessage(message, 'user');
         
-        // Clear input
-        const chatInput = document.getElementById('tpChatInput');
+        // Clear input with smooth animation
+        const chatInput = document.getElementById('chatInput');
         if (chatInput) {
+            chatInput.style.transition = 'all 0.15s ease';
             chatInput.value = '';
             chatInput.style.height = 'auto';
         }
 
-        // Send to AI
+        // Send to AI with fast processing
         try {
             this.aiRequestInProgress = true;
             this.showTypingIndicator();
@@ -500,32 +879,35 @@ class TienPhongNewsPortal {
 
     showTypingIndicator() {
         const typingDiv = document.createElement('div');
-        typingDiv.className = 'tp-message tp-message-ai';
-        typingDiv.id = 'tp-typing-indicator';
+        typingDiv.className = 'message ai-message';
+        typingDiv.id = 'typing-indicator';
         typingDiv.innerHTML = `
-            <div class="tp-message-bubble">
+            <div class="message-bubble">
                 <div style="display: flex; gap: 4px; align-items: center;">
-                    <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: bounce 1.4s infinite 0s;"></div>
-                    <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: bounce 1.4s infinite 0.2s;"></div>
-                    <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: bounce 1.4s infinite 0.4s;"></div>
+                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: bounce 1.2s infinite 0s;"></div>
+                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: bounce 1.2s infinite 0.2s;"></div>
+                    <div style="width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: bounce 1.2s infinite 0.4s;"></div>
                 </div>
             </div>
         `;
 
-        const chatMessages = document.getElementById('tpChatMessages');
+        const chatMessages = document.getElementById('chatMessages');
         if (chatMessages) {
             chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: 'smooth'
+            });
         }
 
-        // Add bounce animation if not exists
+        // Add bounce animation
         if (!document.getElementById('bounce-animation')) {
             const style = document.createElement('style');
             style.id = 'bounce-animation';
             style.textContent = `
                 @keyframes bounce {
-                    0%, 60%, 100% { transform: translateY(0); }
-                    30% { transform: translateY(-10px); }
+                    0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+                    30% { transform: translateY(-8px); opacity: 1; }
                 }
             `;
             document.head.appendChild(style);
@@ -533,18 +915,21 @@ class TienPhongNewsPortal {
     }
 
     hideTypingIndicator() {
-        const typingIndicator = document.getElementById('tp-typing-indicator');
+        const typingIndicator = document.getElementById('typing-indicator');
         if (typingIndicator) {
-            typingIndicator.remove();
+            typingIndicator.style.transition = 'all 0.15s ease';
+            typingIndicator.style.opacity = '0';
+            typingIndicator.style.transform = 'translateY(-10px)';
+            setTimeout(() => typingIndicator.remove(), 150);
         }
     }
 
     addChatMessage(content, sender = 'ai') {
-        const chatMessages = document.getElementById('tpChatMessages');
+        const chatMessages = document.getElementById('chatMessages');
         if (!chatMessages) return;
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = `tp-message tp-message-${sender}`;
+        messageDiv.className = `message ${sender}-message`;
         
         const now = new Date();
         const timeStr = now.toLocaleTimeString('vi-VN', { 
@@ -561,79 +946,99 @@ class TienPhongNewsPortal {
         }
 
         messageDiv.innerHTML = `
-            <div class="tp-message-bubble">${displayContent}</div>
-            <div class="tp-message-time">${timeStr}</div>
+            <div class="message-bubble">${displayContent}</div>
+            <div class="message-time">${timeStr}</div>
         `;
 
         chatMessages.appendChild(messageDiv);
 
-        // Scroll to bottom with smooth animation
+        // iOS-style smooth scroll
         setTimeout(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 100);
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 50);
 
         // Store message
         this.chatMessages.push({ content, sender, timestamp: now });
         
-        // Limit message history
-        if (this.chatMessages.length > 50) {
-            this.chatMessages = this.chatMessages.slice(-30);
+        // Limit message history for performance
+        if (this.chatMessages.length > 30) {
+            this.chatMessages = this.chatMessages.slice(-20);
         }
     }
 
     openChatWindow() {
-        const chatBubble = document.getElementById('tpChatBubble');
-        const chatWindow = document.getElementById('tpChatWindow');
+        const chatBubble = document.getElementById('chatBubble');
+        const chatWindow = document.getElementById('chatWindow');
         
         if (chatBubble && chatWindow) {
-            chatBubble.style.display = 'none';
-            chatWindow.style.display = 'flex';
+            chatBubble.style.transition = 'all 0.15s ease';
+            chatBubble.style.opacity = '0';
+            chatBubble.style.transform = 'scale(0.8)';
             
-            // Focus on input
             setTimeout(() => {
-                const chatInput = document.getElementById('tpChatInput');
-                if (chatInput) {
-                    chatInput.focus();
-                }
-            }, 300);
+                chatBubble.style.display = 'none';
+                chatWindow.style.display = 'flex';
+                
+                // Focus on input with delay
+                setTimeout(() => {
+                    const chatInput = document.getElementById('chatInput');
+                    if (chatInput) chatInput.focus();
+                }, 250);
+            }, 150);
         }
     }
 
     minimizeChatWindow() {
-        const chatBubble = document.getElementById('tpChatBubble');
-        const chatWindow = document.getElementById('tpChatWindow');
+        const chatBubble = document.getElementById('chatBubble');
+        const chatWindow = document.getElementById('chatWindow');
         
         if (chatBubble && chatWindow) {
-            chatWindow.style.display = 'none';
-            chatBubble.style.display = 'flex';
+            chatWindow.style.transition = 'all 0.15s ease';
+            chatWindow.style.opacity = '0';
+            chatWindow.style.transform = 'translateY(20px) scale(0.95)';
+            
+            setTimeout(() => {
+                chatWindow.style.display = 'none';
+                chatBubble.style.display = 'block';
+                chatBubble.style.opacity = '1';
+                chatBubble.style.transform = 'scale(1)';
+            }, 150);
         }
     }
 
     closeChatWindow() {
-        const floatingChat = document.getElementById('tpFloatingChat');
+        const chatWidget = document.querySelector('.ios-chat-widget');
         
-        if (floatingChat) {
-            floatingChat.style.opacity = '0';
-            floatingChat.style.transform = 'translateY(20px) scale(0.8)';
+        if (chatWidget) {
+            chatWidget.style.transition = 'all 0.2s ease';
+            chatWidget.style.opacity = '0';
+            chatWidget.style.transform = 'translateY(20px) scale(0.8)';
             
             setTimeout(() => {
-                floatingChat.style.display = 'none';
-            }, 500);
+                chatWidget.style.display = 'none';
+            }, 200);
         }
     }
 
     async switchCategory(category) {
         if (this.isLoading || category === this.currentCategory) return;
 
-        // Update active states
-        document.querySelectorAll('.tp-category-link, .tp-filter-tab, .tp-nav-item').forEach(link => {
+        // Update active states with fast transitions
+        document.querySelectorAll('.nav-item, .sidebar-link').forEach(link => {
             link.classList.remove('active');
+            link.style.transition = 'all 0.15s ease';
         });
         
         const activeElements = document.querySelectorAll(
-            `[data-category="${category}"], [data-type="${category}"]`
+            `[data-category="${category}"]`
         );
-        activeElements.forEach(el => el.classList.add('active'));
+        activeElements.forEach(el => {
+            el.classList.add('active');
+            el.style.transition = 'all 0.15s ease';
+        });
 
         this.currentCategory = category;
         await this.loadNews(category, 1);
@@ -649,7 +1054,7 @@ class TienPhongNewsPortal {
         const cacheKey = `${category}-${page}`;
         if (this.cache.has(cacheKey)) {
             const cachedData = this.cache.get(cacheKey);
-            if (Date.now() - cachedData.timestamp < 5 * 60 * 1000) { // 5 minutes
+            if (Date.now() - cachedData.timestamp < 3 * 60 * 1000) { // 3 minutes
                 this.renderNews(cachedData.news);
                 this.updatePagination(cachedData.page, cachedData.total_pages);
                 this.isLoading = false;
@@ -695,14 +1100,14 @@ class TienPhongNewsPortal {
     }
 
     renderNews(newsItems) {
-        const newsGrid = document.getElementById('tpNewsGrid');
+        const newsGrid = document.getElementById('newsGrid');
         if (!newsGrid) return;
 
         newsGrid.innerHTML = '';
 
         if (newsItems.length === 0) {
             newsGrid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--tp-text-secondary); font-family: var(--tp-font-sans);">
+                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
                     📰 Không có tin tức nào được tìm thấy
                 </div>
             `;
@@ -713,49 +1118,49 @@ class TienPhongNewsPortal {
             const newsCard = this.createNewsCard(news, index);
             newsGrid.appendChild(newsCard);
             
-            // Staggered animation
+            // Fast staggered animation
             requestAnimationFrame(() => {
                 newsCard.style.opacity = '0';
-                newsCard.style.transform = 'translateY(20px)';
+                newsCard.style.transform = 'translateY(10px)';
                 
                 setTimeout(() => {
-                    newsCard.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    newsCard.style.transition = 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
                     newsCard.style.opacity = '1';
                     newsCard.style.transform = 'translateY(0)';
-                }, index * 100); // Stagger animation
+                }, index * 50); // Faster stagger
             });
         });
     }
 
     createNewsCard(news, index) {
         const card = document.createElement('div');
-        card.className = 'tp-news-card';
+        card.className = 'news-card';
         card.dataset.articleId = news.id;
+        card.dataset.articleLink = news.link;
         
         card.innerHTML = `
-            <div class="tp-news-card-header">
-                <div class="tp-news-source">
-                    <div class="tp-source-icon">${news.emoji || '📰'}</div>
-                    <span class="tp-source-name">${this.escapeHtml(news.source)}</span>
-                </div>
-                <span class="tp-news-time">${this.escapeHtml(news.published)}</span>
+            <div class="news-card-header">
+                <span class="news-source">${this.escapeHtml(news.source)}</span>
+                <span class="news-time">${this.escapeHtml(news.published)}</span>
             </div>
-            <div class="tp-news-card-body">
-                <h3 class="tp-news-title">${this.escapeHtml(news.title)}</h3>
-                <p class="tp-news-description">${this.escapeHtml(news.description)}</p>
+            <div class="news-card-body">
+                <h3 class="news-title">${this.escapeHtml(news.title)}</h3>
+                <p class="news-description">${this.escapeHtml(news.description)}</p>
             </div>
         `;
 
-        // Event listeners
-        card.addEventListener('click', () => this.showArticleDetail(news.id));
+        // Event listeners with fast transitions
+        card.addEventListener('click', () => this.showArticleDetail(news));
 
-        // Hover effects for desktop
+        // iOS-style hover effects for desktop
         if (window.matchMedia('(hover: hover)').matches) {
             card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-8px)';
+                card.style.transition = 'all 0.15s ease';
+                card.style.transform = 'translateY(-4px)';
             });
 
             card.addEventListener('mouseleave', () => {
+                card.style.transition = 'all 0.15s ease';
                 card.style.transform = 'translateY(0)';
             });
         }
@@ -763,39 +1168,31 @@ class TienPhongNewsPortal {
         return card;
     }
 
-    async showArticleDetail(articleId) {
+    async showArticleDetail(news) {
         try {
             this.showToast('📰 Đang tải chi tiết bài viết...', 'info');
 
-            const response = await fetch(`/api/article/${articleId}`);
-            
-            if (!response.ok) {
-                if (response.status === 404) {
-                    this.showToast('Không tìm thấy bài viết', 'error');
-                    return;
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const article = await response.json();
-            this.currentArticle = article;
+            // Set current article for AI context
+            this.currentArticle = news;
 
             // Update article modal content
-            const titleEl = document.getElementById('tpArticleTitle');
-            const sourceEl = document.getElementById('tpArticleSource');
-            const timeEl = document.getElementById('tpArticleTime');
-            const linkEl = document.getElementById('tpArticleLink');
-            const contentEl = document.getElementById('tpArticleContent');
+            const titleEl = document.getElementById('articleTitle');
+            const sourceEl = document.getElementById('articleSource');
+            const timeEl = document.getElementById('articleTime');
+            const linkEl = document.getElementById('articleLink');
+            const iframe = document.getElementById('articleIframe');
 
-            if (titleEl) titleEl.textContent = article.title;
-            if (sourceEl) sourceEl.textContent = article.source;
-            if (timeEl) timeEl.textContent = article.published;
-            if (linkEl) linkEl.href = article.link;
-            if (contentEl) {
-                contentEl.innerHTML = this.formatArticleContent(article.content);
+            if (titleEl) titleEl.textContent = news.title;
+            if (sourceEl) sourceEl.textContent = news.source;
+            if (timeEl) timeEl.textContent = news.published;
+            if (linkEl) linkEl.href = news.link;
+            
+            // IFRAME MODE: Load original webpage
+            if (iframe) {
+                iframe.src = news.link;
             }
 
-            // Show article modal
+            // Show article modal with iOS animation
             this.showArticleModal();
 
             // Show chat widget with context
@@ -807,157 +1204,114 @@ class TienPhongNewsPortal {
         }
     }
 
-    formatArticleContent(content) {
-        if (!content) return '';
-        
-        // Split into paragraphs and format
-        let formatted = content
-            .split('\n')
-            .map(paragraph => paragraph.trim())
-            .filter(paragraph => paragraph.length > 0)
-            .map(paragraph => {
-                // Remove markdown bold markers for headlines
-                paragraph = paragraph.replace(/^\*\*(.*)\*\*$/, '$1');
-                
-                // Check if it's a headline
-                if (paragraph.length < 100 && 
-                    (paragraph === paragraph.toUpperCase() || 
-                     paragraph.match(/^[A-ZÀ-Ý][^.]*:/) ||
-                     paragraph.match(/^\d+\./) ||
-                     paragraph.includes('📷') ||
-                     paragraph.includes('Ảnh'))) {
-                    return `<h3 style="font-family: var(--tp-font-serif); color: var(--tp-primary); font-weight: 700; margin: 1.5rem 0 1rem 0; font-size: 1.2rem;">${paragraph}</h3>`;
-                }
-                
-                // Check for image references
-                if (paragraph.includes('📷') || paragraph.includes('[Ảnh') || paragraph.includes('minh họa')) {
-                    return `<div style="background: linear-gradient(135deg, var(--tp-bg-secondary) 0%, var(--tp-border) 100%); border-radius: 12px; padding: 2rem; text-align: center; margin: 1.5rem 0; color: var(--tp-text-secondary); border: 1px solid var(--tp-border);"><span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">📷</span>${paragraph}</div>`;
-                }
-                
-                // Regular paragraph
-                return `<p style="margin-bottom: 1rem; text-align: justify; line-height: 1.8;">${paragraph}</p>`;
-            })
-            .join('');
-            
-        return formatted;
-    }
-
     showArticleModal() {
-        const modal = document.getElementById('tpArticleModal');
+        const modal = document.getElementById('articleModal');
         
         if (modal) {
-            modal.style.display = 'flex';
+            modal.style.display = 'block';
             
-            // Smooth animation
+            // iOS-style smooth animation
             modal.style.opacity = '0';
-            modal.style.transform = 'scale(0.95)';
             
             requestAnimationFrame(() => {
-                modal.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                modal.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 modal.style.opacity = '1';
-                modal.style.transform = 'scale(1)';
             });
         }
     }
 
     closeArticleModal() {
-        const modal = document.getElementById('tpArticleModal');
+        const modal = document.getElementById('articleModal');
+        const iframe = document.getElementById('articleIframe');
         
         if (modal) {
-            modal.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            modal.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
             modal.style.opacity = '0';
-            modal.style.transform = 'scale(0.95)';
             
             setTimeout(() => {
                 modal.style.display = 'none';
+                if (iframe) iframe.src = '';
                 this.currentArticle = null;
-            }, 500);
+            }, 200);
         }
     }
 
     showChatWithContext() {
-        const floatingChat = document.getElementById('tpFloatingChat');
-        const chatBubbleTitle = document.querySelector('.tp-chat-bubble-title');
-        const chatBubbleSubtitle = document.querySelector('.tp-chat-bubble-subtitle');
+        const chatWidget = document.querySelector('.ios-chat-widget');
+        const chatBubbleSubtitle = document.querySelector('.chat-subtitle');
         
-        if (floatingChat) {
-            // Update bubble text
-            if (chatBubbleTitle) chatBubbleTitle.textContent = 'AI Assistant';
-            if (chatBubbleSubtitle) chatBubbleSubtitle.textContent = 'Sẵn sàng phân tích bài báo!';
+        if (chatWidget) {
+            // Update subtitle text
+            if (chatBubbleSubtitle) {
+                chatBubbleSubtitle.textContent = 'Sẵn sàng phân tích bài báo!';
+            }
             
-            // Show with smooth animation
-            floatingChat.style.display = 'block';
-            floatingChat.style.opacity = '0';
-            floatingChat.style.transform = 'translateY(20px) scale(0.8)';
+            // Show with iOS animation
+            chatWidget.style.display = 'block';
+            chatWidget.style.opacity = '0';
+            chatWidget.style.transform = 'translateY(20px) scale(0.8)';
             
             setTimeout(() => {
-                floatingChat.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                floatingChat.style.opacity = '1';
-                floatingChat.style.transform = 'translateY(0) scale(1)';
-            }, 100);
+                chatWidget.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                chatWidget.style.opacity = '1';
+                chatWidget.style.transform = 'translateY(0) scale(1)';
+            }, 50);
         }
     }
 
     updatePagination(currentPage, totalPages) {
-        const paginationContainer = document.getElementById('tpPaginationContainer');
-        const prevBtn = document.getElementById('tpPrevPageBtn');
-        const nextBtn = document.getElementById('tpNextPageBtn');
-        const currentPageSpan = document.querySelector('.tp-pagination-current');
-        const totalPagesSpan = document.querySelector('.tp-pagination-total');
+        const currentPageEl = document.getElementById('currentPage');
+        const totalPagesEl = document.getElementById('totalPages');
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const pagination = document.getElementById('paginationContainer');
 
-        if (currentPageSpan) currentPageSpan.textContent = currentPage;
-        if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
-
+        if (currentPageEl) currentPageEl.textContent = currentPage;
+        if (totalPagesEl) totalPagesEl.textContent = totalPages;
         if (prevBtn) prevBtn.disabled = currentPage <= 1;
         if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
-
-        if (paginationContainer) {
-            paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
-        }
+        if (pagination) pagination.style.display = totalPages > 1 ? 'flex' : 'none';
     }
 
     showLoading() {
-        const loadingContainer = document.getElementById('tpLoadingContainer');
-        const newsGrid = document.getElementById('tpNewsGrid');
-        const paginationContainer = document.getElementById('tpPaginationContainer');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const newsGrid = document.getElementById('newsGrid');
+        const paginationContainer = document.getElementById('paginationContainer');
 
         if (loadingContainer) {
-            loadingContainer.style.display = 'flex';
-            loadingContainer.style.opacity = '0';
-            setTimeout(() => {
-                loadingContainer.style.transition = 'opacity 0.3s ease';
-                loadingContainer.style.opacity = '1';
-            }, 10);
+            loadingContainer.style.display = 'block';
+            loadingContainer.style.transition = 'opacity 0.15s ease';
+            loadingContainer.style.opacity = '1';
         }
         if (newsGrid) newsGrid.style.display = 'none';
         if (paginationContainer) paginationContainer.style.display = 'none';
     }
 
     hideLoading() {
-        const loadingContainer = document.getElementById('tpLoadingContainer');
-        const newsGrid = document.getElementById('tpNewsGrid');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const newsGrid = document.getElementById('newsGrid');
         
         if (loadingContainer) {
-            loadingContainer.style.transition = 'opacity 0.3s ease';
+            loadingContainer.style.transition = 'opacity 0.15s ease';
             loadingContainer.style.opacity = '0';
             setTimeout(() => {
                 loadingContainer.style.display = 'none';
-            }, 300);
+            }, 150);
         }
         if (newsGrid) newsGrid.style.display = 'grid';
     }
 
     renderError() {
-        const newsGrid = document.getElementById('tpNewsGrid');
+        const newsGrid = document.getElementById('newsGrid');
         if (!newsGrid) return;
 
         newsGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem; text-align: center; gap: 1.5rem;">
-                <div style="font-size: 4rem;">❌</div>
-                <h3 style="color: var(--tp-primary); margin: 0; font-family: var(--tp-font-serif); font-size: 1.5rem;">Lỗi khi tải tin tức</h3>
-                <p style="color: var(--tp-text-secondary); margin: 0; font-family: var(--tp-font-sans);">Vui lòng thử lại sau</p>
-                <button onclick="tienPhongPortal.loadNews(tienPhongPortal.currentCategory, tienPhongPortal.currentPage)" 
-                        style="padding: 1rem 2rem; background: var(--tp-primary); color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-family: var(--tp-font-sans); font-weight: 600;">
+            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center; gap: 1rem;">
+                <div style="font-size: 3rem;">❌</div>
+                <h3 style="color: #dc2626; margin: 0; font-size: 1.5rem;">Lỗi khi tải tin tức</h3>
+                <p style="color: #666; margin: 0;">Vui lòng thử lại sau</p>
+                <button onclick="portal.loadNews(portal.currentCategory, portal.currentPage)" 
+                        style="padding: 0.75rem 1.5rem; background: #1a1a1a; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;">
                     🔄 Thử lại
                 </button>
             </div>
@@ -981,7 +1335,7 @@ class TienPhongNewsPortal {
                     }
                     break;
                 case 'ArrowRight':
-                    const totalPages = parseInt(document.querySelector('.tp-pagination-total')?.textContent || '1');
+                    const totalPages = parseInt(document.getElementById('totalPages')?.textContent || '1');
                     if (this.currentPage < totalPages) {
                         this.loadNews(this.currentCategory, this.currentPage + 1);
                     }
@@ -1001,38 +1355,69 @@ class TienPhongNewsPortal {
     }
 
     showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('tpToastContainer');
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toastContainer');
         if (!toastContainer) {
-            // Create toast container if it doesn't exist
-            const container = document.createElement('div');
-            container.id = 'tpToastContainer';
-            container.className = 'tp-toast-container';
-            document.body.appendChild(container);
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1100;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            `;
+            document.body.appendChild(toastContainer);
         }
         
         const toast = document.createElement('div');
-        toast.className = `tp-toast ${type}`;
+        toast.className = `toast ${type}`;
         toast.textContent = message;
+        toast.style.cssText = `
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            color: #1a1a1a;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 300px;
+            font-size: 14px;
+            font-weight: 500;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        `;
 
-        document.getElementById('tpToastContainer').appendChild(toast);
+        // Type-specific styling
+        if (type === 'success') {
+            toast.style.borderLeft = '3px solid #22c55e';
+        } else if (type === 'error') {
+            toast.style.borderLeft = '3px solid #ef4444';
+        } else if (type === 'info') {
+            toast.style.borderLeft = '3px solid #3b82f6';
+        }
 
-        // Show with animation
+        toastContainer.appendChild(toast);
+
+        // Show with iOS animation
         requestAnimationFrame(() => {
             toast.style.opacity = '1';
             toast.style.transform = 'translateX(0)';
         });
 
-        // Hide after 4 seconds
+        // Hide after 3 seconds
         setTimeout(() => {
-            toast.style.transition = 'all 0.5s ease';
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => {
                 if (toast.parentNode) {
                     toast.parentNode.removeChild(toast);
                 }
-            }, 500);
-        }, 4000);
+            }, 150);
+        }, 3000);
     }
 
     escapeHtml(text) {
@@ -1054,40 +1439,42 @@ class TienPhongNewsPortal {
             chatMessages: this.chatMessages.length,
             currentCategory: this.currentCategory,
             currentPage: this.currentPage,
-            aiRequestInProgress: this.aiRequestInProgress
+            aiRequestInProgress: this.aiRequestInProgress,
+            loadTime: performance.now()
         };
     }
 }
 
 // Initialize when DOM is loaded
-let tienPhongPortal;
+let portal;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, initializing Tiền Phong News Portal...');
+    console.log('🚀 DOM loaded, initializing Enhanced Tiền Phong News Portal...');
     
     try {
-        tienPhongPortal = new TienPhongNewsPortal();
+        portal = new TienPhongNewsPortal();
         
-        console.log('✅ Tiền Phong News Portal initialized successfully!');
-        console.log('🎨 Theme: Classic Tiền Phong + Modern iOS/iPadOS Elements');
-        console.log('📱 Enhanced chat with character-based debate system');
+        console.log('✅ Enhanced Tiền Phong News Portal initialized successfully!');
+        console.log('🎨 Theme: Traditional Newspaper + iOS Glassmorphism Effects');
+        console.log('📱 Original AI Characters: GS Đại học, Nhà kinh tế học, Nhân viên công sở, Người nghèo, Đại gia, Shark');
+        console.log('⚡ Fast transitions: 0.15s - 0.25s');
         
-        // Performance report after 10 seconds
+        // Performance report after 5 seconds
         setTimeout(() => {
-            console.log('📊 Performance Report:', tienPhongPortal.getPerformanceReport());
-        }, 10000);
+            console.log('📊 Performance Report:', portal.getPerformanceReport());
+        }, 5000);
 
     } catch (error) {
-        console.error('❌ Failed to initialize Tiền Phong News Portal:', error);
+        console.error('❌ Failed to initialize Enhanced Portal:', error);
         
         // Show error message
         document.body.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; font-family: var(--tp-font-sans);">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
                 <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
-                <h1 style="color: var(--tp-primary); margin-bottom: 1rem; font-family: var(--tp-font-serif);">Lỗi khởi tạo Tiền Phong Portal</h1>
-                <p style="color: var(--tp-text-secondary); margin-bottom: 2rem;">${error.message}</p>
+                <h1 style="color: #dc2626; margin-bottom: 1rem;">Lỗi khởi tạo Enhanced Portal</h1>
+                <p style="color: #666; margin-bottom: 2rem;">${error.message}</p>
                 <button onclick="location.reload()" 
-                        style="padding: 1rem 2rem; background: var(--tp-primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem; font-family: var(--tp-font-sans);">
+                        style="padding: 1rem 2rem; background: #1a1a1a; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem;">
                     🔄 Tải lại trang
                 </button>
             </div>
@@ -1097,12 +1484,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Global error handling
 window.addEventListener('error', (e) => {
-    console.error('🚨 Global Tiền Phong error:', e.error);
+    console.error('🚨 Global Enhanced Portal error:', e.error);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
-    console.error('🚨 Tiền Phong promise rejection:', e.reason);
+    console.error('🚨 Enhanced Portal promise rejection:', e.reason);
 });
 
 // Make portal globally accessible for debugging
-window.tienPhongPortal = tienPhongPortal;
+window.portal = portal;
