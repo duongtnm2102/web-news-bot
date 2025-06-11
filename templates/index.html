@@ -5,729 +5,515 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📰 Tiền Phong - Tin Tức Tài Chính</title>
     
-    <!-- Traditional Newspaper Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+    <!-- Enhanced Meta Tags for Better SEO -->
+    <meta name="description" content="Tiền Phong - Cổng thông tin tài chính, kinh tế hàng đầu với AI phân tích thông minh và giao diện báo giấy truyền thống">
+    <meta name="keywords" content="tiền phong, tin tức tài chính, chứng khoán, kinh tế, AI phân tích, báo tài chính">
+    <meta name="author" content="Tiền Phong News Portal">
+    <meta name="robots" content="index, follow">
     
-    <!-- Traditional Newspaper Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Tiền Phong - Tin Tức Tài Chính với AI">
+    <meta property="og:description" content="Cập nhật tin tức tài chính mới nhất với phân tích AI thông minh">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/static/og-image.jpg">
+    
+    <!-- Traditional Newspaper Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23dc2626'/><text x='50' y='65' font-size='40' text-anchor='middle' fill='white' font-family='serif'>TP</text></svg>">
+    
+    <!-- Traditional Newspaper Fonts with fallbacks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Crimson+Text:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     
-    <!-- SEO & Social Meta -->
-    <meta name="description" content="Tiền Phong - Cổng thông tin tài chính, kinh tế hàng đầu với giao diện báo giấy truyền thống">
-    <meta name="keywords" content="tin tức tài chính, chứng khoán, kinh tế, báo Tiền Phong">
-    <meta name="author" content="Tiền Phong News Portal">
-    <meta name="robots" content="index, follow">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
     
     <!-- Mobile App Experience -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Tiền Phong">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#dc2626">
     
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/static/style.css" as="style">
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- Enhanced Error Handling Styles -->
     <style>
-        /* ===== TRADITIONAL NEWSPAPER DESIGN - EXACT MATCH ===== */
-        :root {
-            /* Traditional Black & White Colors */
-            --paper-white: #ffffff;
-            --ink-black: #000000;
-            --light-gray: #f8f8f8;
-            --border-gray: #cccccc;
-            --accent-red: #dc143c;
-            
-            /* Typography - Traditional Newspaper */
-            --font-headline: 'Playfair Display', serif;
-            --font-body: 'Crimson Text', serif;
-            --font-caption: 'Merriweather', serif;
-            
-            /* Spacing - Traditional */
-            --space-xs: 2px;
-            --space-sm: 4px;
-            --space-md: 8px;
-            --space-lg: 12px;
-            --space-xl: 16px;
-            --space-2xl: 24px;
-            
-            /* Fast iOS transitions */
-            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
+        /* Critical CSS for immediate loading */
+        body {
+            font-family: 'Crimson Text', 'Times New Roman', serif;
+            background: #ffffff;
+            color: #000000;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-body);
-            background: var(--paper-white);
-            color: var(--ink-black);
             line-height: 1.6;
-            font-size: 14px;
-            overflow-x: hidden;
         }
-
-        /* ===== TRADITIONAL NEWSPAPER HEADER - EXACT MATCH ===== */
-        .newspaper-masthead {
-            background: var(--paper-white);
-            border-bottom: 4px solid var(--ink-black);
-            padding: var(--space-lg) 0;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .masthead-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 var(--space-lg);
-        }
-
-        /* Main newspaper title - exactly like traditional newspapers */
-        .newspaper-name {
-            font-family: var(--font-headline);
-            font-size: 4rem;
-            font-weight: 900;
-            color: var(--accent-red);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: var(--space-sm);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            line-height: 0.9;
-        }
-
-        /* Website URL and subtitle */
-        .newspaper-tagline {
-            font-family: var(--font-caption);
-            font-size: 0.75rem;
-            color: var(--ink-black);
-            font-weight: 400;
-            margin-bottom: var(--space-md);
-            border-bottom: 1px solid var(--border-gray);
-            padding-bottom: var(--space-sm);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Date display - traditional style */
-        .publication-date {
-            font-family: var(--font-caption);
-            font-size: 0.8rem;
-            color: var(--ink-black);
-            font-weight: 600;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: var(--space-md);
-        }
-
-        .date-separator {
-            width: 60px;
-            height: 1px;
-            background: var(--ink-black);
-        }
-
-        /* ===== TRADITIONAL NAVIGATION BAR ===== */
-        .newspaper-navigation {
-            background: var(--ink-black);
-            color: var(--paper-white);
-            padding: var(--space-sm) 0;
-            border-bottom: 2px solid var(--accent-red);
-        }
-
-        .nav-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            gap: var(--space-2xl);
-            flex-wrap: wrap;
-        }
-
-        .nav-section {
-            font-family: var(--font-headline);
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--paper-white);
-            text-decoration: none;
-            padding: var(--space-sm) var(--space-md);
-            border: 1px solid transparent;
-            transition: var(--transition-fast);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-        }
-
-        .nav-section:hover,
-        .nav-section.active {
-            background: var(--paper-white);
-            color: var(--ink-black);
-            border-color: var(--paper-white);
-        }
-
-        /* ===== MAIN NEWSPAPER LAYOUT ===== */
-        .newspaper-layout {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            gap: var(--space-2xl);
-            padding: var(--space-xl);
-            background: var(--paper-white);
-        }
-
-        /* ===== LEFT SIDEBAR - TRADITIONAL SECTIONS ===== */
-        .newspaper-sidebar {
-            background: var(--light-gray);
-            border: 2px solid var(--ink-black);
-            padding: var(--space-lg);
-        }
-
-        .sidebar-section {
-            margin-bottom: var(--space-xl);
-            border-bottom: 1px solid var(--border-gray);
-            padding-bottom: var(--space-lg);
-        }
-
-        .sidebar-section:last-child {
-            border-bottom: none;
-        }
-
-        .section-header {
-            font-family: var(--font-headline);
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--accent-red);
-            border-bottom: 3px solid var(--ink-black);
-            padding-bottom: var(--space-sm);
-            margin-bottom: var(--space-md);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .section-link {
-            display: block;
-            font-family: var(--font-body);
-            font-size: 0.8rem;
-            color: var(--ink-black);
-            text-decoration: none;
-            padding: var(--space-sm);
-            border-bottom: 1px dotted var(--border-gray);
-            transition: var(--transition-fast);
-            line-height: 1.3;
-        }
-
-        .section-link:hover,
-        .section-link.active {
-            background: var(--ink-black);
-            color: var(--paper-white);
-        }
-
-        /* ===== MAIN CONTENT AREA ===== */
-        .main-content {
-            background: var(--paper-white);
-        }
-
-        .content-masthead {
-            text-align: center;
-            margin-bottom: var(--space-2xl);
-            border: 3px solid var(--ink-black);
-            padding: var(--space-xl);
-            background: var(--light-gray);
-        }
-
-        .content-headline {
-            font-family: var(--font-headline);
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--ink-black);
-            margin-bottom: var(--space-sm);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.1;
-        }
-
-        .content-subhead {
-            font-family: var(--font-body);
-            font-size: 1rem;
-            color: var(--ink-black);
-            font-style: italic;
-            font-weight: 600;
-        }
-
-        /* ===== NEWS ARTICLES GRID - NEWSPAPER COLUMNS ===== */
-        .news-articles {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-xl);
-            column-gap: var(--space-2xl);
-        }
-
-        /* Individual news article - traditional newspaper style */
-        .news-article {
-            border: 2px solid var(--ink-black);
-            background: var(--paper-white);
-            transition: var(--transition-fast);
-            cursor: pointer;
-            page-break-inside: avoid;
-        }
-
-        .news-article:hover {
-            box-shadow: 4px 4px 0px var(--ink-black);
-            transform: translate(-2px, -2px);
-        }
-
-        .article-header {
-            background: var(--ink-black);
-            color: var(--paper-white);
-            padding: var(--space-sm) var(--space-md);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: var(--font-caption);
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .article-source {
-            color: var(--paper-white);
-            font-weight: 700;
-        }
-
-        .article-timestamp {
-            color: var(--paper-white);
-            font-weight: 400;
-        }
-
-        .article-content {
-            padding: var(--space-md);
-        }
-
-        .article-headline {
-            font-family: var(--font-headline);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--ink-black);
-            line-height: 1.2;
-            margin-bottom: var(--space-sm);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .article-summary {
-            font-family: var(--font-body);
-            font-size: 0.85rem;
-            color: var(--ink-black);
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* ===== ARTICLE MODAL - NEWSPAPER STYLE ===== */
-        .article-modal {
+        
+        /* Loading state styles */
+        .initial-loading {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            display: none;
-            opacity: 0;
-            transition: var(--transition-normal);
-        }
-
-        .article-modal.show {
-            opacity: 1;
-        }
-
-        .modal-newspaper {
-            background: var(--paper-white);
-            margin: 1vh auto;
-            width: 95%;
-            max-width: 1100px;
-            height: 98vh;
-            border: 4px solid var(--ink-black);
+            background: #ffffff;
             display: flex;
             flex-direction: column;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.3);
-        }
-
-        .modal-masthead {
-            background: var(--ink-black);
-            color: var(--paper-white);
-            padding: var(--space-md);
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid var(--accent-red);
+            justify-content: center;
+            z-index: 9999;
         }
-
-        .modal-headline {
-            font-family: var(--font-headline);
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--paper-white);
-            flex: 1;
-            margin-right: var(--space-md);
-            line-height: 1.2;
-        }
-
-        .modal-close {
-            background: var(--accent-red);
-            color: var(--paper-white);
-            border: none;
-            font-size: 1.2rem;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: var(--transition-fast);
-            font-family: var(--font-headline);
-        }
-
-        .modal-close:hover {
-            background: var(--paper-white);
-            color: var(--ink-black);
-        }
-
-        .modal-subheader {
-            background: var(--light-gray);
-            padding: var(--space-sm) var(--space-md);
-            border-bottom: 2px solid var(--ink-black);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: var(--font-caption);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .modal-source {
-            color: var(--accent-red);
-            font-weight: 700;
+        
+        .loading-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: #dc2626;
+            margin-bottom: 1rem;
             text-transform: uppercase;
+            letter-spacing: 2px;
         }
-
-        .modal-link {
-            color: var(--ink-black);
-            text-decoration: none;
-            border: 2px solid var(--ink-black);
-            padding: var(--space-xs) var(--space-sm);
-            transition: var(--transition-fast);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .modal-link:hover {
-            background: var(--ink-black);
-            color: var(--paper-white);
-        }
-
-        /* ===== IFRAME CONTENT - GRAYSCALE NEWSPAPER EFFECT ===== */
-        .article-frame {
-            flex: 1;
-            border: none;
-            width: 100%;
-            background: var(--paper-white);
-            /* Black and white newspaper effect */
-            filter: grayscale(100%) contrast(1.3) brightness(1.1);
-        }
-
-        /* ===== LOADING INDICATOR ===== */
-        .loading-indicator {
-            text-align: center;
-            padding: var(--space-2xl);
-            font-family: var(--font-body);
-            color: var(--ink-black);
-        }
-
+        
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid var(--border-gray);
-            border-top: 4px solid var(--ink-black);
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #dc2626;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto var(--space-md);
+            margin-bottom: 1rem;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* ===== PAGINATION - NEWSPAPER STYLE ===== */
-        .page-navigation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: var(--space-md);
-            margin-top: var(--space-2xl);
-            padding: var(--space-lg);
-            border: 3px solid var(--ink-black);
-            background: var(--light-gray);
+        
+        .loading-text {
+            color: #6b7280;
+            font-size: 1rem;
         }
-
-        .page-button {
-            background: var(--paper-white);
-            border: 2px solid var(--ink-black);
-            color: var(--ink-black);
-            padding: var(--space-sm) var(--space-md);
+        
+        /* Error state styles */
+        .error-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            text-align: center;
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+        }
+        
+        .error-title {
+            color: #dc2626;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            color: #374151;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .retry-button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
             cursor: pointer;
-            font-family: var(--font-headline);
+            font-size: 1rem;
             font-weight: 600;
-            transition: var(--transition-fast);
             text-transform: uppercase;
-            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            transition: background 0.2s ease;
         }
-
-        .page-button:hover:not(:disabled) {
-            background: var(--ink-black);
-            color: var(--paper-white);
+        
+        .retry-button:hover {
+            background: #b91c1c;
         }
-
-        .page-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        
+        /* Hide main content until loaded */
+        .main-app {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
-
-        .page-info {
-            font-family: var(--font-caption);
-            color: var(--ink-black);
-            font-weight: 700;
-            font-size: 0.9rem;
+        
+        .main-app.loaded {
+            opacity: 1;
         }
-
-        /* ===== RESPONSIVE DESIGN ===== */
-        @media (max-width: 768px) {
-            .newspaper-name {
-                font-size: 2.5rem;
-                letter-spacing: 2px;
-            }
-            
-            .newspaper-layout {
-                grid-template-columns: 1fr;
-                gap: var(--space-md);
-                padding: var(--space-md);
-            }
-            
-            .nav-container {
-                gap: var(--space-md);
-            }
-            
-            .nav-section {
-                font-size: 0.7rem;
-                padding: var(--space-xs) var(--space-sm);
-            }
-            
-            .news-articles {
-                grid-template-columns: 1fr;
-                gap: var(--space-md);
-            }
-            
-            .modal-newspaper {
-                width: 98%;
-                height: 99vh;
-                margin: 0.5vh auto;
-            }
-
-            .content-headline {
-                font-size: 1.8rem;
-            }
+        
+        /* Network status indicator */
+        .network-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
         }
-
-        @media (max-width: 480px) {
-            .newspaper-name {
-                font-size: 2rem;
-                letter-spacing: 1px;
-            }
-
-            .masthead-container,
-            .nav-container,
-            .newspaper-layout {
-                padding: var(--space-sm);
-            }
-
-            .modal-newspaper {
-                border-width: 2px;
-            }
-
-            .news-articles {
-                gap: var(--space-sm);
-            }
+        
+        .network-status.online {
+            background: #10b981;
+            color: white;
         }
-
-        /* ===== PRINT STYLES ===== */
-        @media print {
-            .newspaper-navigation,
-            .page-navigation,
-            .article-modal {
-                display: none !important;
-            }
-            
-            .news-article {
-                border: 1px solid var(--ink-black);
-                page-break-inside: avoid;
-                margin-bottom: var(--space-md);
-            }
-            
-            .newspaper-name {
-                color: var(--ink-black);
-            }
-            
-            .article-frame {
-                filter: none;
-            }
+        
+        .network-status.offline {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .network-status.connecting {
+            background: #f59e0b;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <!-- Traditional Newspaper Masthead -->
-    <header class="newspaper-masthead">
-        <div class="masthead-container">
-            <h1 class="newspaper-name">Tiền Phong</h1>
-            <p class="newspaper-tagline">www.tienphong.vn • Tin Tức Tài Chính - Chứng Khoán</p>
-            <div class="publication-date">
-                <div class="date-separator"></div>
-                <span id="currentDate">Thứ Ba • 11/06/2025</span>
-                <div class="date-separator"></div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Traditional Navigation -->
-    <nav class="newspaper-navigation">
-        <div class="nav-container">
-            <a href="#" class="nav-section active" data-category="all">Trang Chủ</a>
-            <a href="#" class="nav-section" data-category="domestic">Trong Nước</a>
-            <a href="#" class="nav-section" data-category="international">Quốc Tế</a>
-            <a href="#" class="nav-section" data-category="business">Doanh Nghiệp</a>
-            <a href="#" class="nav-section" data-category="finance">Tài Chính</a>
-            <a href="#" class="nav-section" data-category="realestate">Bất Động Sản</a>
-        </div>
-    </nav>
-
-    <!-- Main Newspaper Layout -->
-    <div class="newspaper-layout">
-        <!-- Traditional Sidebar Sections -->
-        <aside class="newspaper-sidebar">
-            <div class="sidebar-section">
-                <h3 class="section-header">Chứng Khoán</h3>
-                <a href="#" class="section-link active" data-category="all">Tất cả tin tức</a>
-                <a href="#" class="section-link" data-category="domestic">Thị trường trong nước</a>
-                <a href="#" class="section-link" data-category="international">Thị trường quốc tế</a>
-            </div>
-            
-            <div class="sidebar-section">
-                <h3 class="section-header">Doanh Nghiệp</h3>
-                <a href="#" class="section-link" data-category="business">Tin doanh nghiệp</a>
-                <a href="#" class="section-link" data-category="earnings">Kết quả kinh doanh</a>
-            </div>
-            
-            <div class="sidebar-section">
-                <h3 class="section-header">Tài Chính</h3>
-                <a href="#" class="section-link" data-category="finance">Tài chính - Ngân hàng</a>
-                <a href="#" class="section-link" data-category="crypto">Tiền số</a>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="section-header">Bất Động Sản</h3>
-                <a href="#" class="section-link" data-category="realestate">Thị trường BĐS</a>
-                <a href="#" class="section-link" data-category="projects">Dự án</a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="content-masthead">
-                <h2 class="content-headline">Tin Tức Tài Chính</h2>
-                <p class="content-subhead">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div class="loading-indicator" id="loadingContainer">
-                <div class="loading-spinner"></div>
-                <p><strong>Đang tải tin tức...</strong></p>
-            </div>
-
-            <!-- News Articles Grid -->
-            <div class="news-articles" id="newsGrid" style="display: none;">
-                <!-- News articles will be loaded here -->
-            </div>
-
-            <!-- Page Navigation -->
-            <div class="page-navigation" id="paginationContainer" style="display: none;">
-                <button class="page-button" id="prevPageBtn">← Trang trước</button>
-                <div class="page-info">
-                    <span id="currentPage">1</span> / <span id="totalPages">1</span>
+    <!-- Initial Loading Screen -->
+    <div class="initial-loading" id="initialLoading">
+        <div class="loading-logo">Tiền Phong</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Đang khởi tạo...</div>
+    </div>
+    
+    <!-- Network Status Indicator -->
+    <div class="network-status online" id="networkStatus">
+        <span id="networkStatusText">🟢 Trực tuyến</span>
+    </div>
+    
+    <!-- Main Application -->
+    <div class="main-app" id="mainApp">
+        <!-- Traditional Newspaper Masthead -->
+        <header class="newspaper-masthead">
+            <div class="masthead-container">
+                <h1 class="newspaper-name">Tiền Phong</h1>
+                <p class="newspaper-tagline">www.tienphong.vn • Tin Tức Tài Chính - Chứng Khoán</p>
+                <div class="publication-date">
+                    <div class="date-separator"></div>
+                    <span id="currentDate">Đang tải...</span>
+                    <div class="date-separator"></div>
                 </div>
-                <button class="page-button" id="nextPageBtn">Trang sau →</button>
             </div>
-        </main>
+        </header>
+
+        <!-- Traditional Navigation -->
+        <nav class="newspaper-navigation">
+            <div class="nav-container">
+                <a href="#" class="nav-section active" data-category="all">Trang Chủ</a>
+                <a href="#" class="nav-section" data-category="domestic">Trong Nước</a>
+                <a href="#" class="nav-section" data-category="international">Quốc Tế</a>
+                <a href="#" class="nav-section" data-category="business">Doanh Nghiệp</a>
+                <a href="#" class="nav-section" data-category="finance">Tài Chính</a>
+                <a href="#" class="nav-section" data-category="realestate">Bất Động Sản</a>
+            </div>
+        </nav>
+
+        <!-- Main Newspaper Layout -->
+        <div class="newspaper-layout">
+            <!-- Traditional Sidebar Sections -->
+            <aside class="newspaper-sidebar">
+                <div class="sidebar-section">
+                    <h3 class="section-header">Chứng Khoán</h3>
+                    <a href="#" class="section-link active" data-category="all">Tất cả tin tức</a>
+                    <a href="#" class="section-link" data-category="domestic">Thị trường trong nước</a>
+                    <a href="#" class="section-link" data-category="international">Thị trường quốc tế</a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="section-header">Doanh Nghiệp</h3>
+                    <a href="#" class="section-link" data-category="business">Tin doanh nghiệp</a>
+                    <a href="#" class="section-link" data-category="earnings">Kết quả kinh doanh</a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="section-header">Tài Chính</h3>
+                    <a href="#" class="section-link" data-category="finance">Tài chính - Ngân hàng</a>
+                    <a href="#" class="section-link" data-category="crypto">Tiền số</a>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="section-header">Bất Động Sản</h3>
+                    <a href="#" class="section-link" data-category="realestate">Thị trường BĐS</a>
+                    <a href="#" class="section-link" data-category="projects">Dự án</a>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="content-masthead">
+                    <h2 class="content-headline">Tin Tức Tài Chính</h2>
+                    <p class="content-subhead">Cập nhật mới nhất từ thị trường tài chính Việt Nam và thế giới</p>
+                </div>
+
+                <!-- Enhanced Loading Indicator -->
+                <div class="loading-indicator" id="loadingContainer">
+                    <div class="loading-spinner"></div>
+                    <p><strong>Đang tải tin tức...</strong></p>
+                    <small style="color: #6b7280; margin-top: 0.5rem;">
+                        Nếu tải quá lâu, vui lòng <a href="#" onclick="location.reload()" style="color: #dc2626;">tải lại trang</a>
+                    </small>
+                </div>
+
+                <!-- News Articles Grid -->
+                <div class="news-articles" id="newsGrid" style="display: none;">
+                    <!-- News articles will be loaded here -->
+                </div>
+
+                <!-- Enhanced Page Navigation -->
+                <div class="page-navigation" id="paginationContainer" style="display: none;">
+                    <button class="page-button" id="prevPageBtn">← Trang trước</button>
+                    <div class="page-info">
+                        <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                    </div>
+                    <button class="page-button" id="nextPageBtn">Trang sau →</button>
+                </div>
+            </main>
+        </div>
     </div>
 
     <!-- Article Modal - Newspaper Style -->
     <div class="article-modal" id="articleModal">
         <div class="modal-newspaper">
             <div class="modal-masthead">
-                <h3 class="modal-headline" id="articleTitle"></h3>
+                <h3 class="modal-headline" id="articleTitle">Đang tải...</h3>
                 <button class="modal-close" id="closeBtn">×</button>
             </div>
             
             <div class="modal-subheader">
-                <span class="modal-source" id="articleSource"></span>
-                <span id="articleTime"></span>
+                <span class="modal-source" id="articleSource">Đang tải...</span>
+                <span id="articleTime">Đang tải...</span>
                 <a href="#" class="modal-link" id="articleLink" target="_blank">Đọc bài gốc</a>
             </div>
             
             <!-- Iframe for original webpage with newspaper effect -->
-            <iframe class="article-frame" id="articleIframe" src="" loading="lazy"></iframe>
+            <iframe class="article-frame" id="articleIframe" src="" loading="lazy" title="Nội dung bài viết"></iframe>
         </div>
     </div>
 
-    <!-- JavaScript will be loaded from external file -->
+    <!-- Service Worker Registration -->
     <script>
-        // Initialize traditional newspaper date
-        function updateDate() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('vi-VN', {
-                weekday: 'long',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
+        // Enhanced initialization with better error handling
+        document.addEventListener('DOMContentLoaded', async function() {
+            const initialLoading = document.getElementById('initialLoading');
+            const mainApp = document.getElementById('mainApp');
+            const networkStatus = document.getElementById('networkStatus');
+            const networkStatusText = document.getElementById('networkStatusText');
+            
+            // Update network status
+            function updateNetworkStatus() {
+                if (navigator.onLine) {
+                    networkStatus.className = 'network-status online';
+                    networkStatusText.textContent = '🟢 Trực tuyến';
+                } else {
+                    networkStatus.className = 'network-status offline';
+                    networkStatusText.textContent = '🔴 Ngoại tuyến';
+                }
+            }
+            
+            // Monitor network status
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            updateNetworkStatus();
+            
+            // Initialize traditional newspaper date
+            function updateDate() {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('vi-VN', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                const dateEl = document.getElementById('currentDate');
+                if (dateEl) dateEl.textContent = dateStr;
+            }
+            
+            updateDate();
+            setInterval(updateDate, 3600000); // Update every hour
+            
+            // Register Service Worker with error handling
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/static/sw.js', {
+                        scope: '/'
+                    });
+                    console.log('✅ Service Worker registered successfully:', registration.scope);
+                    
+                    // Handle service worker updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New service worker available
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.warn('⚠️ Service Worker registration failed:', error);
+                }
+            }
+            
+            // Show update notification
+            function showUpdateNotification() {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #dc2626;
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    z-index: 1001;
+                    font-size: 14px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                notification.innerHTML = `
+                    📱 Có phiên bản mới! 
+                    <button onclick="location.reload()" style="background: white; color: #dc2626; border: none; padding: 4px 8px; margin-left: 8px; border-radius: 4px; cursor: pointer;">Cập nhật</button>
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 10000);
+            }
+            
+            // Enhanced error handling
+            window.addEventListener('error', function(e) {
+                console.error('🚨 Global error:', e.error);
+                showErrorMessage('Đã xảy ra lỗi không mong muốn. Vui lòng tải lại trang.');
             });
-            const dateEl = document.getElementById('currentDate');
-            if (dateEl) dateEl.textContent = dateStr;
-        }
-        
-        updateDate();
-        setInterval(updateDate, 3600000); // Update every hour
 
-        // Error handling
-        window.addEventListener('error', function(e) {
-            console.error('🚨 Traditional Newspaper Error:', {
-                message: e.message,
-                filename: e.filename,
-                lineno: e.lineno,
-                error: e.error
+            window.addEventListener('unhandledrejection', function(e) {
+                console.error('🚨 Promise rejection:', e.reason);
+                showErrorMessage('Lỗi xử lý dữ liệu. Vui lòng thử lại.');
             });
+            
+            function showErrorMessage(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-container';
+                errorDiv.innerHTML = `
+                    <div class="error-title">❌ Lỗi hệ thống</div>
+                    <div class="error-message">${message}</div>
+                    <button class="retry-button" onclick="location.reload()">🔄 Tải lại trang</button>
+                `;
+                
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.innerHTML = '';
+                    mainContent.appendChild(errorDiv);
+                }
+            }
+            
+            // Initialize the application
+            try {
+                // Hide initial loading and show main app
+                setTimeout(() => {
+                    initialLoading.style.opacity = '0';
+                    setTimeout(() => {
+                        initialLoading.style.display = 'none';
+                        mainApp.classList.add('loaded');
+                    }, 500);
+                }, 500); // Short delay to show the loading screen
+                
+                console.log('📰 Traditional Tiền Phong Newspaper Layout loaded!');
+                console.log('🎨 Theme: Classic Black & White Newspaper Design');
+                console.log('📱 Enhanced error handling with retry mechanisms');
+                console.log('🔄 SYNC backend support with timeout protection');
+                console.log('🤖 AI Characters: Original 6 characters');
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize app:', error);
+                showErrorMessage('Không thể khởi tạo ứng dụng. Vui lòng kiểm tra kết nối internet và thử lại.');
+            }
         });
-
-        console.log('📰 Traditional Tiền Phong Newspaper Layout loaded!');
-        console.log('🎨 Theme: Classic Black & White Newspaper Design');
-        console.log('📱 iOS Effects: Fast transitions (0.15s - 0.25s)');
-        console.log('🖼️ Iframe Mode: Direct webpage display with grayscale effect');
-        console.log('🤖 AI Characters: Original 6 characters restored');
+        
+        // Progressive Web App install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('💾 PWA install prompt available');
+            deferredPrompt = e;
+            
+            // Show custom install button (optional)
+            const installButton = document.createElement('button');
+            installButton.textContent = '📱 Cài đặt ứng dụng';
+            installButton.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: #dc2626;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 12px;
+                z-index: 1000;
+                font-weight: 600;
+            `;
+            
+            installButton.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`PWA install outcome: ${outcome}`);
+                    deferredPrompt = null;
+                    installButton.remove();
+                }
+            });
+            
+            // Auto-remove install button after 30 seconds
+            setTimeout(() => installButton.remove(), 30000);
+            document.body.appendChild(installButton);
+        });
+        
+        // Handle PWA install success
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed successfully');
+            deferredPrompt = null;
+        });
+    </script>
+    
+    <!-- Load main JavaScript -->
+    <script src="/static/script.js" defer></script>
+    
+    <!-- Analytics and monitoring (optional) -->
+    <script>
+        // Basic performance monitoring
+        window.addEventListener('load', () => {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            const loadTime = perfData.loadEventEnd - perfData.loadEventStart;
+            console.log(`📊 Page load time: ${loadTime}ms`);
+            
+            // Report to analytics if needed
+            if (loadTime > 3000) {
+                console.warn('⚠️ Slow page load detected');
+            }
+        });
+        
+        // Monitor memory usage (development only)
+        if ('memory' in performance) {
+            setInterval(() => {
+                const memory = performance.memory;
+                const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
+                const totalMB = Math.round(memory.totalJSHeapSize / 1048576);
+                
+                if (usedMB > 50) { // Warn if using more than 50MB
+                    console.warn(`🧠 High memory usage: ${usedMB}MB / ${totalMB}MB`);
+                }
+            }, 30000); // Check every 30 seconds
+        }
     </script>
 </body>
 </html>
