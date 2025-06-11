@@ -1,4 +1,4 @@
-// Tiền Phong News Portal - Enhanced JavaScript with iOS Effects and Fixed Characters
+// Tiền Phong News Portal - Enhanced JavaScript with SYNC Backend Support
 class TienPhongNewsPortal {
     constructor() {
         this.currentPage = 1;
@@ -7,24 +7,26 @@ class TienPhongNewsPortal {
         this.currentArticle = null;
         this.aiRequestInProgress = false;
         this.chatMessages = [];
+        this.retryCount = 0;
+        this.maxRetries = 3;
         
         // Performance optimization
         this.cache = new Map();
-        this.maxCacheSize = 15;
+        this.maxCacheSize = 10; // Reduced for memory optimization
         
         this.init();
     }
 
     async init() {
-        console.log('🚀 Initializing Tiền Phong News Portal...');
+        console.log('🚀 Initializing Tiền Phong News Portal (SYNC VERSION)...');
         
         try {
             this.bindEvents();
             this.setupErrorHandling();
             this.updateDateTime();
             
-            // Load initial news with fast loading
-            await this.loadNews('all', 1);
+            // Load initial news with better error handling
+            await this.loadNewsWithRetry('all', 1);
             
             // iOS-style glassmorphism chat widget
             this.initializeChatWidget();
@@ -32,8 +34,66 @@ class TienPhongNewsPortal {
             console.log('✅ Tiền Phong News Portal initialized successfully!');
         } catch (error) {
             console.error('❌ Failed to initialize:', error);
-            this.showToast('Lỗi khởi tạo ứng dụng: ' + error.message, 'error');
+            this.showToast('Lỗi khởi tạo ứng dụng. Đang thử tải lại...', 'error');
+            // Auto-retry initialization after 3 seconds
+            setTimeout(() => this.init(), 3000);
         }
+    }
+
+    async loadNewsWithRetry(category, page, retryCount = 0) {
+        """Load news with automatic retry mechanism"""
+        try {
+            await this.loadNews(category, page);
+            this.retryCount = 0; // Reset retry count on success
+        } catch (error) {
+            console.error(`❌ Load news error (attempt ${retryCount + 1}):`, error);
+            
+            if (retryCount < this.maxRetries) {
+                const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                this.showToast(`Lỗi tải tin tức. Thử lại sau ${delay/1000}s...`, 'info');
+                
+                setTimeout(() => {
+                    this.loadNewsWithRetry(category, page, retryCount + 1);
+                }, delay);
+            } else {
+                this.showFallbackContent();
+                this.showToast('Không thể tải tin tức. Vui lòng kiểm tra kết nối internet.', 'error');
+            }
+        }
+    }
+
+    showFallbackContent() {
+        """Show fallback content when all retries fail"""
+        const newsGrid = document.getElementById('newsGrid');
+        if (!newsGrid) return;
+
+        newsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center; gap: 1.5rem; background: #f9f9f9; border: 2px solid #ddd; border-radius: 8px;">
+                <div style="font-size: 4rem;">📱</div>
+                <h3 style="color: #dc2626; margin: 0; font-size: 1.5rem;">Không thể kết nối máy chủ</h3>
+                <p style="color: #666; margin: 0; line-height: 1.5;">
+                    Có vẻ như có vấn đề với kết nối mạng hoặc máy chủ đang bảo trì.<br>
+                    Vui lòng kiểm tra kết nối internet và thử lại.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                    <button onclick="location.reload()" 
+                            style="padding: 0.75rem 1.5rem; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; font-weight: 600;">
+                        🔄 Tải lại trang
+                    </button>
+                    <button onclick="portal.loadNewsWithRetry(portal.currentCategory, portal.currentPage)" 
+                            style="padding: 0.75rem 1.5rem; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; font-weight: 600;">
+                        🔄 Thử lại
+                    </button>
+                </div>
+                <small style="color: #999; margin-top: 1rem;">
+                    Nếu vấn đề vẫn tiếp tục, vui lòng liên hệ support
+                </small>
+            </div>
+        `;
+        
+        // Show the grid and hide loading
+        newsGrid.style.display = 'grid';
+        this.hideLoading();
     }
 
     updateDateTime() {
@@ -53,32 +113,34 @@ class TienPhongNewsPortal {
     }
 
     bindEvents() {
-        // Category links with fast transitions
-        document.querySelectorAll('.nav-item, .sidebar-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+        // Category links with improved error handling
+        document.querySelectorAll('.nav-section, .section-link').forEach(link => {
+            link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const category = e.currentTarget.dataset.category;
-                this.switchCategory(category);
+                if (category && category !== this.currentCategory) {
+                    await this.switchCategory(category);
+                }
             });
         });
 
-        // Pagination with iOS-style animations
+        // Pagination with retry logic
         const prevBtn = document.getElementById('prevPageBtn');
         const nextBtn = document.getElementById('nextPageBtn');
         
         if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                if (this.currentPage > 1) {
-                    this.loadNews(this.currentCategory, this.currentPage - 1);
+            prevBtn.addEventListener('click', async () => {
+                if (this.currentPage > 1 && !this.isLoading) {
+                    await this.loadNewsWithRetry(this.currentCategory, this.currentPage - 1);
                 }
             });
         }
 
         if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
+            nextBtn.addEventListener('click', async () => {
                 const totalPages = parseInt(document.getElementById('totalPages')?.textContent || '1');
-                if (this.currentPage < totalPages) {
-                    this.loadNews(this.currentCategory, this.currentPage + 1);
+                if (this.currentPage < totalPages && !this.isLoading) {
+                    await this.loadNewsWithRetry(this.currentCategory, this.currentPage + 1);
                 }
             });
         }
@@ -98,13 +160,280 @@ class TienPhongNewsPortal {
             });
         }
 
-        // Chat functionality
-        this.setupChatEvents();
-
         // Keyboard shortcuts
         this.setupKeyboardShortcuts();
     }
 
+    async switchCategory(category) {
+        if (this.isLoading || category === this.currentCategory) return;
+
+        try {
+            // Update active states with fast transitions
+            document.querySelectorAll('.nav-section, .section-link').forEach(link => {
+                link.classList.remove('active');
+                link.style.transition = 'all 0.15s ease';
+            });
+            
+            const activeElements = document.querySelectorAll(
+                `[data-category="${category}"]`
+            );
+            activeElements.forEach(el => {
+                el.classList.add('active');
+                el.style.transition = 'all 0.15s ease';
+            });
+
+            this.currentCategory = category;
+            await this.loadNewsWithRetry(category, 1);
+        } catch (error) {
+            console.error('❌ Category switch error:', error);
+            this.showToast('Lỗi khi chuyển chuyên mục', 'error');
+        }
+    }
+
+    async loadNews(category, page) {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+        this.currentPage = page;
+
+        // Check cache first
+        const cacheKey = `${category}-${page}`;
+        if (this.cache.has(cacheKey)) {
+            const cachedData = this.cache.get(cacheKey);
+            if (Date.now() - cachedData.timestamp < 2 * 60 * 1000) { // 2 minutes cache
+                this.renderNews(cachedData.news);
+                this.updatePagination(cachedData.page, cachedData.total_pages);
+                this.isLoading = false;
+                return;
+            }
+        }
+
+        this.showLoading();
+
+        try {
+            // Increased timeout for better reliability
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+            const response = await fetch(`/api/news/${category}?page=${page}`, {
+                signal: controller.signal,
+                headers: {
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Cache the result
+            this.cache.set(cacheKey, {
+                ...data,
+                timestamp: Date.now()
+            });
+            
+            // Limit cache size
+            if (this.cache.size > this.maxCacheSize) {
+                const firstKey = this.cache.keys().next().value;
+                this.cache.delete(firstKey);
+            }
+            
+            this.renderNews(data.news);
+            this.updatePagination(data.page, data.total_pages);
+            
+            if (data.news.length > 0) {
+                this.showToast(`✅ Đã tải ${data.news.length} tin tức`, 'success');
+            } else {
+                this.showToast('Không có tin tức mới', 'info');
+            }
+
+        } catch (error) {
+            console.error('❌ News loading error:', error);
+            
+            let errorMessage = 'Lỗi khi tải tin tức';
+            if (error.name === 'AbortError') {
+                errorMessage = 'Timeout - Máy chủ phản hồi chậm';
+            } else if (error.message.includes('Failed to fetch')) {
+                errorMessage = 'Lỗi kết nối mạng';
+            } else if (error.message.includes('500')) {
+                errorMessage = 'Lỗi máy chủ nội bộ';
+            }
+            
+            throw new Error(errorMessage);
+        } finally {
+            this.hideLoading();
+            this.isLoading = false;
+        }
+    }
+
+    renderNews(newsItems) {
+        const newsGrid = document.getElementById('newsGrid');
+        if (!newsGrid) return;
+
+        newsGrid.innerHTML = '';
+
+        if (newsItems.length === 0) {
+            newsGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666; background: #f9f9f9; border-radius: 8px; border: 2px solid #eee;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📰</div>
+                    <h3 style="margin: 0 0 0.5rem 0; color: #333;">Không có tin tức nào</h3>
+                    <p style="margin: 0;">Hãy thử chuyến sang chuyên mục khác hoặc tải lại trang</p>
+                </div>
+            `;
+            return;
+        }
+
+        newsItems.forEach((news, index) => {
+            const newsCard = this.createNewsCard(news, index);
+            newsGrid.appendChild(newsCard);
+            
+            // Fast staggered animation
+            requestAnimationFrame(() => {
+                newsCard.style.opacity = '0';
+                newsCard.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    newsCard.style.transition = 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
+                    newsCard.style.opacity = '1';
+                    newsCard.style.transform = 'translateY(0)';
+                }, index * 30); // Faster stagger
+            });
+        });
+    }
+
+    createNewsCard(news, index) {
+        const card = document.createElement('div');
+        card.className = 'news-article';
+        card.dataset.articleId = news.id;
+        card.dataset.articleLink = news.link;
+        
+        card.innerHTML = `
+            <div class="article-header">
+                <span class="article-source">${this.escapeHtml(news.source)}</span>
+                <span class="article-timestamp">${this.escapeHtml(news.published)}</span>
+            </div>
+            <div class="article-content">
+                <h3 class="article-headline">${this.escapeHtml(news.title)}</h3>
+                <p class="article-summary">${this.escapeHtml(news.description)}</p>
+            </div>
+        `;
+
+        // Event listeners with error handling
+        card.addEventListener('click', async () => {
+            try {
+                await this.showArticleDetail(news);
+            } catch (error) {
+                console.error('❌ Article detail error:', error);
+                this.showToast('Lỗi khi mở bài viết', 'error');
+            }
+        });
+
+        // iOS-style hover effects for desktop
+        if (window.matchMedia('(hover: hover)').matches) {
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'all 0.15s ease';
+                card.style.transform = 'translateY(-2px)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'all 0.15s ease';
+                card.style.transform = 'translateY(0)';
+            });
+        }
+
+        return card;
+    }
+
+    async showArticleDetail(news) {
+        try {
+            this.showToast('📰 Đang tải chi tiết bài viết...', 'info');
+
+            // Set current article for AI context
+            this.currentArticle = news;
+
+            // Update article modal content
+            const titleEl = document.getElementById('articleTitle');
+            const sourceEl = document.getElementById('articleSource');
+            const timeEl = document.getElementById('articleTime');
+            const linkEl = document.getElementById('articleLink');
+            const iframe = document.getElementById('articleIframe');
+
+            if (titleEl) titleEl.textContent = news.title;
+            if (sourceEl) sourceEl.textContent = news.source;
+            if (timeEl) timeEl.textContent = news.published;
+            if (linkEl) linkEl.href = news.link;
+            
+            // IFRAME MODE: Load original webpage with error handling
+            if (iframe) {
+                iframe.src = '';
+                
+                // Add error handling for iframe
+                iframe.onload = () => {
+                    this.showToast('✅ Bài viết đã được tải', 'success');
+                };
+                
+                iframe.onerror = () => {
+                    console.warn('❌ Iframe loading error for:', news.link);
+                    iframe.src = 'data:text/html,<div style="padding:20px;text-align:center;font-family:Arial;"><h3>Không thể tải nội dung bài viết</h3><p>Bấm <a href="' + news.link + '" target="_blank">vào đây</a> để đọc bài gốc</p></div>';
+                };
+                
+                iframe.src = news.link;
+            }
+
+            // Show article modal with iOS animation
+            this.showArticleModal();
+
+            // Show chat widget with context
+            this.showChatWithContext();
+
+        } catch (error) {
+            console.error('❌ Article loading error:', error);
+            this.showToast('Lỗi khi tải bài viết: ' + error.message, 'error');
+        }
+    }
+
+    showArticleModal() {
+        const modal = document.getElementById('articleModal');
+        
+        if (modal) {
+            modal.style.display = 'block';
+            
+            // iOS-style smooth animation
+            modal.style.opacity = '0';
+            
+            requestAnimationFrame(() => {
+                modal.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                modal.style.opacity = '1';
+            });
+        }
+    }
+
+    closeArticleModal() {
+        const modal = document.getElementById('articleModal');
+        const iframe = document.getElementById('articleIframe');
+        
+        if (modal) {
+            modal.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+            modal.style.opacity = '0';
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                if (iframe) iframe.src = '';
+                this.currentArticle = null;
+            }, 200);
+        }
+    }
+
+    // Initialize Chat Widget (keeping the same as before but with better error handling)
     initializeChatWidget() {
         // Create iOS-style floating chat widget
         const chatWidget = document.createElement('div');
@@ -164,7 +493,7 @@ class TienPhongNewsPortal {
             </div>
         `;
 
-        // Add CSS for iOS-style chat widget
+        // Add the same CSS as before
         const chatCSS = document.createElement('style');
         chatCSS.textContent = `
             .ios-chat-widget {
@@ -544,7 +873,7 @@ class TienPhongNewsPortal {
         const sendBtn = document.getElementById('sendBtn');
         const chatInput = document.getElementById('chatInput');
 
-        // Summary button with fast response
+        // Summary button with enhanced error handling
         if (summaryBtn) {
             summaryBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -555,11 +884,11 @@ class TienPhongNewsPortal {
                     return;
                 }
                 
-                await this.handleSummaryRequest();
+                await this.handleSummaryRequestWithRetry();
             });
         }
 
-        // Debate button with original characters
+        // Debate button with enhanced error handling
         if (debateBtn) {
             debateBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -570,29 +899,29 @@ class TienPhongNewsPortal {
                     return;
                 }
                 
-                await this.handleDebateRequest();
+                await this.handleDebateRequestWithRetry();
             });
         }
 
-        // Send button with fast processing
+        // Send button with enhanced error handling
         if (sendBtn) {
             sendBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const message = chatInput.value.trim();
                 if (message && !this.aiRequestInProgress) {
-                    await this.sendChatMessage(message);
+                    await this.sendChatMessageWithRetry(message);
                 }
             });
         }
 
-        // Chat input with auto-resize
+        // Chat input with auto-resize and enter key
         if (chatInput) {
             chatInput.addEventListener('keydown', async (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     const message = e.target.value.trim();
                     if (message && !this.aiRequestInProgress) {
-                        await this.sendChatMessage(message);
+                        await this.sendChatMessageWithRetry(message);
                     }
                 }
             });
@@ -602,6 +931,60 @@ class TienPhongNewsPortal {
                 chatInput.style.height = 'auto';
                 chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
             });
+        }
+    }
+
+    async handleSummaryRequestWithRetry(retryCount = 0) {
+        try {
+            await this.handleSummaryRequest();
+        } catch (error) {
+            console.error(`❌ Summary request error (attempt ${retryCount + 1}):`, error);
+            
+            if (retryCount < 2) { // Max 2 retries for AI requests
+                this.showToast(`Lỗi AI. Thử lại lần ${retryCount + 2}...`, 'info');
+                setTimeout(() => {
+                    this.handleSummaryRequestWithRetry(retryCount + 1);
+                }, 1000);
+            } else {
+                this.addChatMessage('❌ Không thể kết nối với AI. Vui lòng thử lại sau.', 'ai');
+                this.showToast('AI hiện không khả dụng', 'error');
+            }
+        }
+    }
+
+    async handleDebateRequestWithRetry(retryCount = 0) {
+        try {
+            await this.handleDebateRequest();
+        } catch (error) {
+            console.error(`❌ Debate request error (attempt ${retryCount + 1}):`, error);
+            
+            if (retryCount < 2) {
+                this.showToast(`Lỗi AI. Thử lại lần ${retryCount + 2}...`, 'info');
+                setTimeout(() => {
+                    this.handleDebateRequestWithRetry(retryCount + 1);
+                }, 1000);
+            } else {
+                this.addChatMessage('❌ Không thể kết nối với AI. Vui lòng thử lại sau.', 'ai');
+                this.showToast('AI hiện không khả dụng', 'error');
+            }
+        }
+    }
+
+    async sendChatMessageWithRetry(message, retryCount = 0) {
+        try {
+            await this.sendChatMessage(message);
+        } catch (error) {
+            console.error(`❌ Chat message error (attempt ${retryCount + 1}):`, error);
+            
+            if (retryCount < 2) {
+                this.showToast(`Lỗi gửi tin nhắn. Thử lại lần ${retryCount + 2}...`, 'info');
+                setTimeout(() => {
+                    this.sendChatMessageWithRetry(message, retryCount + 1);
+                }, 1000);
+            } else {
+                this.addChatMessage('❌ Không thể gửi tin nhắn đến AI. Vui lòng thử lại sau.', 'ai');
+                this.showToast('AI hiện không khả dụng', 'error');
+            }
         }
     }
 
@@ -618,6 +1001,9 @@ class TienPhongNewsPortal {
             this.addChatMessage('📋 Đang tóm tắt bài báo...', 'user');
             this.showTypingIndicator();
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for AI
+
             const response = await fetch('/api/ai/ask', {
                 method: 'POST',
                 headers: {
@@ -625,9 +1011,11 @@ class TienPhongNewsPortal {
                 },
                 body: JSON.stringify({ 
                     question: '' // Empty for auto-summary
-                })
+                }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
             this.hideTypingIndicator();
 
             if (!response.ok) {
@@ -644,10 +1032,13 @@ class TienPhongNewsPortal {
             this.showToast('✅ Tóm tắt hoàn thành', 'success');
 
         } catch (error) {
-            console.error('❌ Summary error:', error);
             this.hideTypingIndicator();
-            this.addChatMessage(`❌ Lỗi tóm tắt: ${error.message}`, 'ai');
-            this.showToast('Lỗi khi tóm tắt bài báo', 'error');
+            
+            if (error.name === 'AbortError') {
+                throw new Error('AI phản hồi chậm, vui lòng thử lại');
+            } else {
+                throw error;
+            }
         } finally {
             this.aiRequestInProgress = false;
         }
@@ -666,6 +1057,9 @@ class TienPhongNewsPortal {
             this.addChatMessage('🎭 Đang tổ chức cuộc bàn luận với 6 nhân vật...', 'user');
             this.showTypingIndicator();
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout for debate
+
             const response = await fetch('/api/ai/debate', {
                 method: 'POST',
                 headers: {
@@ -673,9 +1067,11 @@ class TienPhongNewsPortal {
                 },
                 body: JSON.stringify({ 
                     topic: '' // Empty for auto-debate about current article
-                })
+                }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
             this.hideTypingIndicator();
 
             if (!response.ok) {
@@ -693,10 +1089,13 @@ class TienPhongNewsPortal {
             this.showToast('✅ Cuộc bàn luận hoàn thành', 'success');
 
         } catch (error) {
-            console.error('❌ Debate error:', error);
             this.hideTypingIndicator();
-            this.addChatMessage(`❌ Lỗi bàn luận: ${error.message}`, 'ai');
-            this.showToast('Lỗi khi tổ chức bàn luận', 'error');
+            
+            if (error.name === 'AbortError') {
+                throw new Error('AI phản hồi chậm, vui lòng thử lại');
+            } else {
+                throw error;
+            }
         } finally {
             this.aiRequestInProgress = false;
         }
@@ -732,7 +1131,7 @@ class TienPhongNewsPortal {
                         // Add character message with staggered delay for iOS effect
                         setTimeout(() => {
                             this.addCharacterMessage(character, characterMessage);
-                        }, index * 800); // Reduced delay for faster display
+                        }, index * 600); // Reduced delay for faster display
                         
                         // Remove processed text
                         currentText = currentText.replace(match[0], '');
@@ -839,10 +1238,13 @@ class TienPhongNewsPortal {
             chatInput.style.height = 'auto';
         }
 
-        // Send to AI with fast processing
+        // Send to AI with enhanced error handling
         try {
             this.aiRequestInProgress = true;
             this.showTypingIndicator();
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
             const response = await fetch('/api/ai/ask', {
                 method: 'POST',
@@ -851,9 +1253,11 @@ class TienPhongNewsPortal {
                 },
                 body: JSON.stringify({ 
                     question: message
-                })
+                }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
             this.hideTypingIndicator();
 
             if (!response.ok) {
@@ -869,9 +1273,13 @@ class TienPhongNewsPortal {
             this.addFormattedAIMessage(data.response);
 
         } catch (error) {
-            console.error('❌ Chat error:', error);
             this.hideTypingIndicator();
-            this.addChatMessage(`❌ Lỗi: ${error.message}`, 'ai');
+            
+            if (error.name === 'AbortError') {
+                throw new Error('AI phản hồi chậm, vui lòng thử lại');
+            } else {
+                throw error;
+            }
         } finally {
             this.aiRequestInProgress = false;
         }
@@ -1023,219 +1431,6 @@ class TienPhongNewsPortal {
         }
     }
 
-    async switchCategory(category) {
-        if (this.isLoading || category === this.currentCategory) return;
-
-        // Update active states with fast transitions
-        document.querySelectorAll('.nav-item, .sidebar-link').forEach(link => {
-            link.classList.remove('active');
-            link.style.transition = 'all 0.15s ease';
-        });
-        
-        const activeElements = document.querySelectorAll(
-            `[data-category="${category}"]`
-        );
-        activeElements.forEach(el => {
-            el.classList.add('active');
-            el.style.transition = 'all 0.15s ease';
-        });
-
-        this.currentCategory = category;
-        await this.loadNews(category, 1);
-    }
-
-    async loadNews(category, page) {
-        if (this.isLoading) return;
-
-        this.isLoading = true;
-        this.currentPage = page;
-
-        // Check cache first
-        const cacheKey = `${category}-${page}`;
-        if (this.cache.has(cacheKey)) {
-            const cachedData = this.cache.get(cacheKey);
-            if (Date.now() - cachedData.timestamp < 3 * 60 * 1000) { // 3 minutes
-                this.renderNews(cachedData.news);
-                this.updatePagination(cachedData.page, cachedData.total_pages);
-                this.isLoading = false;
-                return;
-            }
-        }
-
-        this.showLoading();
-
-        try {
-            const response = await fetch(`/api/news/${category}?page=${page}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            // Cache the result
-            this.cache.set(cacheKey, {
-                ...data,
-                timestamp: Date.now()
-            });
-            
-            // Limit cache size
-            if (this.cache.size > this.maxCacheSize) {
-                const firstKey = this.cache.keys().next().value;
-                this.cache.delete(firstKey);
-            }
-            
-            this.renderNews(data.news);
-            this.updatePagination(data.page, data.total_pages);
-            this.showToast(`✅ Đã tải ${data.news.length} tin tức`, 'success');
-
-        } catch (error) {
-            console.error('❌ News loading error:', error);
-            this.showToast('Lỗi khi tải tin tức: ' + error.message, 'error');
-            this.renderError();
-        } finally {
-            this.hideLoading();
-            this.isLoading = false;
-        }
-    }
-
-    renderNews(newsItems) {
-        const newsGrid = document.getElementById('newsGrid');
-        if (!newsGrid) return;
-
-        newsGrid.innerHTML = '';
-
-        if (newsItems.length === 0) {
-            newsGrid.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
-                    📰 Không có tin tức nào được tìm thấy
-                </div>
-            `;
-            return;
-        }
-
-        newsItems.forEach((news, index) => {
-            const newsCard = this.createNewsCard(news, index);
-            newsGrid.appendChild(newsCard);
-            
-            // Fast staggered animation
-            requestAnimationFrame(() => {
-                newsCard.style.opacity = '0';
-                newsCard.style.transform = 'translateY(10px)';
-                
-                setTimeout(() => {
-                    newsCard.style.transition = 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
-                    newsCard.style.opacity = '1';
-                    newsCard.style.transform = 'translateY(0)';
-                }, index * 50); // Faster stagger
-            });
-        });
-    }
-
-    createNewsCard(news, index) {
-        const card = document.createElement('div');
-        card.className = 'news-card';
-        card.dataset.articleId = news.id;
-        card.dataset.articleLink = news.link;
-        
-        card.innerHTML = `
-            <div class="news-card-header">
-                <span class="news-source">${this.escapeHtml(news.source)}</span>
-                <span class="news-time">${this.escapeHtml(news.published)}</span>
-            </div>
-            <div class="news-card-body">
-                <h3 class="news-title">${this.escapeHtml(news.title)}</h3>
-                <p class="news-description">${this.escapeHtml(news.description)}</p>
-            </div>
-        `;
-
-        // Event listeners with fast transitions
-        card.addEventListener('click', () => this.showArticleDetail(news));
-
-        // iOS-style hover effects for desktop
-        if (window.matchMedia('(hover: hover)').matches) {
-            card.addEventListener('mouseenter', () => {
-                card.style.transition = 'all 0.15s ease';
-                card.style.transform = 'translateY(-4px)';
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transition = 'all 0.15s ease';
-                card.style.transform = 'translateY(0)';
-            });
-        }
-
-        return card;
-    }
-
-    async showArticleDetail(news) {
-        try {
-            this.showToast('📰 Đang tải chi tiết bài viết...', 'info');
-
-            // Set current article for AI context
-            this.currentArticle = news;
-
-            // Update article modal content
-            const titleEl = document.getElementById('articleTitle');
-            const sourceEl = document.getElementById('articleSource');
-            const timeEl = document.getElementById('articleTime');
-            const linkEl = document.getElementById('articleLink');
-            const iframe = document.getElementById('articleIframe');
-
-            if (titleEl) titleEl.textContent = news.title;
-            if (sourceEl) sourceEl.textContent = news.source;
-            if (timeEl) timeEl.textContent = news.published;
-            if (linkEl) linkEl.href = news.link;
-            
-            // IFRAME MODE: Load original webpage
-            if (iframe) {
-                iframe.src = news.link;
-            }
-
-            // Show article modal with iOS animation
-            this.showArticleModal();
-
-            // Show chat widget with context
-            this.showChatWithContext();
-
-        } catch (error) {
-            console.error('❌ Article loading error:', error);
-            this.showToast('Lỗi khi tải bài viết: ' + error.message, 'error');
-        }
-    }
-
-    showArticleModal() {
-        const modal = document.getElementById('articleModal');
-        
-        if (modal) {
-            modal.style.display = 'block';
-            
-            // iOS-style smooth animation
-            modal.style.opacity = '0';
-            
-            requestAnimationFrame(() => {
-                modal.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-                modal.style.opacity = '1';
-            });
-        }
-    }
-
-    closeArticleModal() {
-        const modal = document.getElementById('articleModal');
-        const iframe = document.getElementById('articleIframe');
-        
-        if (modal) {
-            modal.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-            modal.style.opacity = '0';
-            
-            setTimeout(() => {
-                modal.style.display = 'none';
-                if (iframe) iframe.src = '';
-                this.currentArticle = null;
-            }, 200);
-        }
-    }
-
     showChatWithContext() {
         const chatWidget = document.querySelector('.ios-chat-widget');
         const chatBubbleSubtitle = document.querySelector('.chat-subtitle');
@@ -1301,24 +1496,6 @@ class TienPhongNewsPortal {
         if (newsGrid) newsGrid.style.display = 'grid';
     }
 
-    renderError() {
-        const newsGrid = document.getElementById('newsGrid');
-        if (!newsGrid) return;
-
-        newsGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center; gap: 1rem;">
-                <div style="font-size: 3rem;">❌</div>
-                <h3 style="color: #dc2626; margin: 0; font-size: 1.5rem;">Lỗi khi tải tin tức</h3>
-                <p style="color: #666; margin: 0;">Vui lòng thử lại sau</p>
-                <button onclick="portal.loadNews(portal.currentCategory, portal.currentPage)" 
-                        style="padding: 0.75rem 1.5rem; background: #1a1a1a; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;">
-                    🔄 Thử lại
-                </button>
-            </div>
-        `;
-        newsGrid.style.display = 'grid';
-    }
-
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
@@ -1330,14 +1507,14 @@ class TienPhongNewsPortal {
                     this.closeArticleModal();
                     break;
                 case 'ArrowLeft':
-                    if (this.currentPage > 1) {
-                        this.loadNews(this.currentCategory, this.currentPage - 1);
+                    if (this.currentPage > 1 && !this.isLoading) {
+                        this.loadNewsWithRetry(this.currentCategory, this.currentPage - 1);
                     }
                     break;
                 case 'ArrowRight':
                     const totalPages = parseInt(document.getElementById('totalPages')?.textContent || '1');
-                    if (this.currentPage < totalPages) {
-                        this.loadNews(this.currentCategory, this.currentPage + 1);
+                    if (this.currentPage < totalPages && !this.isLoading) {
+                        this.loadNewsWithRetry(this.currentCategory, this.currentPage + 1);
                     }
                     break;
             }
@@ -1347,10 +1524,12 @@ class TienPhongNewsPortal {
     setupErrorHandling() {
         window.addEventListener('error', (e) => {
             console.error('🚨 Global error:', e.error);
+            this.showToast('Đã xảy ra lỗi không mong muốn', 'error');
         });
 
         window.addEventListener('unhandledrejection', (e) => {
             console.error('🚨 Promise rejection:', e.reason);
+            this.showToast('Lỗi xử lý bất đồng bộ', 'error');
         });
     }
 
@@ -1389,6 +1568,7 @@ class TienPhongNewsPortal {
             transform: translateX(100%);
             opacity: 0;
             transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            word-wrap: break-word;
         `;
 
         // Type-specific styling
@@ -1408,7 +1588,8 @@ class TienPhongNewsPortal {
             toast.style.transform = 'translateX(0)';
         });
 
-        // Hide after 3 seconds
+        // Hide after duration based on message length
+        const duration = Math.min(Math.max(message.length * 50, 2000), 6000); // 2-6 seconds
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(100%)';
@@ -1417,7 +1598,7 @@ class TienPhongNewsPortal {
                     toast.parentNode.removeChild(toast);
                 }
             }, 150);
-        }, 3000);
+        }, duration);
     }
 
     escapeHtml(text) {
@@ -1440,6 +1621,7 @@ class TienPhongNewsPortal {
             currentCategory: this.currentCategory,
             currentPage: this.currentPage,
             aiRequestInProgress: this.aiRequestInProgress,
+            retryCount: this.retryCount,
             loadTime: performance.now()
         };
     }
@@ -1449,15 +1631,16 @@ class TienPhongNewsPortal {
 let portal;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, initializing Enhanced Tiền Phong News Portal...');
+    console.log('🚀 DOM loaded, initializing Enhanced Tiền Phong News Portal (SYNC VERSION)...');
     
     try {
         portal = new TienPhongNewsPortal();
         
-        console.log('✅ Enhanced Tiền Phong News Portal initialized successfully!');
+        console.log('✅ Enhanced Tiền Phong News Portal (SYNC VERSION) initialized successfully!');
         console.log('🎨 Theme: Traditional Newspaper + iOS Glassmorphism Effects');
         console.log('📱 Original AI Characters: GS Đại học, Nhà kinh tế học, Nhân viên công sở, Người nghèo, Đại gia, Shark');
-        console.log('⚡ Fast transitions: 0.15s - 0.25s');
+        console.log('⚡ Enhanced error handling with auto-retry');
+        console.log('🔄 SYNC backend support with timeout protection');
         
         // Performance report after 5 seconds
         setTimeout(() => {
@@ -1467,22 +1650,33 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
         console.error('❌ Failed to initialize Enhanced Portal:', error);
         
-        // Show error message
+        // Show error message with retry option
         document.body.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
-                <h1 style="color: #dc2626; margin-bottom: 1rem;">Lỗi khởi tạo Enhanced Portal</h1>
-                <p style="color: #666; margin-bottom: 2rem;">${error.message}</p>
-                <button onclick="location.reload()" 
-                        style="padding: 1rem 2rem; background: #1a1a1a; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem;">
-                    🔄 Tải lại trang
-                </button>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+                    <h1 style="margin-bottom: 1rem;">Lỗi khởi tạo Enhanced Portal</h1>
+                    <p style="margin-bottom: 2rem; opacity: 0.9; line-height: 1.5;">${error.message}</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="location.reload()" 
+                                style="padding: 1rem 2rem; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem; transition: all 0.15s ease; backdrop-filter: blur(10px);">
+                            🔄 Tải lại trang
+                        </button>
+                        <button onclick="setTimeout(() => location.reload(), 3000)" 
+                                style="padding: 1rem 2rem; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem; transition: all 0.15s ease; backdrop-filter: blur(10px);">
+                            ⏰ Tự động tải lại (3s)
+                        </button>
+                    </div>
+                    <small style="margin-top: 1rem; display: block; opacity: 0.7;">
+                        Nếu vấn đề vẫn tiếp tục, vui lòng kiểm tra kết nối internet
+                    </small>
+                </div>
             </div>
         `;
     }
 });
 
-// Global error handling
+// Global error handling with better UX
 window.addEventListener('error', (e) => {
     console.error('🚨 Global Enhanced Portal error:', e.error);
 });
