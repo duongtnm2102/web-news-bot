@@ -78,7 +78,6 @@ class TerminalEffectsManager {
 
     initializeEffects() {
         this.createScanline();
-        this.setupGlitchTriggers();
         this.initializeAudioContext();
     }
 
