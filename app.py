@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session
 import feedparser
-import asyncio
 import os
 import re
 from datetime import datetime, timedelta
@@ -10,10 +9,14 @@ import html
 import chardet
 import pytz
 import json
-import aiohttp
+import requests
 import random
 import hashlib
 import uuid
+import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
 
 # Enhanced libraries for better content extraction
 try:
@@ -57,17 +60,19 @@ UTC_TIMEZONE = pytz.UTC
 user_news_cache = {}
 user_last_detail_cache = {}
 global_seen_articles = {}
-MAX_CACHE_ENTRIES = 25
-MAX_GLOBAL_CACHE = 600
-CACHE_EXPIRE_HOURS = 8
+MAX_CACHE_ENTRIES = 15  # Reduced for memory optimization
+MAX_GLOBAL_CACHE = 300  # Reduced significantly
+CACHE_EXPIRE_HOURS = 4  # Reduced cache time
 
 # Enhanced User Agents for better compatibility
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 ]
+
+# Configure logging for better debugging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def get_current_vietnam_datetime():
     """Get current Vietnam date and time"""
@@ -88,51 +93,44 @@ def get_current_datetime_str():
     current_dt = get_current_vietnam_datetime()
     return current_dt.strftime("%H:%M %d/%m/%Y")
 
-print("🚀 Tiền Phong E-con News Backend - Fixed Version:")
+print("🚀 Tiền Phong E-con News Backend - FIXED SYNC VERSION:")
 print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print("=" * 50)
 
-# FIXED RSS FEEDS - MAPPED TO FRONTEND CATEGORIES
+# OPTIMIZED RSS FEEDS - Reduced for better performance
 RSS_FEEDS = {
     # === CAFEF RSS FEEDS (Primary Vietnamese Source) ===
     'cafef': {
         'cafef_stocks': 'https://cafef.vn/thi-truong-chung-khoan.rss',
-        'cafef_realestate': 'https://cafef.vn/bat-dong-san.rss',
         'cafef_business': 'https://cafef.vn/doanh-nghiep.rss',
-        'cafef_finance': 'https://cafef.vn/tai-chinh-ngan-hang.rss',
-        'cafef_macro': 'https://cafef.vn/vi-mo-dau-tu.rss'
+        'cafef_finance': 'https://cafef.vn/tai-chinh-ngan-hang.rss'
     },
     
-    # === INTERNATIONAL RSS FEEDS (Global Financial News) ===
+    # === INTERNATIONAL RSS FEEDS (Limited for performance) ===
     'international': {
         'yahoo_finance': 'https://finance.yahoo.com/news/rssindex',
         'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
-        'cnbc': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
-        'reuters_business': 'https://feeds.reuters.com/reuters/businessNews',
-        'investing_com': 'https://www.investing.com/rss/news.rss',
-        'bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
-        'financial_times': 'https://www.ft.com/rss/home',
-        'wsj_markets': 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml'
+        'cnbc': 'https://www.cnbc.com/id/100003114/device/rss/rss.html'
     }
 }
 
-# FIXED CATEGORY MAPPING - Maps frontend categories to RSS feeds
+# OPTIMIZED CATEGORY MAPPING
 CATEGORY_MAPPING = {
     'all': ['cafef', 'international'],
     'domestic': ['cafef'],
     'international': ['international'],
     'stocks': ['cafef_stocks'],
-    'business': ['cafef_business', 'reuters_business'],
-    'finance': ['cafef_finance', 'bloomberg'],
-    'realestate': ['cafef_realestate'],
-    'crypto': ['investing_com'],
-    'earnings': ['cafef_business', 'cnbc'],
-    'projects': ['cafef_realestate'],
-    'macro': ['cafef_macro'],
+    'business': ['cafef_business'],
+    'finance': ['cafef_finance', 'yahoo_finance'],
+    'realestate': ['cafef_business'],
+    'crypto': ['yahoo_finance'],
+    'earnings': ['cafef_business'],
+    'projects': ['cafef_business'],
+    'macro': ['cafef_finance'],
     'world': ['international'],
     'hot': ['cafef_stocks', 'yahoo_finance'],
-    'tech': ['cnbc', 'investing_com']
+    'tech': ['cnbc']
 }
 
 def convert_utc_to_vietnam_time(utc_time_tuple):
@@ -167,7 +165,7 @@ def clean_expired_cache():
         del global_seen_articles[expired_hash]
     
     if expired_hashes:
-        print(f"🧹 Cleaned {len(expired_hashes)} expired articles from cache")
+        logger.info(f"🧹 Cleaned {len(expired_hashes)} expired articles from cache")
 
 def is_duplicate_article_local(news_item, existing_articles):
     """Check duplicate within current collection"""
@@ -211,35 +209,14 @@ def is_duplicate_article_global(news_item, source_name):
         
         if len(global_seen_articles) > MAX_GLOBAL_CACHE:
             sorted_items = sorted(global_seen_articles.items(), key=lambda x: x[1]['timestamp'])
-            for old_key, _ in sorted_items[:100]:
+            for old_key, _ in sorted_items[:50]:
                 del global_seen_articles[old_key]
         
         return False
         
     except Exception as e:
-        print(f"⚠️ Global duplicate check error: {e}")
+        logger.warning(f"⚠️ Global duplicate check error: {e}")
         return False
-
-# Enhanced HTTP client
-async def fetch_with_aiohttp(url, headers=None, timeout=8):
-    """Enhanced async HTTP fetch"""
-    try:
-        if headers is None:
-            headers = get_enhanced_headers(url)
-        
-        timeout_config = aiohttp.ClientTimeout(total=timeout)
-        
-        async with aiohttp.ClientSession(timeout=timeout_config, headers=headers) as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    content = await response.read()
-                    return content
-                else:
-                    print(f"❌ HTTP {response.status} for {url}")
-                    return None
-    except Exception as e:
-        print(f"❌ Fetch error for {url}: {e}")
-        return None
 
 def get_enhanced_headers(url=None):
     """Enhanced headers for better compatibility"""
@@ -247,14 +224,12 @@ def get_enhanced_headers(url=None):
     
     headers = {
         'User-Agent': user_agent,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'vi-VN,vi;q=0.9,en;q=0.8',
         'Accept-Encoding': 'gzip, deflate',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
-        'DNT': '1',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
+        'DNT': '1'
     }
     
     if url:
@@ -279,25 +254,36 @@ def is_international_source(source_name):
     ]
     return any(source in source_name for source in international_sources)
 
-async def async_sleep_delay():
-    """Async delay to prevent blocking"""
-    delay = random.uniform(0.1, 0.3)  # Reduced delay
-    await asyncio.sleep(delay)
-
-async def process_rss_feed_async(source_name, rss_url, limit_per_source):
-    """Enhanced async RSS feed processing"""
+def fetch_rss_with_requests(rss_url, timeout=10):
+    """Fetch RSS using requests with timeout"""
     try:
-        await async_sleep_delay()
+        headers = get_enhanced_headers(rss_url)
+        response = requests.get(rss_url, headers=headers, timeout=timeout)
         
-        content = await fetch_with_aiohttp(rss_url)
+        if response.status_code == 200:
+            return response.content
+        else:
+            logger.warning(f"❌ HTTP {response.status_code} for {rss_url}")
+            return None
+    except Exception as e:
+        logger.warning(f"❌ Fetch error for {rss_url}: {e}")
+        return None
+
+def process_rss_feed_sync(source_name, rss_url, limit_per_source):
+    """SYNC RSS feed processing - NO MORE ASYNC"""
+    try:
+        logger.info(f"🔄 Processing {source_name}: {rss_url}")
+        
+        # Fetch RSS content with timeout
+        content = fetch_rss_with_requests(rss_url, timeout=8)
         
         if content:
-            feed = await asyncio.to_thread(feedparser.parse, content)
+            feed = feedparser.parse(content)
         else:
-            feed = await asyncio.to_thread(feedparser.parse, rss_url)
+            feed = feedparser.parse(rss_url)
         
         if not feed or not hasattr(feed, 'entries') or len(feed.entries) == 0:
-            print(f"❌ No entries found for {source_name}")
+            logger.warning(f"❌ No entries found for {source_name}")
             return []
         
         news_items = []
@@ -312,9 +298,9 @@ async def process_rss_feed_async(source_name, rss_url, limit_per_source):
                 
                 description = ""
                 if hasattr(entry, 'summary'):
-                    description = entry.summary[:300] + "..." if len(entry.summary) > 300 else entry.summary
+                    description = entry.summary[:250] + "..." if len(entry.summary) > 250 else entry.summary
                 elif hasattr(entry, 'description'):
-                    description = entry.description[:300] + "..." if len(entry.description) > 300 else entry.description
+                    description = entry.description[:250] + "..." if len(entry.description) > 250 else entry.description
                 
                 if hasattr(entry, 'title') and hasattr(entry, 'link'):
                     title = entry.title.strip()
@@ -332,14 +318,14 @@ async def process_rss_feed_async(source_name, rss_url, limit_per_source):
                         news_items.append(news_item)
                 
             except Exception as entry_error:
-                print(f"⚠️ Entry processing error: {entry_error}")
+                logger.warning(f"⚠️ Entry processing error: {entry_error}")
                 continue
         
-        print(f"✅ Processed {len(news_items)} articles from {source_name}")
+        logger.info(f"✅ Processed {len(news_items)} articles from {source_name}")
         return news_items
         
     except Exception as e:
-        print(f"❌ RSS processing error for {source_name}: {e}")
+        logger.error(f"❌ RSS processing error for {source_name}: {e}")
         return []
 
 def is_relevant_news(title, description, source_name):
@@ -372,67 +358,69 @@ def is_relevant_news(title, description, source_name):
     # More relaxed filtering - accept if at least one keyword or if it's business-related
     return keyword_count > 0 or any(word in combined_text for word in ['business', 'company', 'market', 'economic'])
 
-async def process_single_source(source_name, source_url, limit_per_source):
-    """Process a single RSS source asynchronously"""
+def process_single_source_sync(source_name, source_url, limit_per_source):
+    """Process a single RSS source synchronously"""
     try:
-        print(f"🔄 Processing {source_name}: {source_url}")
-        
         if source_url.endswith('.rss') or 'rss' in source_url.lower() or 'feeds.' in source_url:
-            return await process_rss_feed_async(source_name, source_url, limit_per_source)
+            return process_rss_feed_sync(source_name, source_url, limit_per_source)
         else:
-            print(f"⚠️ Unsupported URL format for {source_name}")
+            logger.warning(f"⚠️ Unsupported URL format for {source_name}")
             return []
             
     except Exception as e:
-        print(f"❌ Error processing {source_name}: {e}")
+        logger.error(f"❌ Error processing {source_name}: {e}")
         return []
 
-async def collect_news_enhanced(sources_dict, limit_per_source=12, use_global_dedup=True):
-    """Enhanced news collection with better performance"""
+def collect_news_enhanced_sync(sources_dict, limit_per_source=8, use_global_dedup=True):
+    """SYNC news collection with threading for better performance"""
     all_news = []
     
-    print(f"🔄 Starting enhanced collection from {len(sources_dict)} sources")
-    print(f"🎯 Global deduplication: {use_global_dedup}")
+    logger.info(f"🔄 Starting SYNC collection from {len(sources_dict)} sources")
     
     if use_global_dedup:
         clean_expired_cache()
     
-    # Create tasks for concurrent processing
-    tasks = []
-    for source_name, source_url in sources_dict.items():
-        task = process_single_source(source_name, source_url, limit_per_source)
-        tasks.append(task)
-    
-    # Process all sources concurrently
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    
-    # Collect results with enhanced duplicate detection
-    total_processed = 0
-    local_duplicates = 0
-    global_duplicates = 0
-    
-    for result in results:
-        if isinstance(result, Exception):
-            print(f"❌ Source processing error: {result}")
-        elif result:
-            for news_item in result:
-                total_processed += 1
+    # Use ThreadPoolExecutor for concurrent processing without async
+    with ThreadPoolExecutor(max_workers=3) as executor:  # Limited workers for Render.com
+        # Submit all tasks
+        future_to_source = {
+            executor.submit(process_single_source_sync, source_name, source_url, limit_per_source): source_name
+            for source_name, source_url in sources_dict.items()
+        }
+        
+        # Collect results with timeout
+        total_processed = 0
+        local_duplicates = 0
+        global_duplicates = 0
+        
+        for future in as_completed(future_to_source, timeout=15):  # 15 second timeout
+            source_name = future_to_source[future]
+            try:
+                result = future.result(timeout=5)  # 5 second per source timeout
                 
-                # Local duplicate check
-                if is_duplicate_article_local(news_item, all_news):
-                    local_duplicates += 1
-                    continue
-                
-                # Global duplicate check
-                if use_global_dedup and is_duplicate_article_global(news_item, news_item['source']):
-                    global_duplicates += 1
-                    continue
-                
-                # Add unique article
-                all_news.append(news_item)
+                if result:
+                    for news_item in result:
+                        total_processed += 1
+                        
+                        # Local duplicate check
+                        if is_duplicate_article_local(news_item, all_news):
+                            local_duplicates += 1
+                            continue
+                        
+                        # Global duplicate check
+                        if use_global_dedup and is_duplicate_article_global(news_item, news_item['source']):
+                            global_duplicates += 1
+                            continue
+                        
+                        # Add unique article
+                        all_news.append(news_item)
+                        
+            except Exception as e:
+                logger.error(f"❌ Source {source_name} processing error: {e}")
+                continue
     
     unique_count = len(all_news)
-    print(f"📊 Collection results: {total_processed} processed, {local_duplicates} local dups, {global_duplicates} global dups, {unique_count} unique")
+    logger.info(f"📊 Collection results: {total_processed} processed, {local_duplicates} local dups, {global_duplicates} global dups, {unique_count} unique")
     
     # Sort by publish time (newest first)
     all_news.sort(key=lambda x: x['published'], reverse=True)
@@ -457,7 +445,7 @@ def save_user_news_enhanced(user_id, news_list, command_type, current_page=1):
     
     # Clean up old cache entries
     if len(user_news_cache) > MAX_CACHE_ENTRIES:
-        oldest_users = sorted(user_news_cache.items(), key=lambda x: x[1]['timestamp'])[:10]
+        oldest_users = sorted(user_news_cache.items(), key=lambda x: x[1]['timestamp'])[:5]
         for user_id_to_remove, _ in oldest_users:
             del user_news_cache[user_id_to_remove]
 
@@ -470,15 +458,15 @@ def save_user_last_detail(user_id, news_item):
         'timestamp': get_current_vietnam_datetime()
     }
 
-# FIXED AI Engine with Original Characters
+# SYNC AI Engine - No more async
 class GeminiAIEngine:
     def __init__(self):
         self.available = GEMINI_AVAILABLE and GEMINI_API_KEY
         if self.available:
             genai.configure(api_key=GEMINI_API_KEY)
     
-    async def ask_question(self, question: str, context: str = ""):
-        """Enhanced Gemini AI question answering with proper formatting"""
+    def ask_question(self, question: str, context: str = ""):
+        """SYNC Gemini AI question answering"""
         if not self.available:
             return "⚠️ Gemini AI không khả dụng. Vui lòng kiểm tra cấu hình API."
         
@@ -511,24 +499,14 @@ Hãy thể hiện chuyên môn và kiến thức sâu rộng của Gemini AI:"""
                 max_output_tokens=1200,
             )
             
-            response = await asyncio.wait_for(
-                asyncio.to_thread(
-                    model.generate_content,
-                    prompt,
-                    generation_config=generation_config
-                ),
-                timeout=15
-            )
-            
+            response = model.generate_content(prompt, generation_config=generation_config)
             return response.text.strip()
             
-        except asyncio.TimeoutError:
-            return "⚠️ Gemini AI timeout. Vui lòng thử lại."
         except Exception as e:
             return f"⚠️ Lỗi Gemini AI: {str(e)}"
     
-    async def debate_perspectives(self, topic: str):
-        """FIXED multi-perspective debate system with original characters"""
+    def debate_perspectives(self, topic: str):
+        """SYNC multi-perspective debate system"""
         if not self.available:
             return "⚠️ Gemini AI không khả dụng cho chức năng bàn luận."
         
@@ -573,24 +551,14 @@ QUAN TRỌNG: Mỗi nhân vật phải có phần riêng biệt, bắt đầu v�
                 max_output_tokens=1500,
             )
             
-            response = await asyncio.wait_for(
-                asyncio.to_thread(
-                    model.generate_content,
-                    prompt,
-                    generation_config=generation_config
-                ),
-                timeout=20
-            )
-            
+            response = model.generate_content(prompt, generation_config=generation_config)
             return response.text.strip()
             
-        except asyncio.TimeoutError:
-            return "⚠️ Gemini AI timeout khi tổ chức bàn luận."
         except Exception as e:
             return f"⚠️ Lỗi Gemini AI: {str(e)}"
     
-    async def analyze_article(self, article_content: str, question: str = ""):
-        """Enhanced article analysis with Vietnamese response and proper formatting"""
+    def analyze_article(self, article_content: str, question: str = ""):
+        """SYNC article analysis"""
         if not self.available:
             return "⚠️ Gemini AI không khả dụng cho phân tích bài báo."
         
@@ -631,19 +599,9 @@ QUAN TRỌNG: Mỗi nhân vật phải có phần riêng biệt, bắt đầu v�
                 max_output_tokens=1800,
             )
             
-            response = await asyncio.wait_for(
-                asyncio.to_thread(
-                    model.generate_content,
-                    prompt,
-                    generation_config=generation_config
-                ),
-                timeout=25
-            )
-            
+            response = model.generate_content(prompt, generation_config=generation_config)
             return response.text.strip()
             
-        except asyncio.TimeoutError:
-            return "⚠️ Gemini AI timeout khi phân tích bài báo."
         except Exception as e:
             return f"⚠️ Lỗi Gemini AI: {str(e)}"
 
@@ -675,22 +633,22 @@ emoji_map = {
     'financial_times': '📈', 'wsj_markets': '💹'
 }
 
-# Flask Routes
+# Flask Routes - ALL SYNC NOW
 @app.route('/')
 def index():
     """Main page with traditional newspaper theme"""
     return render_template('index.html')
 
 @app.route('/api/news/<news_type>')
-async def get_news_api(news_type):
-    """FIXED API endpoint for getting news with proper category mapping"""
+def get_news_api(news_type):
+    """SYNC API endpoint for getting news"""
     try:
         page = int(request.args.get('page', 1))
         user_id = get_or_create_user_session()
         
-        print(f"🔍 API request: /api/news/{news_type}?page={page}")
+        logger.info(f"🔍 API request: /api/news/{news_type}?page={page}")
         
-        # FIXED: Map frontend categories to RSS feeds
+        # Map frontend categories to RSS feeds
         if news_type in CATEGORY_MAPPING:
             # Get RSS feed categories for this news type
             feed_categories = CATEGORY_MAPPING[news_type]
@@ -707,11 +665,11 @@ async def get_news_api(news_type):
                 elif category in RSS_FEEDS['international']:
                     all_sources[category] = RSS_FEEDS['international'][category]
             
-            print(f"📡 Collecting from {len(all_sources)} sources for {news_type}")
-            all_news = await collect_news_enhanced(all_sources, 12)
+            logger.info(f"📡 Collecting from {len(all_sources)} sources for {news_type}")
+            all_news = collect_news_enhanced_sync(all_sources, 8)  # Reduced limit
             
         else:
-            print(f"❌ Invalid news type: {news_type}")
+            logger.error(f"❌ Invalid news type: {news_type}")
             return jsonify({'error': f'Invalid news type: {news_type}'}), 400
         
         items_per_page = 12
@@ -740,7 +698,7 @@ async def get_news_api(news_type):
         
         total_pages = (len(all_news) + items_per_page - 1) // items_per_page
         
-        print(f"✅ API success: {len(formatted_news)} articles, page {page}/{total_pages}")
+        logger.info(f"✅ API success: {len(formatted_news)} articles, page {page}/{total_pages}")
         
         return jsonify({
             'news': formatted_news,
@@ -750,12 +708,12 @@ async def get_news_api(news_type):
         })
         
     except Exception as e:
-        print(f"❌ API error: {e}")
+        logger.error(f"❌ API error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/article/<int:article_id>')
-async def get_article_detail(article_id):
-    """IFRAME MODE - Return article details for iframe display"""
+def get_article_detail(article_id):
+    """SYNC article detail endpoint"""
     try:
         user_id = get_or_create_user_session()
         
@@ -792,7 +750,7 @@ async def get_article_detail(article_id):
         })
         
     except Exception as e:
-        print(f"❌ Article detail error: {e}")
+        logger.error(f"❌ Article detail error: {e}")
         return jsonify({
             'error': 'Lỗi hệ thống khi tải bài viết.',
             'error_code': 'SYSTEM_ERROR',
@@ -800,8 +758,8 @@ async def get_article_detail(article_id):
         }), 500
 
 @app.route('/api/ai/ask', methods=['POST'])
-async def ai_ask():
-    """Enhanced AI ask endpoint"""
+def ai_ask():
+    """SYNC AI ask endpoint"""
     try:
         data = request.get_json()
         question = data.get('question', '')
@@ -817,22 +775,22 @@ async def ai_ask():
                 article = last_detail['article']
                 context = f"BÀI BÁO HIỆN TẠI:\nTiêu đề: {article['title']}\nNguồn: {article['source']}\nMô tả: {article['description']}"
         
-        # Get AI response
+        # Get AI response (SYNC)
         if context and not question:
             # Auto-summarize if no question provided
-            response = await gemini_engine.ask_question("Hãy tóm tắt và phân tích bài báo hiện tại", context)
+            response = gemini_engine.ask_question("Hãy tóm tắt và phân tích bài báo hiện tại", context)
         else:
-            response = await gemini_engine.ask_question(question, context)
+            response = gemini_engine.ask_question(question, context)
         
         return jsonify({'response': response})
         
     except Exception as e:
-        print(f"❌ AI ask error: {e}")
+        logger.error(f"❌ AI ask error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/ai/debate', methods=['POST'])
-async def ai_debate():
-    """Enhanced AI debate endpoint with original characters"""
+def ai_debate():
+    """SYNC AI debate endpoint"""
     try:
         data = request.get_json()
         topic = data.get('topic', '')
@@ -852,24 +810,24 @@ async def ai_debate():
             else:
                 return jsonify({'error': 'Cần nhập chủ đề để bàn luận'}), 400
         
-        response = await gemini_engine.debate_perspectives(topic)
+        response = gemini_engine.debate_perspectives(topic)
         
         return jsonify({'response': response})
         
     except Exception as e:
-        print(f"❌ AI debate error: {e}")
+        logger.error(f"❌ AI debate error: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Configure Gemini if available
     if GEMINI_API_KEY and GEMINI_AVAILABLE:
         genai.configure(api_key=GEMINI_API_KEY)
-        print("✅ Gemini AI configured successfully")
+        logger.info("✅ Gemini AI configured successfully")
     
-    print("🚀 Tiền Phong E-con News Backend starting...")
-    print(f"📊 Category mappings: {len(CATEGORY_MAPPING)} categories")
-    print(f"📡 RSS sources: {sum(len(feeds) for feeds in RSS_FEEDS.values())}")
-    print("✅ Fixed API endpoints and iframe support")
-    print("=" * 50)
+    logger.info("🚀 Tiền Phong E-con News Backend starting (FIXED SYNC VERSION)...")
+    logger.info(f"📊 Category mappings: {len(CATEGORY_MAPPING)} categories")
+    logger.info(f"📡 RSS sources: {sum(len(feeds) for feeds in RSS_FEEDS.values())}")
+    logger.info("✅ Fixed SYNC endpoints - NO MORE ASYNC ISSUES!")
+    logger.info("=" * 50)
     
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
