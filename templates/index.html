@@ -31,9 +31,6 @@
     <meta name="apple-mobile-web-app-title" content="E-con News Terminal">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
-    <!-- FIXED: Content Security Policy via meta (fallback) -->
-    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none';">
-    
     <!-- Fonts - Performance Optimized -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,9 +42,6 @@
     
     <!-- FIXED: Stylesheets with proper url_for -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ range(1000, 9999) | random }}">
-    
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="{{ url_for('static', filename='script.js') }}" as="script">
     
     <!-- Performance Hints -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
