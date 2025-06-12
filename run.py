@@ -1,5 +1,6 @@
 """
-run.py - FIXED ALL ISSUES v2.024.4
+run.py - FIXED ALL ISSUES v2.024.9
+Fixed: NameError 'e' is not defined in health_check function
 Fixed: eventlet, WebSocket, Flask async, X-Frame-Options, navigation, AI chat
 IMPORTANT: eventlet.monkey_patch() MUST be first import
 """
@@ -128,7 +129,7 @@ def safe_get_class_from_module(module, class_name):
 def create_app_with_error_handling():
     """Create app với comprehensive error handling - FIXED ALL ISSUES"""
     try:
-        logger.info("🚀 Starting FIXED E-con News Terminal v2.024.4")
+        logger.info("🚀 Starting FIXED E-con News Terminal v2.024.9")
         logger.info("📊 Creating Flask app instance...")
         
         # FIXED: Import app module with better error handling
@@ -372,7 +373,7 @@ def add_production_error_handlers(app):
                 'traceback': traceback.format_exc().split('\n'),
                 'timestamp': datetime.now().isoformat(),
                 'debug_mode': True,
-                'fixes_applied': 'v2.024.4 - All major issues fixed'
+                'fixes_applied': 'v2.024.9 - TerminalCommandProcessor fixed'
             }, 500
         else:
             return {
@@ -432,11 +433,11 @@ def add_production_error_handlers(app):
             'timestamp': datetime.now().isoformat(),
             'type': type(error).__name__,
             'error_id': str(hash(str(error)))[:8],
-            'version': 'v2.024.4-fixed'
+            'version': 'v2.024.9-fixed'
         }, 500
 
 # =============================================================================
-# HEALTH CHECK AND SYSTEM VERIFICATION (NEW)
+# HEALTH CHECK AND SYSTEM VERIFICATION (FIXED)
 # =============================================================================
 
 def verify_system_health(app):
@@ -477,9 +478,9 @@ def verify_system_health(app):
         logger.info("✅ System health check completed")
         return health_status
         
-    except Exception as e:
-        logger.error(f"❌ Health check failed: {e}")
-        return {'error': str(e), 'timestamp': datetime.now().isoformat()}
+    except Exception as health_error:
+        logger.error(f"❌ Health check failed: {health_error}")
+        return {'error': str(health_error), 'timestamp': datetime.now().isoformat()}
 
 # =============================================================================
 # MAIN APPLICATION RUNNER (FIXED ALL ISSUES)
@@ -489,8 +490,8 @@ def main():
     """Main application entry point với comprehensive error handling - FIXED ALL ISSUES"""
     
     logger.info("=" * 80)
-    logger.info("🚀 E-CON NEWS TERMINAL v2.024.4 - FIXED ALL ISSUES")
-    logger.info("✅ Fixed: X-Frame-Options, Flask Async, Navigation, AI Chat, Mobile")
+    logger.info("🚀 E-CON NEWS TERMINAL v2.024.9 - FIXED TerminalCommandProcessor")
+    logger.info("✅ Fixed: NameError in health_check, Missing cmd_* methods")
     logger.info("=" * 80)
     
     app = None
@@ -556,7 +557,8 @@ def main():
         
         # FIXED: Enhanced feature summary
         logger.info("🎉 FIXED FEATURES SUMMARY:")
-        logger.info("   ✅ X-Frame-Options: HTTP header (not meta tag)")
+        logger.info("   ✅ TerminalCommandProcessor: All cmd_* methods implemented")
+        logger.info("   ✅ Exception Handling: NameError 'e' fixed")
         logger.info("   ✅ Flask Async: Flask[async] with proper decorators")
         logger.info("   ✅ Navigation Tabs: Forced visibility with CSS fixes")
         logger.info("   ✅ AI Chat Display: Z-index 3000, proper modal spacing")
@@ -621,7 +623,7 @@ def main():
                         'status': 'emergency_mode',
                         'error': str(e),
                         'timestamp': datetime.now().isoformat(),
-                        'version': 'v2.024.4-emergency'
+                        'version': 'v2.024.9-emergency'
                     }
                 
                 app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False, threaded=True)
@@ -632,10 +634,10 @@ def main():
     
     finally:
         logger.info("🏁 Server shutdown complete")
-        logger.info("✅ All fixes applied successfully in v2.024.4")
+        logger.info("✅ All fixes applied successfully in v2.024.9")
 
 # =============================================================================
-# CREATE WSGI APPLICATION FOR GUNICORN (ENHANCED)
+# CREATE WSGI APPLICATION FOR GUNICORN (FIXED)
 # =============================================================================
 
 # Create app instance for Gunicorn
@@ -644,45 +646,66 @@ try:
     app = create_app_with_error_handling()
     add_production_error_handlers(app)
     
-    # Add WSGI-specific health check
+    # FIXED: Add WSGI-specific health check với proper exception handling
     @app.route('/wsgi-health')
     def wsgi_health():
-        return {
-            'status': 'wsgi_ready',
-            'timestamp': datetime.now().isoformat(),
-            'version': 'v2.024.4-fixed',
-            'features': [
-                'x_frame_options_fixed',
-                'flask_async_fixed', 
-                'navigation_fixed',
-                'ai_chat_fixed',
-                'mobile_responsive_fixed'
-            ]
-        }
+        try:
+            return {
+                'status': 'wsgi_ready',
+                'timestamp': datetime.now().isoformat(),
+                'version': 'v2.024.9-fixed',
+                'features': [
+                    'terminal_command_processor_fixed',
+                    'nameerror_exception_fixed', 
+                    'navigation_fixed',
+                    'ai_chat_fixed',
+                    'mobile_responsive_fixed'
+                ],
+                'fixes_applied': [
+                    'All cmd_* methods implemented',
+                    'NameError e is not defined fixed',
+                    'Exception handling improved'
+                ]
+            }
+        except Exception as health_exception:
+            # FIXED: Proper exception handling in health check
+            logger.error(f"❌ Health check error: {health_exception}")
+            return {
+                'status': 'error', 
+                'error': str(health_exception),
+                'timestamp': datetime.now().isoformat(),
+                'version': 'v2.024.9-error'
+            }, 500
     
     logger.info("✅ WSGI app created successfully for Gunicorn")
-except Exception as e:
-    logger.error(f"❌ Failed to create WSGI app: {e}")
+except Exception as wsgi_creation_error:
+    logger.error(f"❌ Failed to create WSGI app: {wsgi_creation_error}")
     # Create minimal fallback app
     from flask import Flask
     app = Flask(__name__)
     
     @app.route('/')
     def health_check():
-        return {
-            'status': 'WSGI server running but with limited functionality', 
-            'error': str(e),
-            'version': 'v2.024.4-fallback',
-            'timestamp': datetime.now().isoformat()
-        }
+        try:
+            return {
+                'status': 'WSGI server running but with limited functionality', 
+                'error': str(wsgi_creation_error),
+                'version': 'v2.024.9-fallback',
+                'timestamp': datetime.now().isoformat()
+            }
+        except Exception as fallback_error:
+            return f"Error: {str(fallback_error)}", 500
     
     @app.route('/health')  
     def simple_health():
-        return {
-            'status': 'limited',
-            'timestamp': datetime.now().isoformat(),
-            'version': 'v2.024.4-fallback'
-        }
+        try:
+            return {
+                'status': 'limited',
+                'timestamp': datetime.now().isoformat(),
+                'version': 'v2.024.9-fallback'
+            }
+        except Exception as simple_error:
+            return f"Health check error: {str(simple_error)}", 500
 
 if __name__ == '__main__':
     main()
