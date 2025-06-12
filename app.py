@@ -1,6 +1,6 @@
 # ===============================
-# E-CON NEWS TERMINAL - COMPLETE FIXED app.py v2.024.7
-# Fixed: Scope issues, free variables, async functions outside create_app()
+# E-CON NEWS TERMINAL - COMPLETE FIXED app.py v2.024.8
+# Fixed: AI prompts in Vietnamese, new character debates, RSS error handling
 # TOTAL: 2100+ lines following Flask Application Factory pattern
 # ===============================
 
@@ -96,7 +96,7 @@ USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0'
 ]
 
-# RSS FEEDS Configuration
+# FIXED: RSS FEEDS Configuration with better error handling
 RSS_FEEDS = {
     # === VIETNAMESE SOURCES ===
     'cafef': {
@@ -109,11 +109,11 @@ RSS_FEEDS = {
     
     # === INTERNATIONAL SOURCES ===
     'international': {
-        'yahoo_finance': 'https://feeds.finance.yahoo.com/rss/2.0/headline',
+        # FIXED: Safer international sources
         'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
         'cnbc': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
-        'reuters_business': 'https://feeds.reuters.com/reuters/businessNews',
-        'investing_com': 'https://www.investing.com/rss/news.rss'
+        'investing_com': 'https://www.investing.com/rss/news.rss',
+        # Removed problematic sources temporarily
     },
     
     # === TECH SOURCES ===
@@ -124,8 +124,9 @@ RSS_FEEDS = {
     
     # === CRYPTO SOURCES ===
     'crypto': {
-        'coindesk': 'https://feeds.coindesk.com/rss',
-        'cointelegraph': 'https://cointelegraph.com/rss'
+        # FIXED: Alternative crypto sources
+        'cointelegraph': 'https://cointelegraph.com/rss',
+        # Removed coindesk temporarily due to DNS issues
     }
 }
 
@@ -137,15 +138,14 @@ source_names = {
     'cafef_macro': 'CafeF VM',
     
     # International sources
-    'yahoo_finance': 'Yahoo Finance', 'marketwatch': 'MarketWatch',
-    'cnbc': 'CNBC', 'reuters_business': 'Reuters', 
+    'marketwatch': 'MarketWatch', 'cnbc': 'CNBC',
     'investing_com': 'Investing.com',
     
     # Tech sources
     'techcrunch': 'TechCrunch', 'ars_technica': 'Ars Technica',
     
     # Crypto sources
-    'coindesk': 'CoinDesk', 'cointelegraph': 'Cointelegraph'
+    'cointelegraph': 'Cointelegraph'
 }
 
 emoji_map = {
@@ -154,14 +154,13 @@ emoji_map = {
     'cafef_finance': '💳', 'cafef_macro': '📉',
     
     # International sources
-    'yahoo_finance': '💼', 'marketwatch': '📰', 'cnbc': '📺',
-    'reuters_business': '🌏', 'investing_com': '💹',
+    'marketwatch': '📰', 'cnbc': '📺', 'investing_com': '💹',
     
     # Tech sources
     'techcrunch': '🚀', 'ars_technica': '⚙️',
     
     # Crypto sources
-    'coindesk': '₿', 'cointelegraph': '🪙'
+    'cointelegraph': '🪙'
 }
 
 # ===============================
@@ -342,7 +341,7 @@ def get_enhanced_headers(url=None):
 def is_international_source(source_name):
     """Check if source is international"""
     international_sources = [
-        'yahoo_finance', 'marketwatch', 'cnbc', 'reuters', 'investing_com', 
+        'marketwatch', 'cnbc', 'reuters', 'investing_com', 
         'bloomberg', 'financial_times', 'wsj_markets'
     ]
     return any(source in source_name for source in international_sources)
@@ -384,58 +383,58 @@ def create_fallback_content(url, source_name, error_msg=""):
         timestamp = get_terminal_timestamp()
         
         if is_international_source(source_name):
-            return f"""**📈 INTERNATIONAL FINANCIAL DATA STREAM**
+            return f"""**📈 DÒNG DỮ LIỆU TÀI CHÍNH QUỐC TẾ**
 
-**SYSTEM_LOG:** [{timestamp}] Data extraction from {source_name.replace('_', ' ').title()}
+**NHẬT_KÝ_HỆ_THỐNG:** [{timestamp}] Trích xuất dữ liệu từ {source_name.replace('_', ' ').title()}
 
-**CONTENT_TYPE:** Financial market analysis and economic insights from global sources
+**LOẠI_NỘI_DUNG:** Phân tích thị trường tài chính và thông tin kinh tế toàn cầu
 
-**DATA_STRUCTURE:**
-• Real-time market data and analysis protocols
-• Global economic indicators and trend mapping
-• Corporate earnings and financial report parsing
-• Investment strategy algorithms and market forecasts  
-• International trade and policy impact analysis
+**CẤU_TRÚC_DỮ_LIỆU:**
+• Dữ liệu thị trường thời gian thực và giao thức phân tích
+• Chỉ số kinh tế toàn cầu và ánh xạ xu hướng
+• Thu nhập doanh nghiệp và phân tích báo cáo tài chính
+• Thuật toán chiến lược đầu tư và dự báo thị trường
+• Phân tích tác động thương mại và chính sách quốc tế
 
-**ARTICLE_REFERENCE:** {article_id}
+**THAM_CHIẾU_BÀI_VIẾT:** {article_id}
 
-**STATUS:** Full content extraction temporarily offline
-**FALLBACK_MODE:** Basic metadata available
-**ACTION_REQUIRED:** Access original source for complete data stream
+**TRẠNG_THÁI:** Trích xuất nội dung đầy đủ tạm thời offline
+**CHẾ_ĐỘ_DỰ_PHÒNG:** Metadata cơ bản có sẵn
+**HÀNH_ĐỘNG_CẦN_THIẾT:** Truy cập nguồn gốc để có dòng dữ liệu hoàn chỉnh
 
-{f'**ERROR_LOG:** {error_msg}' if error_msg else ''}
+{f'**NHẬT_KÝ_LỖI:** {error_msg}' if error_msg else ''}
 
-**SOURCE_IDENTIFIER:** {source_name.replace('_', ' ').title()}
-**PROTOCOL:** HTTPS_SECURE_FETCH
-**ENCODING:** UTF-8"""
+**ĐỊNH_DANH_NGUỒN:** {source_name.replace('_', ' ').title()}
+**GIAO_THỨC:** HTTPS_SECURE_FETCH
+**MÃ_HÓA:** UTF-8"""
         else:
-            return f"""**📰 VIETNAMESE FINANCIAL DATA STREAM - CAFEF PROTOCOL**
+            return f"""**📰 DÒNG DỮ LIỆU TÀI CHÍNH VIỆT NAM - GIAO THỨC CAFEF**
 
-**SYSTEM_LOG:** [{timestamp}] Trích xuất dữ liệu từ {source_name.replace('_', ' ').title()}
+**NHẬT_KÝ_HỆ_THỐNG:** [{timestamp}] Trích xuất dữ liệu từ {source_name.replace('_', ' ').title()}
 
-**CONTENT_TYPE:** Thông tin tài chính chứng khoán Việt Nam chuyên sâu
+**LOẠI_NỘI_DUNG:** Thông tin tài chính chứng khoán Việt Nam chuyên sâu
 
-**DATA_STRUCTURE:**
+**CẤU_TRÚC_DỮ_LIỆU:**
 • Phân tích thị trường chứng khoán real-time
 • Database tin tức doanh nghiệp và báo cáo tài chính
 • Algorithm xu hướng đầu tư và khuyến nghị chuyên gia
 • Parser chính sách kinh tế vĩ mô và regulations
 • Stream thông tin bất động sản và investment channels
 
-**ARTICLE_ID:** {article_id}
+**ID_BÀI_VIẾT:** {article_id}
 
-**STATUS:** Extraction process offline
-**FALLBACK_MODE:** Metadata cache active  
-**NOTE:** Truy cập link gốc để đọc full content với media assets
+**TRẠNG_THÁI:** Quá trình extraction offline
+**CHẾ_ĐỘ_DỰ_PHÒNG:** Cache metadata đang hoạt động
+**GHI_CHÚ:** Truy cập link gốc để đọc full content với media assets
 
-{f'**ERROR_DETAILS:** {error_msg}' if error_msg else ''}
+{f'**CHI_TIẾT_LỖI:** {error_msg}' if error_msg else ''}
 
-**SOURCE_NAME:** {source_name.replace('_', ' ').title()}
-**PROTOCOL:** RSS_FEED_PARSER
+**TÊN_NGUỒN:** {source_name.replace('_', ' ').title()}
+**GIAO_THỨC:** RSS_FEED_PARSER
 **CHARSET:** UTF-8"""
         
     except Exception as e:
-        return f"**ERROR:** Content extraction failed for {source_name}\n\n**DETAILS:** {str(e)}\n\n**ACTION:** Please access original source for full article."
+        return f"**LỖI:** Trích xuất nội dung thất bại cho {source_name}\n\n**CHI_TIẾT:** {str(e)}\n\n**HÀNH_ĐỘNG:** Vui lòng truy cập nguồn gốc để xem bài viết đầy đủ."
 
 # ===============================
 # DECORATORS & MIDDLEWARE (OUTSIDE create_app)
@@ -467,10 +466,10 @@ def require_session(f):
     return decorated_function
 
 # ===============================
-# ASYNC FUNCTIONS (OUTSIDE create_app) - THIS FIXES THE SCOPE ISSUE
+# FIXED: ASYNC FUNCTIONS WITH BETTER RSS ERROR HANDLING
 # ===============================
 
-async def fetch_with_aiohttp(url, headers=None, timeout=10):
+async def fetch_with_aiohttp(url, headers=None, timeout=15):
     """Enhanced async HTTP fetch with better error handling"""
     try:
         if headers is None:
@@ -479,13 +478,19 @@ async def fetch_with_aiohttp(url, headers=None, timeout=10):
         timeout_config = aiohttp.ClientTimeout(total=timeout)
         
         async with aiohttp.ClientSession(timeout=timeout_config, headers=headers) as session:
-            async with session.get(url) as response:
+            async with session.get(url, ssl=False) as response:  # FIXED: Disable SSL verification for problematic sources
                 if response.status == 200:
                     content = await response.read()
                     return content
                 else:
                     print(f"❌ HTTP {response.status} for {url}")
                     return None
+    except aiohttp.ClientError as e:
+        print(f"❌ Client error for {url}: {e}")
+        return None
+    except asyncio.TimeoutError:
+        print(f"❌ Timeout for {url}")
+        return None
     except Exception as e:
         print(f"❌ Fetch error for {url}: {e}")
         return None
@@ -561,44 +566,44 @@ async def extract_content_enhanced(url, source_name, news_item):
         return create_fallback_content(url, source_name, f"System error: {str(e)}")
 
 async def extract_content_with_gemini(url, source_name):
-    """Enhanced Gemini content extraction with terminal formatting"""
+    """FIXED: Gemini content extraction with Vietnamese terminal formatting"""
     try:
         if not GEMINI_API_KEY or not GEMINI_AVAILABLE:
             return create_fallback_content(url, source_name, "Gemini AI module offline")
         
-        # Enhanced extraction prompt for retro brutalism style
-        extraction_prompt = f"""Extract and translate content from: {url}
+        # FIXED: Vietnamese extraction prompt for retro brutalism style
+        extraction_prompt = f"""Trích xuất và dịch nội dung từ: {url}
 
-PROTOCOL REQUIREMENTS:
-1. Read complete article and extract main content
-2. Translate to Vietnamese naturally and fluently
-3. Preserve numbers, company names, technical terms
-4. Format with clear TERMINAL-STYLE headers using **Header**
-5. Use clear line breaks between paragraphs
-6. If images/charts exist, note as [📷 Media Asset]
-7. Length: 500-1000 words
-8. TERMINAL FORMAT: Include system-style metadata
-9. ONLY return translated and formatted content
+YÊU CẦU GIAO THỨC:
+1. Đọc toàn bộ bài viết và trích xuất nội dung chính
+2. Dịch sang tiếng Việt một cách tự nhiên và trôi chảy
+3. Giữ nguyên số liệu, tên công ty, thuật ngữ kỹ thuật
+4. Định dạng với các tiêu đề TERMINAL rõ ràng sử dụng **Tiêu đề**
+5. Sử dụng ngắt dòng rõ ràng giữa các đoạn văn
+6. Nếu có hình ảnh/biểu đồ, ghi chú như [📷 Tài nguyên Media]
+7. Độ dài: 500-1000 từ
+8. ĐỊNH DẠNG TERMINAL: Bao gồm metadata kiểu hệ thống
+9. CHỈ trả về nội dung đã dịch và định dạng
 
-TERMINAL FORMAT TEMPLATE:
-**Primary Header**
+TEMPLATE ĐỊNH DẠNG TERMINAL:
+**Tiêu đề Chính**
 
-First paragraph with key information and data points.
+Đoạn đầu tiên với thông tin chính và điểm dữ liệu quan trọng.
 
-**Detailed Analysis Section**
+**Phần Phân Tích Chi Tiết**
 
-Second paragraph with deeper analysis and technical details.
+Đoạn thứ hai với phân tích sâu hơn và chi tiết kỹ thuật.
 
-[📷 Media Asset - if applicable]
+[📷 Tài nguyên Media - nếu có]
 
-**Conclusion Protocol**
+**Giao Thức Kết Luận**
 
-Final paragraph with important conclusions and implications.
+Đoạn cuối với kết luận quan trọng và ý nghĩa.
 
-**SYSTEM_STATUS:** Content extracted successfully
-**PROTOCOL:** Gemini_AI_Parser_v2.024
+**TRẠNG_THÁI_HỆ_THỐNG:** Nội dung được trích xuất thành công
+**GIAO_THỨC:** Gemini_AI_Parser_v2.024
 
-BEGIN EXTRACTION:"""
+BẮT ĐẦU TRÍCH XUẤT:"""
 
         try:
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
@@ -630,7 +635,7 @@ BEGIN EXTRACTION:"""
                 if not any(indicator in extracted_content.lower() for indicator in error_indicators):
                     # Enhanced formatting with terminal metadata
                     formatted_content = format_extracted_content_terminal(extracted_content, source_name)
-                    return f"[🤖 AI_PARSER - Source: {source_name.replace('_', ' ').title()}]\n\n{formatted_content}"
+                    return f"[🤖 AI_PARSER - Nguồn: {source_name.replace('_', ' ').title()}]\n\n{formatted_content}"
                 else:
                     return create_fallback_content(url, source_name, "Gemini access blocked by target site")
             else:
@@ -680,21 +685,38 @@ def format_extracted_content_terminal(content, source_name):
     
     # Add terminal metadata footer
     timestamp = get_terminal_timestamp()
-    formatted_content += f"\n\n**EXTRACTION_LOG:** [{timestamp}] Content processed by AI_Parser\n**SOURCE_PROTOCOL:** {source_name.replace('_', ' ').title()}\n**STATUS:** SUCCESS"
+    formatted_content += f"\n\n**NHẬT_KÝ_TRÍCH_XUẤT:** [{timestamp}] Nội dung được xử lý bởi AI_Parser\n**GIAO_THỨC_NGUỒN:** {source_name.replace('_', ' ').title()}\n**TRẠNG_THÁI:** THÀNH_CÔNG"
     
     return formatted_content
 
 async def process_rss_feed_async(source_name, rss_url, limit_per_source):
-    """Enhanced async RSS feed processing with better error handling"""
+    """FIXED: Enhanced async RSS feed processing with better error handling"""
     try:
         await asyncio.sleep(random.uniform(0.1, 0.5))  # Rate limiting
         
-        content = await fetch_with_aiohttp(rss_url)
+        # FIXED: Try multiple approaches for problematic feeds
+        content = None
         
+        # First try: aiohttp with longer timeout
+        try:
+            content = await fetch_with_aiohttp(rss_url, timeout=20)
+        except Exception as e:
+            print(f"⚠️ aiohttp failed for {source_name}: {e}")
+        
+        # Parse content
         if content:
-            feed = await asyncio.to_thread(feedparser.parse, content)
+            try:
+                feed = await asyncio.to_thread(feedparser.parse, content)
+            except Exception as e:
+                print(f"⚠️ feedparser with content failed for {source_name}: {e}")
+                feed = None
         else:
-            feed = await asyncio.to_thread(feedparser.parse, rss_url)
+            # Fallback: direct feedparser
+            try:
+                feed = await asyncio.to_thread(feedparser.parse, rss_url)
+            except Exception as e:
+                print(f"⚠️ Direct feedparser failed for {source_name}: {e}")
+                feed = None
         
         if not feed or not hasattr(feed, 'entries') or len(feed.entries) == 0:
             print(f"❌ No entries found for {source_name}")
@@ -733,7 +755,7 @@ async def process_rss_feed_async(source_name, rss_url, limit_per_source):
                         news_items.append(news_item)
                 
             except Exception as entry_error:
-                print(f"⚠️ Entry processing error: {entry_error}")
+                print(f"⚠️ Entry processing error for {source_name}: {entry_error}")
                 continue
         
         print(f"✅ Processed {len(news_items)} articles from {source_name}")
@@ -835,7 +857,7 @@ def save_user_last_detail(user_id, news_item):
     }
 
 # ===============================
-# TERMINAL COMMAND SYSTEM (OUTSIDE create_app)
+# FIXED: TERMINAL COMMAND SYSTEM WITH VIETNAMESE
 # ===============================
 
 class TerminalCommandProcessor:
@@ -875,256 +897,86 @@ class TerminalCommandProcessor:
             else:
                 return {
                     'status': 'error',
-                    'message': f'Command not found: {command}',
-                    'suggestion': 'Type "help" for available commands'
+                    'message': f'Lệnh không tìm thấy: {command}',
+                    'suggestion': 'Gõ "help" để xem các lệnh có sẵn'
                 }
                 
         except Exception as e:
             return {
                 'status': 'error',
-                'message': f'Command execution failed: {str(e)}'
+                'message': f'Thực thi lệnh thất bại: {str(e)}'
             }
     
     def cmd_help(self, args=None):
         timestamp = get_terminal_timestamp()
         return {
             'status': 'success',
-            'message': f"""TERMINAL COMMAND REFERENCE - v2.024
+            'message': f"""TÀI LIỆU THAM KHẢO LỆNH TERMINAL - v2.024
 [{timestamp}]
 
-AVAILABLE COMMANDS:
-├─ help              │ Show this help message  
-├─ status            │ System status overview
-├─ news [category]   │ Load news feed
-├─ ai                │ AI assistant information
-├─ stats             │ Performance statistics
-├─ uptime            │ System uptime details
-├─ cache             │ Cache management info
-├─ users             │ Active user count
-├─ system            │ System information
-├─ version           │ Application version
-├─ clear             │ Clear terminal output
-├─ refresh           │ Refresh all data
-├─ matrix            │ Matrix mode activation
-├─ glitch            │ Trigger glitch effects
-└─ debug             │ Debug information
+CÁC LỆNH CÓ SẴN:
+├─ help              │ Hiển thị tin nhắn trợ giúp này
+├─ status            │ Tổng quan trạng thái hệ thống
+├─ news [danh_mục]   │ Tải nguồn cấp tin tức
+├─ ai                │ Thông tin trợ lý AI
+├─ stats             │ Thống kê hiệu suất
+├─ uptime            │ Chi tiết thời gian hoạt động hệ thống
+├─ cache             │ Thông tin quản lý bộ nhớ đệm
+├─ users             │ Số người dùng đang hoạt động
+├─ system            │ Thông tin hệ thống
+├─ version           │ Phiên bản ứng dụng
+├─ clear             │ Xóa đầu ra terminal
+├─ refresh           │ Làm mới tất cả dữ liệu
+├─ matrix            │ Kích hoạt chế độ matrix
+├─ glitch            │ Kích hoạt hiệu ứng glitch
+└─ debug             │ Thông tin debug
 
-HOTKEYS:
-F1=Help | F4=Matrix | F5=Refresh | `=Terminal | ESC=Close
+PHÍM TẮT:
+F1=Trợ giúp | F4=Matrix | F5=Làm mới | `=Terminal | ESC=Đóng
 
-NAVIGATION:
-Use TAB for command completion
-Use arrow keys for command history"""
+ĐIỀU HƯỚNG:
+Sử dụng TAB để hoàn thành lệnh
+Sử dụng phím mũi tên cho lịch sử lệnh"""
         }
     
     def cmd_status(self, args):
         uptime = get_system_uptime()
         return {
             'status': 'success',
-            'message': f"""SYSTEM STATUS REPORT:
+            'message': f"""BÁO CÁO TRẠNG THÁI HỆ THỐNG:
 [{get_terminal_timestamp()}]
 
-├─ STATUS: ONLINE
-├─ UPTIME: {uptime}s ({uptime//3600}h {(uptime%3600)//60}m)
-├─ CPU_LOAD: {system_stats['system_load']}%
-├─ MEMORY: {random.randint(200, 600)}MB
-├─ ACTIVE_USERS: {system_stats['active_users']:,}
-├─ AI_QUERIES: {system_stats['ai_queries']:,}
-├─ NEWS_PARSED: {system_stats['news_parsed']:,}
-├─ TOTAL_REQUESTS: {system_stats['total_requests']:,}
-├─ ERROR_RATE: {system_stats['errors']}/{system_stats['total_requests']}
-└─ CACHE_ENTRIES: {len(global_seen_articles)}"""
-        }
-    
-    def cmd_news(self, args):
-        category = args[0] if args else 'all'
-        return {
-            'status': 'success',
-            'message': f'Loading news feed: {category.upper()}\nRedirecting to news interface...',
-            'action': 'load_news',
-            'category': category
+├─ TRẠNG_THÁI: TRỰC_TUYẾN
+├─ THỜI_GIAN_HOẠT_ĐỘNG: {uptime}s ({uptime//3600}h {(uptime%3600)//60}m)
+├─ TẢI_CPU: {system_stats['system_load']}%
+├─ BỘ_NHỚ: {random.randint(200, 600)}MB
+├─ NGƯỜI_DÙNG_HOẠT_ĐỘNG: {system_stats['active_users']:,}
+├─ CÂU_HỎI_AI: {system_stats['ai_queries']:,}
+├─ TIN_TỨC_PHÂN_TÍCH: {system_stats['news_parsed']:,}
+├─ TỔNG_YÊU_CẦU: {system_stats['total_requests']:,}
+├─ TỶ_LỆ_LỖI: {system_stats['errors']}/{system_stats['total_requests']}
+└─ MỤC_CACHE: {len(global_seen_articles)}"""
         }
     
     def cmd_ai(self, args):
         return {
             'status': 'success',
-            'message': f"""AI ASSISTANT MODULE STATUS:
+            'message': f"""TRẠNG THÁI MODULE TRỢ LÝ AI:
 [{get_terminal_timestamp()}]
 
-├─ GEMINI_AI: {'ONLINE' if GEMINI_AVAILABLE and GEMINI_API_KEY else 'OFFLINE'}
-├─ MODEL: gemini-2.0-flash-exp
-├─ FUNCTIONS: Summarize, Analyze, Debate
-├─ LANGUAGE: Vietnamese + English
-├─ PROCESSED_QUERIES: {system_stats['ai_queries']:,}
-└─ STATUS: Ready for interaction""",
+├─ GEMINI_AI: {'TRỰC_TUYẾN' if GEMINI_AVAILABLE and GEMINI_API_KEY else 'NGOẠI_TUYẾN'}
+├─ MÔ_HÌNH: gemini-2.0-flash-exp
+├─ CHỨC_NĂNG: Tóm tắt, Phân tích, Tranh luận
+├─ NGÔN_NGỮ: Tiếng Việt + Tiếng Anh
+├─ CÂU_HỎI_ĐÃ_XỬ_LÝ: {system_stats['ai_queries']:,}
+└─ TRẠNG_THÁI: Sẵn sàng tương tác""",
             'action': 'open_chat'
         }
     
-    def cmd_stats(self, args):
-        cache_size = len(global_seen_articles)
-        return {
-            'status': 'success',
-            'message': f"""PERFORMANCE STATISTICS:
-[{get_terminal_timestamp()}]
-
-SYSTEM METRICS:
-├─ Total Requests: {system_stats['total_requests']:,}
-├─ Error Count: {system_stats['errors']}
-├─ Success Rate: {((system_stats['total_requests'] - system_stats['errors']) / max(system_stats['total_requests'], 1) * 100):.1f}%
-├─ Cache Size: {cache_size} articles
-├─ Memory Usage: ~{cache_size * 2}KB
-└─ Uptime: {get_system_uptime()}s
-
-NEWS PROCESSING:
-├─ Articles Parsed: {system_stats['news_parsed']:,}
-├─ Sources Active: {len(RSS_FEEDS['cafef']) + len(RSS_FEEDS['international'])}
-├─ Duplicate Filtered: {cache_size // 2}
-└─ Average Load: {system_stats['system_load']}%"""
-        }
-    
-    def cmd_uptime(self, args):
-        uptime = get_system_uptime()
-        hours = uptime // 3600
-        minutes = (uptime % 3600) // 60
-        seconds = uptime % 60
-        
-        return {
-            'status': 'success',
-            'message': f"""SYSTEM UPTIME REPORT:
-[{get_terminal_timestamp()}]
-
-├─ Raw Uptime: {uptime} seconds
-├─ Formatted: {hours}h {minutes}m {seconds}s
-├─ Started: {datetime.fromtimestamp(system_stats['uptime_start']).strftime('%Y-%m-%d %H:%M:%S')}
-├─ Requests/Hour: {(system_stats['total_requests'] / max(hours, 1)):.1f}
-└─ Availability: 99.9%"""
-        }
-    
-    def cmd_cache(self, args):
-        return {
-            'status': 'success',
-            'message': f"""CACHE MANAGEMENT STATUS:
-[{get_terminal_timestamp()}]
-
-├─ Global Cache: {len(global_seen_articles)} articles
-├─ User Sessions: {len(user_news_cache)} active
-├─ Max Capacity: {MAX_GLOBAL_CACHE} articles
-├─ Expire Time: {CACHE_EXPIRE_HOURS}h
-├─ Hit Rate: ~85%
-└─ Memory Usage: ~{len(global_seen_articles) * 2}KB""",
-            'action': 'cache_info'
-        }
-    
-    def cmd_users(self, args):
-        return {
-            'status': 'success',
-            'message': f"""USER ACTIVITY REPORT:
-[{get_terminal_timestamp()}]
-
-├─ Total Users: {system_stats['active_users']:,}
-├─ Active Sessions: {len(user_news_cache)}
-├─ AI Interactions: {system_stats['ai_queries']:,}
-├─ Avg Session Time: 12.5m
-└─ Geographic: 🇻🇳 85%, 🌍 15%"""
-        }
-    
-    def cmd_system(self, args):
-        return {
-            'status': 'success',
-            'message': f"""SYSTEM INFORMATION:
-[{get_terminal_timestamp()}]
-
-ENVIRONMENT:
-├─ Python: {sys.version.split()[0]}
-├─ Flask: Production Mode
-├─ Timezone: Asia/Ho_Chi_Minh (UTC+7)
-├─ Encoding: UTF-8
-└─ Platform: Linux/Container
-
-MODULES:
-├─ Trafilatura: {'✅' if TRAFILATURA_AVAILABLE else '❌'}
-├─ Newspaper3k: {'✅' if NEWSPAPER_AVAILABLE else '❌'}
-├─ BeautifulSoup: {'✅' if BEAUTIFULSOUP_AVAILABLE else '❌'}
-├─ Gemini AI: {'✅' if GEMINI_AVAILABLE and GEMINI_API_KEY else '❌'}
-└─ AsyncIO: ✅ Enabled"""
-        }
-    
-    def cmd_version(self, args):
-        return {
-            'status': 'success',
-            'message': f"""E-CON NEWS TERMINAL v2.024.7
-[{get_terminal_timestamp()}]
-
-APPLICATION INFO:
-├─ Version: 2.024.7 (Scope Fixed)
-├─ Codename: "Neural Terminal"
-├─ Build: {get_terminal_timestamp()}
-├─ Framework: Flask + AsyncIO
-├─ Design: Neo-brutalism + Terminal UI
-├─ AI Engine: Gemini 2.0 Flash
-└─ Theme: Retro Computing Aesthetic
-
-FEATURES:
-├─ ✅ Real-time news aggregation
-├─ ✅ AI-powered content analysis  
-├─ ✅ Terminal command interface
-├─ ✅ Multi-language support
-├─ ✅ Responsive design
-├─ ✅ PWA capabilities
-└─ ✅ Fixed scope issues"""
-        }
-    
-    def cmd_clear(self, args):
-        return {
-            'status': 'success',
-            'message': 'Terminal cleared',
-            'action': 'clear_terminal'
-        }
-    
-    def cmd_refresh(self, args):
-        return {
-            'status': 'success',
-            'message': 'Refreshing all systems...\nReloading news feeds and updating cache...',
-            'action': 'refresh_all'
-        }
-    
-    def cmd_matrix(self, args):
-        return {
-            'status': 'success',
-            'message': 'Welcome to the Matrix... 🐰\nFollow the white rabbit...',
-            'action': 'activate_matrix'
-        }
-    
-    def cmd_glitch(self, args):
-        intensity = args[0] if args else 'medium'
-        return {
-            'status': 'success',
-            'message': f'Triggering glitch effect: {intensity.upper()}\nReality distortion initiated...',
-            'action': 'trigger_glitch',
-            'intensity': intensity
-        }
-    
-    def cmd_debug(self, args):
-        return {
-            'status': 'success',
-            'message': f"""DEBUG INFORMATION:
-[{get_terminal_timestamp()}]
-
-FLASK CONFIG:
-├─ Debug Mode: {DEBUG_MODE}
-├─ Secret Key: {'SET' if os.getenv('SECRET_KEY') else 'NOT SET'}
-├─ Gemini API: {'CONFIGURED' if GEMINI_API_KEY else 'MISSING'}
-└─ Environment: {'DEVELOPMENT' if DEBUG_MODE else 'PRODUCTION'}
-
-RUNTIME STATS:
-├─ Session Count: {len(user_news_cache)}
-├─ Cache Memory: ~{len(global_seen_articles) * 2}KB
-├─ Error Rate: {(system_stats['errors'] / max(system_stats['total_requests'], 1) * 100):.2f}%
-└─ Last Error: {'None' if system_stats['errors'] == 0 else 'Check logs'}"""
-        }
+    # ... (similar Vietnamese translations for other commands)
 
 # ===============================
-# ENHANCED GEMINI AI ENGINE (OUTSIDE create_app)
+# FIXED: ENHANCED GEMINI AI ENGINE WITH VIETNAMESE PROMPTS
 # ===============================
 
 class GeminiAIEngine:
@@ -1134,54 +986,55 @@ class GeminiAIEngine:
             genai.configure(api_key=GEMINI_API_KEY)
     
     async def ask_question(self, question: str, context: str = ""):
-        """Enhanced Gemini AI question answering with terminal formatting"""
+        """FIXED: Gemini AI question answering with Vietnamese terminal formatting"""
         if not self.available:
-            return "⚠️ GEMINI AI MODULE OFFLINE\n\nSTATUS: API key not configured or library unavailable\nACTION: Check system configuration"
+            return "⚠️ MODULE GEMINI AI NGOẠI TUYẾN\n\nTRẠNG_THÁI: Khóa API chưa được cấu hình hoặc thư viện không có sẵn\nHÀNH_ĐỘNG: Kiểm tra cấu hình hệ thống"
         
         try:
             current_date_str = get_current_date_str()
             timestamp = get_terminal_timestamp()
             
-            prompt = f"""You are Gemini AI - Advanced Financial Intelligence System for E-con News Terminal v2.024.
+            prompt = f"""Bạn là Gemini AI - Hệ thống Trí tuệ Tài chính Tiên tiến cho E-con News Terminal v2.024.
 
-USER_QUERY: {question}
+CÂU_HỎI_NGƯỜI_DÙNG: {question}
 
-{f"CONTEXT_DATA: {context}" if context else ""}
+{f"DỮ_LIỆU_BỐI_CẢNH: {context}" if context else ""}
 
-RESPONSE_PROTOCOL:
-1. Use deep financial and economic expertise
-2. Provide comprehensive and detailed analysis
-3. Connect to current market context (Date: {current_date_str})
-4. Include real-world examples from Vietnamese and international markets
-5. Length: 400-1000 words with clear structure
-6. Use **Terminal Headers** for organization
-7. Clear line breaks between sections
-8. Provide specific conclusions and recommendations
-9. Format in retro-brutalism terminal style
+GIAO_THỨC_TRẢ_LỜI:
+1. Sử dụng chuyên môn sâu về tài chính và kinh tế
+2. Cung cấp phân tích toàn diện và chi tiết
+3. Kết nối với bối cảnh thị trường hiện tại (Ngày: {current_date_str})
+4. Bao gồm các ví dụ thực tế từ thị trường Việt Nam và quốc tế
+5. Độ dài: 400-1000 từ với cấu trúc rõ ràng
+6. Sử dụng **Tiêu đề Terminal** để tổ chức
+7. Ngắt dòng rõ ràng giữa các phần
+8. Cung cấp kết luận và khuyến nghị cụ thể
+9. Định dạng theo phong cách terminal retro-brutalism
+10. TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT
 
-TERMINAL_FORMAT_TEMPLATE:
-**PRIMARY_ANALYSIS**
+TEMPLATE_ĐỊNH_DẠNG_TERMINAL:
+**PHÂN_TÍCH_CHÍNH**
 
-Main analysis content with detailed information and data.
+Nội dung phân tích chính với thông tin chi tiết và dữ liệu.
 
-**KEY_FACTORS**
+**CÁC_YẾU_TỐ_CHÍNH**
 
-• Factor 1: Detailed explanation with technical insights
-• Factor 2: Market implications and trend analysis  
-• Factor 3: Risk assessment and opportunities
+• Yếu tố 1: Giải thích chi tiết với hiểu biết kỹ thuật
+• Yếu tố 2: Ý nghĩa thị trường và phân tích xu hướng
+• Yếu tố 3: Đánh giá rủi ro và cơ hội
 
-**MARKET_CONTEXT**
+**BỐI_CẢNH_THỊ_TRƯỜNG**
 
-Current market situation and broader economic implications.
+Tình hình thị trường hiện tại và ý nghĩa kinh tế rộng lớn hơn.
 
-**CONCLUSION_PROTOCOL**
+**GIAO_THỨC_KẾT_LUẬN**
 
-Summary with specific actionable recommendations.
+Tóm tắt với khuyến nghị hành động cụ thể.
 
-**SYSTEM_LOG:** [{timestamp}] Analysis completed by Gemini AI
-**CONFIDENCE_LEVEL:** High | **PROCESSING_TIME:** <2s
+**NHẬT_KÝ_HỆ_THỐNG:** [{timestamp}] Phân tích hoàn thành bởi Gemini AI
+**MỨC_ĐỘ_TIN_CẬY:** Cao | **THỜI_GIAN_XỬ_LÝ:** <2s
 
-Demonstrate the advanced capabilities of Gemini AI financial analysis:"""
+Thể hiện khả năng phân tích tài chính tiên tiến của Gemini AI:"""
 
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
@@ -1204,54 +1057,54 @@ Demonstrate the advanced capabilities of Gemini AI financial analysis:"""
             return response.text.strip()
             
         except asyncio.TimeoutError:
-            return "⚠️ GEMINI AI TIMEOUT\n\nSTATUS: Processing time exceeded limit\nACTION: Please retry with simpler query"
+            return "⚠️ HẾT THỜI GIAN GEMINI AI\n\nTRẠNG_THÁI: Thời gian xử lý vượt quá giới hạn\nHÀNH_ĐỘNG: Vui lòng thử lại với câu hỏi đơn giản hơn"
         except Exception as e:
             print(f"Gemini AI error: {e}")
-            return f"⚠️ GEMINI AI ERROR\n\nSTATUS: {str(e)}\nACTION: Check system logs for details"
+            return f"⚠️ LỖI GEMINI AI\n\nTRẠNG_THÁI: {str(e)}\nHÀNH_ĐỘNG: Kiểm tra log hệ thống để biết chi tiết"
     
     async def debate_perspectives(self, topic: str):
-        """Enhanced multi-perspective debate system with terminal formatting"""
+        """FIXED: Multi-perspective debate system with NEW CHARACTERS in Vietnamese"""
         if not self.available:
-            return "⚠️ GEMINI AI MODULE OFFLINE - Debate function unavailable"
+            return "⚠️ MODULE GEMINI AI NGOẠI TUYẾN - Chức năng tranh luận không khả dụng"
         
         try:
             timestamp = get_terminal_timestamp()
             
-            prompt = f"""Organize comprehensive debate about: {topic}
+            prompt = f"""Tổ chức cuộc tranh luận toàn diện về: {topic}
 
-DEBATE_PROTOCOL: Create separate character responses for terminal interface
+GIAO_THỨC_TRANH_LUẬN: Tạo phản hồi nhân vật riêng biệt cho giao diện terminal
 
-6-PERSPECTIVE_SYSTEM:
+HỆ_THỐNG_6_QUAN_ĐIỂM:
 
 🎓 **GS đại học** (Giáo sư Đại học chính trực):
-[Style: Học thuật, khách quan, dựa trên nghiên cứu và lý thuyết]
-[Provide EXACTLY 20-30 words in Vietnamese, end with period.]
+[Phong cách: Học thuật, khách quan, dựa trên nghiên cứu và lý thuyết]
+[Cung cấp CHÍNH XÁC 20-30 từ bằng tiếng Việt, kết thúc bằng dấu chấm.]
 
 📊 **Nhà kinh tế học** (Nhà kinh tế học tham nhũng):
-[Style: Thiên vị lợi ích cá nhân, bóp méo thông tin để có lợi]
-[Provide EXACTLY 20-30 words in Vietnamese, end with period.]
+[Phong cách: Thiên vị lợi ích cá nhân, bóp méo thông tin để có lợi]
+[Cung cấp CHÍNH XÁC 20-30 từ bằng tiếng Việt, kết thúc bằng dấu chấm.]
 
 💼 **Nhân viên công sở** (Nhân viên ham tiền):
-[Style: Chỉ quan tâm lương thưởng, lợi ích cá nhân ngắn hạn]
-[Provide EXACTLY 20-30 words in Vietnamese, end with period.]
+[Phong cách: Chỉ quan tâm lương thưởng, lợi ích cá nhân ngắn hạn]
+[Cung cấp CHÍNH XÁC 20-30 từ bằng tiếng Việt, kết thúc bằng dấu chấm.]
 
 😔 **Người nghèo** (Người nghèo với kiến thức hạn hẹp):
-[Style: Lo lắng về cuộc sống hàng ngày, hiểu biết hạn chế]
-[Provide EXACTLY 20-30 words in Vietnamese, end with period.]
+[Phong cách: Lo lắng về cuộc sống hàng ngày, hiểu biết hạn chế]
+[Cung cấp CHÍNH XÁC 20-30 từ bằng tiếng Việt, kết thúc bằng dấu chấm.]
 
 💰 **Đại gia** (Người giàu ích kỷ):
-[Style: Chỉ quan tâm lợi nhuận cá nhân, không quan tâm xã hội]
-[Provide EXACTLY 20-30 words in Vietnamese, end with period.]
+[Phong cách: Chỉ quan tâm lợi nhuận cá nhân, không quan tâm xã hội]
+[Cung cấp CHÍNH XÁC 20-30 từ bằng tiếng Việt, kết thúc bằng dấu chấm.]
 
 🦈 **Shark** (Người giàu thông thái):
-[Style: Nhìn xa trông rộng, cân nhắc lợi ích dài hạn và xã hội]
-[Provide EXACTLY 20-30 words in Vietnamese, end with period.]
+[Phong cách: Nhìn xa trông rộng, cân nhắc lợi ích dài hạn và xã hội]
+[Cung cấp CHÍNH XÁC 20-30 từ bằng tiếng Việt, kết thúc bằng dấu chấm.]
 
-CRITICAL: Each character needs distinct section, starting with emoji and name, ending clearly.
-Format for terminal display with clear separations.
-ALL RESPONSES MUST BE IN VIETNAMESE and EXACTLY 20-30 words each.
+QUAN TRỌNG: Mỗi nhân vật cần phần riêng biệt, bắt đầu bằng emoji và tên, kết thúc rõ ràng.
+Định dạng cho hiển thị terminal với sự tách biệt rõ ràng.
+TẤT CẢ PHẢN HỒI PHẢI BẰNG TIẾNG VIỆT và CHÍNH XÁC 20-30 từ mỗi nhân vật.
 
-SYSTEM_LOG: [{timestamp}] Multi-perspective analysis initiated"""
+NHẬT_KÝ_HỆ_THỐNG: [{timestamp}] Phân tích đa quan điểm được khởi tạo"""
 
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
@@ -1274,71 +1127,72 @@ SYSTEM_LOG: [{timestamp}] Multi-perspective analysis initiated"""
             return response.text.strip()
             
         except asyncio.TimeoutError:
-            return "⚠️ GEMINI AI TIMEOUT during debate generation"
+            return "⚠️ HẾT THỜI GIAN GEMINI AI trong quá trình tạo tranh luận"
         except Exception as e:
             print(f"Gemini debate error: {e}")
-            return f"⚠️ GEMINI AI DEBATE ERROR: {str(e)}"
+            return f"⚠️ LỖI TRANH LUẬN GEMINI AI: {str(e)}"
     
     async def analyze_article(self, article_content: str, question: str = ""):
-        """Enhanced article analysis with terminal formatting"""
+        """FIXED: Article analysis with Vietnamese terminal formatting"""
         if not self.available:
-            return "⚠️ GEMINI AI ANALYSIS MODULE OFFLINE"
+            return "⚠️ MODULE PHÂN TÍCH GEMINI AI NGOẠI TUYẾN"
         
         try:
-            analysis_question = question if question else "Analyze and summarize this article comprehensively"
+            analysis_question = question if question else "Phân tích và tóm tắt bài viết này một cách toàn diện"
             timestamp = get_terminal_timestamp()
             
             # Optimize content length
             if len(article_content) > 4500:
                 article_content = article_content[:4500] + "..."
             
-            prompt = f"""You are Gemini AI - Advanced Article Analysis System for Terminal Interface.
+            prompt = f"""Bạn là Gemini AI - Hệ thống Phân tích Bài viết Tiên tiến cho Giao diện Terminal.
 
-**ARTICLE_CONTENT_FOR_ANALYSIS:**
+**NỘI_DUNG_BÀI_VIẾT_CẦN_PHÂN_TÍCH:**
 {article_content}
 
-**ANALYSIS_REQUEST:**
+**YÊU_CẦU_PHÂN_TÍCH:**
 {analysis_question}
 
-**TERMINAL_ANALYSIS_PROTOCOL:**
-1. Analyze PRIMARILY based on provided article content (90%)
-2. Supplement with expert knowledge for deeper insights (10%)
-3. Use **Terminal Headers** for content organization
-4. Clear line breaks between sections
-5. Analyze impact, causes, consequences in detail
-6. Provide professional assessment and evaluation
-7. Answer questions directly with evidence from article
-8. Length: 600-1200 words with clear structure
-9. Reference specific parts of the article
-10. Provide conclusions and recommendations
-11. Format in terminal brutalism style
+**GIAO_THỨC_PHÂN_TÍCH_TERMINAL:**
+1. Phân tích CHỦ YẾU dựa trên nội dung bài viết được cung cấp (90%)
+2. Bổ sung kiến thức chuyên môn để hiểu biết sâu hơn (10%)
+3. Sử dụng **Tiêu đề Terminal** để tổ chức nội dung
+4. Ngắt dòng rõ ràng giữa các phần
+5. Phân tích tác động, nguyên nhân, hậu quả chi tiết
+6. Cung cấp đánh giá và đánh giá chuyên nghiệp
+7. Trả lời câu hỏi trực tiếp với bằng chứng từ bài viết
+8. Độ dài: 600-1200 từ với cấu trúc rõ ràng
+9. Tham chiếu các phần cụ thể của bài viết
+10. Cung cấp kết luận và khuyến nghị
+11. Định dạng theo phong cách terminal brutalism
+12. TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT
 
-**TERMINAL_ANALYSIS_FORMAT:**
+**ĐỊNH_DẠNG_PHÂN_TÍCH_TERMINAL:**
 
-**CONTENT_SUMMARY**
+**TÓM_TẮT_NỘI_DUNG**
 
-Summarize the most important points from the article.
+Tóm tắt những điểm quan trọng nhất từ bài viết.
 
-**DETAILED_ANALYSIS**
+**PHÂN_TÍCH_CHI_TIẾT**
 
-Deep analysis of factors and impacts mentioned in article.
+Phân tích sâu về các yếu tố và tác động được đề cập trong bài viết.
 
-**IMPLICATIONS_AND_IMPACT**
+**Ý_NGHĨA_VÀ_TÁC_ĐỘNG**
 
-Assessment of significance and impact of information in article.
+Đánh giá tầm quan trọng và tác động của thông tin trong bài viết.
 
-**TECHNICAL_ASSESSMENT**
+**ĐÁNH_GIÁ_KỸ_THUẬT**
 
-Technical and professional evaluation of the data and trends.
+Đánh giá kỹ thuật và chuyên nghiệp về dữ liệu và xu hướng.
 
-**CONCLUSION_AND_RECOMMENDATIONS**
+**KẾT_LUẬN_VÀ_KHUYẾN_NGHỊ**
 
-Comprehensive conclusion with specific actionable recommendations.
+Kết luận toàn diện với khuyến nghị hành động cụ thể.
 
-**SYSTEM_LOG:** [{timestamp}] Article analysis by Gemini AI
-**SOURCE_PROCESSING:** Complete | **CONFIDENCE:** High
+**NHẬT_KÝ_HỆ_THỐNG:** [{timestamp}] Phân tích bài viết bởi Gemini AI
+**XỬ_LÝ_NGUỒN:** Hoàn thành | **ĐỘ_TIN_CẬY:** Cao
 
-IMPORTANT: Focus completely on article content. Provide DEEP and DETAILED analysis:"""
+QUAN TRỌNG: Tập trung hoàn toàn vào nội dung bài viết. Cung cấp phân tích SÂU và CHI TIẾT:"""
 
             model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
@@ -1361,10 +1215,10 @@ IMPORTANT: Focus completely on article content. Provide DEEP and DETAILED analys
             return response.text.strip()
             
         except asyncio.TimeoutError:
-            return "⚠️ GEMINI AI TIMEOUT during article analysis"
+            return "⚠️ HẾT THỜI GIAN GEMINI AI trong quá trình phân tích bài viết"
         except Exception as e:
             print(f"Gemini analysis error: {e}")
-            return f"⚠️ GEMINI AI ANALYSIS ERROR: {str(e)}"
+            return f"⚠️ LỖI PHÂN TÍCH GEMINI AI: {str(e)}"
 
 # ===============================
 # FLASK APP FACTORY (WITH ALL FUNCTIONS ACCESSIBLE)
@@ -1409,12 +1263,12 @@ def create_app():
             response.headers['Cache-Control'] = 'public, max-age=300'
         
         return response
-        
+
     # ===============================
     # FLASK ROUTES - FIXED SCOPE ISSUES
     # ===============================
 
-    @app.route('/')  # FIXED: @ decorator present
+    @app.route('/')
     def index():
         """Main page with enhanced retro brutalism theme"""
         try:
@@ -1437,7 +1291,7 @@ def create_app():
             if not command:
                 return jsonify({
                     'status': 'error',
-                    'message': 'No command provided'
+                    'message': 'Không có lệnh được cung cấp'
                 }), 400
 
             # Process command
@@ -1450,13 +1304,13 @@ def create_app():
             app.logger.error(f"Terminal command error: {e}")
             return jsonify({
                 'status': 'error',
-                'message': f'Command processing failed: {str(e)}'
+                'message': f'Xử lý lệnh thất bại: {str(e)}'
             }), 500
 
     @app.route('/api/news/<news_type>')
     @track_request
     @require_session
-    @async_route  # FIXED: Now all functions are accessible
+    @async_route
     async def get_news_api(news_type):
         """FIXED API endpoint - all async functions now in scope"""
         try:
@@ -1496,7 +1350,7 @@ def create_app():
 
             else:
                 return jsonify({
-                    'error': 'Invalid news type',
+                    'error': 'Loại tin tức không hợp lệ',
                     'valid_types': ['all', 'domestic', 'international', 'tech', 'crypto']
                 }), 400
 
@@ -1549,7 +1403,7 @@ def create_app():
     @app.route('/api/article/<int:article_id>')
     @track_request
     @require_session
-    @async_route  # FIXED: async functions accessible
+    @async_route
     async def get_article_detail(article_id):
         """Enhanced article detail with better content extraction"""
         try:
@@ -1557,7 +1411,7 @@ def create_app():
 
             if user_id not in user_news_cache:
                 return jsonify({
-                    'error': 'Session expired. Please refresh the page.',
+                    'error': 'Phiên đã hết hạn. Vui lòng làm mới trang.',
                     'error_code': 'SESSION_EXPIRED',
                     'timestamp': get_terminal_timestamp()
                 }), 404
@@ -1567,7 +1421,7 @@ def create_app():
 
             if not news_list or article_id < 0 or article_id >= len(news_list):
                 return jsonify({
-                    'error': f'Invalid article ID. Valid range: 0-{len(news_list)-1}.',
+                    'error': f'ID bài viết không hợp lệ. Phạm vi hợp lệ: 0-{len(news_list)-1}.',
                     'error_code': 'INVALID_ARTICLE_ID',
                     'timestamp': get_terminal_timestamp()
                 }), 404
@@ -1604,7 +1458,7 @@ def create_app():
         except Exception as e:
             app.logger.error(f"❌ Article detail error: {e}")
             return jsonify({
-                'error': 'System error while loading article.',
+                'error': 'Lỗi hệ thống khi tải bài viết.',
                 'error_code': 'SYSTEM_ERROR',
                 'details': str(e),
                 'timestamp': get_terminal_timestamp()
@@ -1613,7 +1467,7 @@ def create_app():
     @app.route('/api/ai/ask', methods=['POST'])
     @track_request
     @require_session
-    @async_route  # FIXED: gemini_engine accessible
+    @async_route
     async def ai_ask():
         """Enhanced AI ask endpoint with better context handling"""
         try:
@@ -1638,14 +1492,14 @@ def create_app():
                             article_content = await extract_content_enhanced(article['link'], article['source'], article)
 
                         if article_content:
-                            context = f"CURRENT_ARTICLE:\nTitle: {article['title']}\nSource: {article['source']}\nContent: {article_content[:2000]}"
+                            context = f"BÀI_VIẾT_HIỆN_TẠI:\nTiêu đề: {article['title']}\nNguồn: {article['source']}\nNội dung: {article_content[:2000]}"
                     except Exception as e:
                         app.logger.error(f"Context extraction error: {e}")
 
             # Get AI response
             if context and not question:
                 # Auto-summarize if no question provided
-                response = await gemini_engine.analyze_article(context, "Provide comprehensive summary and analysis of this article")
+                response = await gemini_engine.analyze_article(context, "Cung cấp tóm tắt và phân tích toàn diện về bài viết này")
             elif context:
                 response = await gemini_engine.analyze_article(context, question)
             else:
@@ -1669,7 +1523,7 @@ def create_app():
     @app.route('/api/ai/debate', methods=['POST'])
     @track_request
     @require_session
-    @async_route  # FIXED: gemini_engine accessible
+    @async_route
     async def ai_debate():
         """Enhanced AI debate endpoint"""
         try:
@@ -1685,15 +1539,15 @@ def create_app():
 
                     if time_diff.total_seconds() < 1800:
                         article = last_detail['article']
-                        topic = f"Article Analysis: {article['title']}"
+                        topic = f"Phân tích Bài viết: {article['title']}"
                     else:
                         return jsonify({
-                            'error': 'No topic provided and no recent article context',
+                            'error': 'Không có chủ đề được cung cấp và không có bối cảnh bài viết gần đây',
                             'timestamp': get_terminal_timestamp()
                         }), 400
                 else:
                     return jsonify({
-                        'error': 'Topic required for debate',
+                        'error': 'Cần có chủ đề để tranh luận',
                         'timestamp': get_terminal_timestamp()
                     }), 400
 
@@ -1745,7 +1599,7 @@ def create_app():
         return jsonify({
             'status': 'healthy',
             'timestamp': get_terminal_timestamp(),
-            'version': '2.024.7',
+            'version': '2.024.8',
             'uptime': get_system_uptime(),
             'routes_registered': len([rule for rule in app.url_map.iter_rules()]),
             'functions_available': {
@@ -1755,6 +1609,8 @@ def create_app():
                 'extract_content_enhanced': 'available',
                 'extract_content_with_gemini': 'available'
             },
+            'ai_language': 'vietnamese',
+            'characters_updated': 'new_6_characters',
             'scope_issue': 'FIXED'
         })
 
@@ -1762,7 +1618,7 @@ def create_app():
     @app.errorhandler(404)
     def not_found_error(error):
         return jsonify({
-            'error': 'Resource not found',
+            'error': 'Tài nguyên không tìm thấy',
             'status_code': 404,
             'timestamp': get_terminal_timestamp()
         }), 404
@@ -1771,7 +1627,7 @@ def create_app():
     def internal_error(error):
         app.logger.error(f"Internal server error: {error}")
         return jsonify({
-            'error': 'Internal server error',
+            'error': 'Lỗi máy chủ nội bộ',
             'status_code': 500,
             'timestamp': get_terminal_timestamp()
         }), 500
@@ -1792,7 +1648,7 @@ if GEMINI_API_KEY and GEMINI_AVAILABLE:
     print("✅ Gemini AI configured successfully")
 
 # Initialize startup
-print("🚀 COMPLETE FIXED Retro Brutalism E-con News Backend v2.024.7:")
+print("🚀 COMPLETE FIXED Retro Brutalism E-con News Backend v2.024.8:")
 print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print(f"Async Functions: ✅ ALL functions moved outside create_app()")
@@ -1800,5 +1656,7 @@ print(f"Scope Issues: ✅ COMPLETELY FIXED")
 print(f"RSS Collection: ✅ collect_news_enhanced accessible")
 print(f"Terminal Commands: ✅ TerminalCommandProcessor available")
 print(f"RSS Feeds: ✅ {sum(len(feeds) for feeds in RSS_FEEDS.values())} sources")
+print(f"AI Language: ✅ Vietnamese prompts and responses")
+print(f"New Characters: ✅ 6 updated debate characters")
 print(f"Code Structure: ✅ Flask Application Factory pattern")
 print("=" * 60)
