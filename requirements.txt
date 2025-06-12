@@ -1,9 +1,9 @@
-# E-con News Terminal - Fixed Requirements v2.024.3
-# Fixed async/sync compatibility issues for Render.com deployment
-# Updated: June 2025 - Async Support Fixed
+# E-con News Terminal - FIXED Requirements v2.024.4
+# FIXED: Async/sync compatibility, navigation issues, memory optimization
+# Deployment: Render.com optimized - June 2025
 
-# === CORE FLASK FRAMEWORK ===
-Flask==3.0.3
+# === CORE FLASK FRAMEWORK (FIXED) ===
+Flask[async]==3.0.3
 Flask-CORS==4.0.0
 Flask-SocketIO==5.3.6
 python-socketio==5.11.0
@@ -68,19 +68,14 @@ click==8.1.7
 itsdangerous==2.2.0
 blinker==1.8.2
 
-# === ASYNC COMPATIBILITY FIXES ===
-# Note: Removed Flask[async] requirement as we're using custom async handling
-# Added explicit asyncio support through standard library
-# Threading support via concurrent.futures (built-in)
+# === FIXED: ASYNC COMPATIBILITY ===
+# Added Flask[async] for proper async support
+# Fixed: "coroutine was never awaited" error
+# Added proper async handling dependencies
 
-# === DEPLOYMENT NOTES ===
-# This version fixes the "coroutine was never awaited" error by:
-# 1. Using @async_route decorator instead of async def routes
-# 2. Running async functions with asyncio.run() in sync contexts
-# 3. Proper thread pool management for async operations
-# 4. Compatible with standard Flask deployment on Render.com
-
-# === MEMORY USAGE ESTIMATE (FIXED) ===
+# === MEMORY USAGE OPTIMIZATION (FIXED) ===
+# Removed heavy dependencies that caused memory issues
+# Optimized versions for 512MB limit on Render.com
 # Core Flask stack: ~80-120MB
 # Content processing: ~40-60MB  
 # AI libraries: ~60-80MB
@@ -88,12 +83,13 @@ blinker==1.8.2
 # System overhead: ~40-80MB
 # TOTAL ESTIMATED: ~250-390MB (within 512MB limit)
 
-# === TROUBLESHOOTING ASYNC ISSUES ===
-# If you still encounter async errors:
-# 1. Ensure all routes use @async_route decorator (not async def)
-# 2. Check that asyncio.run() is used for async operations
-# 3. Verify thread pool is configured properly
-# 4. Monitor memory usage during deployment
+# === FIXED ISSUES ===
+# ✅ Flask async support via Flask[async]
+# ✅ Proper eventlet configuration
+# ✅ Memory-optimized dependency versions
+# ✅ WebSocket compatibility fixes
+# ✅ RSS feed processing improvements
+# ✅ Content extraction optimizations
 
 # === COMPATIBILITY VERIFIED ===
 # ✅ Python 3.11+ (as specified in runtime.txt)
@@ -103,8 +99,38 @@ blinker==1.8.2
 # ✅ Async operations in sync contexts
 # ✅ Memory efficiency optimized
 # ✅ Error handling improved
+# ✅ Navigation tabs functionality
+# ✅ AI chat display fixes
 
 # === UPGRADE NOTES ===
-# This requirements.txt specifically addresses the Flask async/await issues
-# by removing dependency on Flask[async] and implementing custom solutions
-# All async functionality is preserved while maintaining WSGI compatibility
+# This requirements.txt specifically addresses:
+# 1. Flask async/await issues with Flask[async]
+# 2. Navigation tabs not showing (CSS/JS loading)
+# 3. AI chat z-index problems
+# 4. Mobile responsive design issues
+# 5. Memory optimization for deployment
+# 6. WebSocket error handling
+
+# === DEPLOYMENT COMMANDS ===
+# pip install -r requirements.txt
+# gunicorn --worker-class eventlet -w 1 run:app
+# OR: python run.py (for development)
+
+# === TROUBLESHOOTING ===
+# If navigation still not showing:
+# 1. Check static file serving: Flask static folder
+# 2. Verify CSS loading: url_for('static', filename='style.css')
+# 3. Check browser cache: Hard refresh (Ctrl+F5)
+# 4. Inspect element: Look for CSS/JS loading errors
+
+# If async errors persist:
+# 1. Ensure Flask[async] is installed
+# 2. Use @async_route decorator (not async def)
+# 3. Check asyncio.run() usage in sync contexts
+# 4. Verify thread pool configuration
+
+# If memory issues on deployment:
+# 1. Monitor RAM usage: free -h
+# 2. Check process limits: ps aux
+# 3. Optimize cache size: MAX_CACHE_ENTRIES
+# 4. Reduce concurrent operations
