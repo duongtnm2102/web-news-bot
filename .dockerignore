@@ -1,0 +1,233 @@
+# ===============================
+# E-con News Terminal - .dockerignore v2.024
+# Optimize Docker build by excluding unnecessary files
+# Reduces build time and image size
+# ===============================
+
+# ===== VERSION CONTROL =====
+.git
+.gitignore
+.gitattributes
+.github/
+
+# ===== DOCUMENTATION =====
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+*.md
+
+# ===== DEVELOPMENT FILES =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== PYTHON CACHE =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ===== VIRTUAL ENVIRONMENTS =====
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ===== TESTING =====
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+htmlcov/
+.tox/
+.nox/
+
+# ===== JUPYTER NOTEBOOKS =====
+.ipynb_checkpoints
+*.ipynb
+
+# ===== LOGS =====
+*.log
+logs/
+log/
+
+# ===== TEMPORARY FILES =====
+.tmp/
+tmp/
+temp/
+.cache/
+.sass-cache/
+
+# ===== ENVIRONMENT FILES =====
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# ===== DATABASE =====
+*.db
+*.sqlite3
+*.sqlite
+database/
+
+# ===== DOCKER FILES (avoid recursion) =====
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+docker-compose*.yaml
+
+# ===== NODE.JS (if any frontend build) =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ===== MACOS =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== WINDOWS =====
+*.exe
+*.msi
+*.msm
+*.msp
+
+# ===== LINUX =====
+*~
+
+# ===== BACKUP FILES =====
+*.bak
+*.backup
+*.old
+*.orig
+
+# ===== SSL/TLS CERTIFICATES =====
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# ===== DEPLOYMENT CONFIGS =====
+.terraform/
+terraform.tfstate*
+*.tfvars
+k8s/
+kubernetes/
+helm/
+
+# ===== PERFORMANCE PROFILING =====
+*.prof
+*.pstats
+
+# ===== IDE SPECIFIC =====
+.spyderproject
+.spyproject
+.ropeproject
+
+# ===== MYPY =====
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ===== PYTEST =====
+.pytest_cache/
+
+# ===== COVERAGE =====
+.coverage
+
+# ===== CELERY =====
+celerybeat-schedule
+celerybeat.pid
+
+# ===== FLASK SPECIFIC =====
+instance/
+.webassets-cache
+
+# ===== GUNICORN =====
+gunicorn.pid
+
+# ===== CUSTOM APPLICATION SPECIFIC =====
+# Add any custom files to ignore here
+econ_news_debug.log
+debug.log
+error.log
+access.log
+
+# ===== DEVELOPMENT TOOLS =====
+.flake8
+.isort.cfg
+.black
+.pre-commit-config.yaml
+.editorconfig
+
+# ===== SECURITY =====
+secrets/
+private/
+.secrets
+
+# ===== LARGE FILES =====
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ===== MEDIA FILES (if not needed in container) =====
+# Uncomment if media files should be excluded
+# *.mp4
+# *.avi
+# *.mov
+# *.wmv
+# *.mp3
+# *.wav
+# *.flac
+
+# ===== BUILD OPTIMIZATION NOTES =====
+# This .dockerignore file helps:
+# 1. Reduce Docker build context size
+# 2. Speed up docker build process  
+# 3. Prevent sensitive files from being copied
+# 4. Keep the final image clean and minimal
+# 5. Improve security by excluding config files
+# 6. Reduce layer sizes in Docker images
+
+# ===== RENDER.COM SPECIFIC =====
+# Files specific to Render.com deployment
+render.yaml
+.render/
