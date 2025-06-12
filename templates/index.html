@@ -31,6 +31,9 @@
     <meta name="apple-mobile-web-app-title" content="E-con News Terminal">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
+    <!-- FIXED: Content Security Policy via meta (fallback) -->
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none';">
+    
     <!-- Fonts - Performance Optimized -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,8 +43,8 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
     <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000'/><text x='50' y='65' font-size='60' text-anchor='middle' fill='%2300ff00'>🖥️</text></svg>">
     
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- FIXED: Stylesheets with proper url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ range(1000, 9999) | random }}">
     
     <!-- Preload Critical Resources -->
     <link rel="preload" href="{{ url_for('static', filename='script.js') }}" as="script">
@@ -50,11 +53,7 @@
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     
-    <!-- Security Headers -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <!-- REMOVED: X-Frame-Options meta tag (now handled via HTTP header in Flask) -->
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -71,12 +70,96 @@
         }
     }
     </script>
+    
+    <!-- FIXED: Critical CSS for immediate rendering -->
+    <style>
+        /* Critical CSS to prevent FOUC */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            color: #00ff00;
+            font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure navigation is visible immediately */
+        .nav-tabs {
+            background: #333333;
+            border-bottom: 2px solid #00ff00;
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            min-height: 60px;
+        }
+        
+        .nav-tab {
+            background: #000000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 10px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-tab:hover {
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 10px #00ff00;
+            transform: translateY(-1px);
+        }
+        
+        .nav-tab.active {
+            background: #ffb000;
+            color: #000000;
+            border-color: #ffb000;
+            box-shadow: 0 0 15px #ffb000;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #00ff00;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #333333;
+            border-top: 3px solid #00ff00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+    <!-- Skip Navigation Link -->
+    <a href="#newsContainer" class="skip-link">Skip to main content</a>
+
     <!-- Scanline Effect -->
     <div class="scanline"></div>
 
-    <!-- ASCII Art Header -->
+    <!-- ASCII Art Header - FIXED Responsive -->
     <div class="ascii-header">
         <div class="ascii-art">
 ╔═════════════════════════════════════════════════════════════════════════════════════╗
@@ -115,24 +198,48 @@
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <nav class="nav-tabs" role="navigation" aria-label="News categories">
-        <button class="nav-tab active" data-category="all" aria-pressed="true">
+    <!-- FIXED: Navigation Tabs with Enhanced Structure -->
+    <nav class="nav-tabs" role="navigation" aria-label="News categories" id="navigationTabs">
+        <button class="nav-tab active" 
+                data-category="all" 
+                aria-pressed="true"
+                title="All news from all sources"
+                type="button">
             [ALL_NEWS.DAT]
         </button>
-        <button class="nav-tab" data-category="domestic" aria-pressed="false">
+        <button class="nav-tab" 
+                data-category="domestic" 
+                aria-pressed="false"
+                title="Vietnamese financial news"
+                type="button">
             [LOCAL_FEED.VN]
         </button>
-        <button class="nav-tab" data-category="international" aria-pressed="false">
+        <button class="nav-tab" 
+                data-category="international" 
+                aria-pressed="false"
+                title="International financial news"
+                type="button">
             [GLOBAL_STREAM.INT]
         </button>
-        <button class="nav-tab" data-category="tech" aria-pressed="false">
+        <button class="nav-tab" 
+                data-category="tech" 
+                aria-pressed="false"
+                title="Technology news"
+                type="button">
             [TECH_STACK.JS]
         </button>
-        <button class="nav-tab" data-category="crypto" aria-pressed="false">
+        <button class="nav-tab" 
+                data-category="crypto" 
+                aria-pressed="false"
+                title="Cryptocurrency news"
+                type="button">
             [BLOCKCHAIN.BTC]
         </button>
-        <button class="nav-tab" data-category="ai" aria-pressed="false">
+        <button class="nav-tab" 
+                data-category="ai" 
+                aria-pressed="false"
+                title="AI and machine learning news"
+                type="button">
             [NEURAL_NET.AI]
         </button>
     </nav>
@@ -179,8 +286,8 @@
         </div>
     </main>
 
-    <!-- Chat Widget -->
-    <div class="chat-widget" role="complementary" aria-label="AI Assistant">
+    <!-- FIXED: Chat Widget with Higher Z-Index -->
+    <div class="chat-widget" role="complementary" aria-label="AI Assistant" style="z-index: 3000;">
         <!-- Chat Bubble (Minimized State) -->
         <div class="chat-bubble" id="chatBubble" role="button" tabindex="0" aria-label="Open AI chat assistant">
             <div class="chat-header">
@@ -193,7 +300,7 @@
         </div>
 
         <!-- Chat Window (Maximized State) -->
-        <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chatWindowTitle" aria-modal="false">
+        <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chatWindowTitle" aria-modal="false" style="z-index: 3000;">
             <div class="chat-window-header">
                 <h2 id="chatWindowTitle" class="chat-window-title">AI_TERMINAL v2.024</h2>
                 <div class="chat-controls">
@@ -231,9 +338,9 @@
         </div>
     </div>
 
-    <!-- Article Modal -->
+    <!-- FIXED: Article Modal with proper spacing for chat -->
     <div class="modal" id="articleModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true" aria-hidden="true">
-        <div class="modal-content">
+        <div class="modal-content" style="margin-right: 450px; max-width: calc(90vw - 450px);">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">ARTICLE_VIEWER.EXE</h2>
                 <button class="close-btn" id="closeModal" aria-label="Close article" title="Close (Esc)">×</button>
@@ -275,7 +382,7 @@
         <p>Navigate using Tab key. Press F1 for help, F4 for special effects, F5 to refresh.</p>
     </div>
 
-    <!-- Accessibility Styles -->
+    <!-- FIXED: Accessibility Styles -->
     <style>
         .sr-only {
             position: absolute;
@@ -338,12 +445,45 @@
         .skip-link:focus {
             top: 6px;
         }
+
+        /* FIXED: Mobile responsive navigation */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                padding: 8px;
+                gap: 2px;
+            }
+            
+            .nav-tab {
+                font-size: 8px;
+                padding: 6px 8px;
+                min-height: 32px;
+                flex: 1;
+                min-width: 80px;
+            }
+            
+            .modal-content {
+                margin-right: 0 !important;
+                max-width: 90vw !important;
+            }
+            
+            .chat-window {
+                width: calc(100vw - 40px) !important;
+                height: 50vh !important;
+                bottom: 80px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-tab {
+                font-size: 7px;
+                padding: 4px 6px;
+                min-height: 28px;
+                letter-spacing: 0;
+            }
+        }
     </style>
 
-    <!-- Skip Navigation Link -->
-    <a href="#newsContainer" class="skip-link">Skip to main content</a>
-
-    <!-- Error Boundary -->
+    <!-- FIXED: Error Boundary and Performance Monitoring -->
     <script>
         // Global error handling
         window.addEventListener('error', function(e) {
@@ -356,11 +496,11 @@
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: var(--bg-black);
-                border: 2px solid var(--terminal-red);
-                color: var(--terminal-red);
+                background: var(--bg-black, #000);
+                border: 2px solid var(--terminal-red, #ff0000);
+                color: var(--terminal-red, #ff0000);
                 padding: 2rem;
-                font-family: var(--font-mono);
+                font-family: var(--font-mono, monospace);
                 text-align: center;
                 z-index: 10000;
                 max-width: 400px;
@@ -368,14 +508,14 @@
             errorDiv.innerHTML = `
                 <h3>SYSTEM ERROR</h3>
                 <p style="margin: 1rem 0;">An unexpected error occurred.</p>
-                <button onclick="location.reload()" style="background: var(--terminal-red); color: white; border: none; padding: 0.5rem 1rem; font-family: var(--font-mono); cursor: pointer;">
+                <button onclick="location.reload()" style="background: var(--terminal-red, #ff0000); color: white; border: none; padding: 0.5rem 1rem; font-family: var(--font-mono, monospace); cursor: pointer;">
                     RESTART SYSTEM
                 </button>
             `;
             document.body.appendChild(errorDiv);
         });
 
-        // Performance monitoring
+        // FIXED: Performance monitoring
         window.addEventListener('load', function() {
             if ('performance' in window) {
                 const perfData = performance.getEntriesByType('navigation')[0];
@@ -384,6 +524,17 @@
                     domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
                     firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 'N/A'
                 });
+            }
+            
+            // FIXED: Check if navigation is visible
+            const navTabs = document.querySelector('.nav-tabs');
+            if (navTabs) {
+                const computedStyle = window.getComputedStyle(navTabs);
+                if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+                    console.error('🚨 Navigation tabs not visible! Check CSS loading.');
+                } else {
+                    console.log('✅ Navigation tabs loaded successfully');
+                }
             }
         });
 
@@ -429,11 +580,11 @@
         window.addEventListener('online', updateConnectionStatus);
         window.addEventListener('offline', updateConnectionStatus);
 
-        console.log('🚀 Terminal interface loading...');
+        console.log('🚀 FIXED Terminal interface loading...');
     </script>
 
     <!-- Main Application Script -->
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v={{ range(1000, 9999) | random }}" defer></script>
 
     <!-- Analytics & Monitoring (if needed) -->
     {% if config.get('ANALYTICS_ID') %}
