@@ -715,60 +715,45 @@ PERFORMANCE STATISTICS:
     }
 
     async loadNews(category, page) {
-        if (this.isLoading) {
-            console.log('🔄 Already loading news, skipping...');
-            return;
+    this.showLoader();
+    this.elements.newsGrid.innerHTML = '';
+    try {
+        const response = await fetch(`/api/news/${category}?page=${page}`);
+
+        if (!response.ok) {
+            // Ném lỗi với thông điệp từ server nếu có
+            const errorText = await response.text();
+            throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
         }
 
-        this.isLoading = true;
-        this.currentPage = page;
+        const data = await response.json();
 
-        // Check cache first
-        const cacheKey = `news-${category}-${page}`;
-        const cachedNews = this.performanceManager.getCache(cacheKey);
-        
-        if (cachedNews) {
-            console.log(`📋 Using cached news for ${category}`);
-            this.renderNews(cachedNews);
-            this.isLoading = false;
-            return;
+        if (data.articles && data.articles.length > 0) {
+            this.state.articles = this.state.articles.concat(data.articles);
+            this.state.totalPages = data.total_pages;
+            this.state.currentPage = data.current_page;
+            this.renderNews(data.articles);
+            this.renderPagination(data.total_pages, data.current_page);
+        } else {
+            this.elements.newsGrid.innerHTML = '<p class="info-message">Không tìm thấy bài viết nào trong chuyên mục này.</p>';
+            this.elements.paginationContainer.innerHTML = '';
         }
 
-        this.showLoading();
-        console.log(`🔄 Loading news for category: ${category}, page: ${page}`);
-
-        try {
-            const response = await fetch(`/api/news/${category}?page=${page}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log(`✅ Received ${data.news?.length || 0} articles for ${category}`);
-            
-            // Cache the result
-            this.performanceManager.setCache(cacheKey, data.news || []);
-            
-            this.renderNews(data.news || []);
-            this.updatePagination(data.page || 1, data.total_pages || 1);
-            
-            this.showToast(`✅ Loaded ${data.news?.length || 0} articles for ${category.toUpperCase()}`, 'success');
-
-        } catch (error) {
-            console.error('❌ News loading error:', error);
-            this.showToast(`Error loading news: ${error.message}`, 'error');
-            this.renderError();
-        } finally {
-            this.hideLoading();
-            this.isLoading = false;
-        }
+    } catch (error) {
+        console.error('❌ Lỗi khi tải tin tức:', error);
+        // Hiển thị lỗi trực tiếp trên giao diện
+        this.elements.newsGrid.innerHTML = `
+            <div class="error-message">
+                <h3>Rất tiếc, đã có lỗi xảy ra</h3>
+                <p>Không thể tải tin tức. Vui lòng thử lại sau.</p>
+                <p><small>Chi tiết: ${error.message}</small></p>
+            </div>
+        `;
+        this.elements.paginationContainer.innerHTML = '';
+    } finally {
+        this.hideLoader();
     }
+}
 
     renderNews(newsItems) {
         const newsContainer = document.getElementById('newsContainer');
