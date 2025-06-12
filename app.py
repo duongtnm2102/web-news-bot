@@ -1577,7 +1577,7 @@ def create_app():
     # FLASK ROUTES - FIXED ASYNC ISSUES
     # ===============================
 
-    app.route('/')
+    @app.route('/')
     def index():
         """Main page with enhanced retro brutalism theme - FIXED"""
         try:
