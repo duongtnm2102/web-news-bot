@@ -1,6 +1,6 @@
 /**
- * E-con News Portal - FIXED Retro Brutalism JavaScript v2.024.4
- * Fixed: Navigation functionality, AI chat display, async issues, responsive design
+ * E-con News Portal - FIXED Retro Brutalism JavaScript v2.024.5
+ * Fixed: Pagination functionality, loading issues, Vietnamese UI, async bugs
  * Terminal interface + AI integration + Neo-brutalism UX
  */
 
@@ -261,6 +261,7 @@ class RetroNewsPortal {
         // Core properties
         this.currentPage = 1;
         this.currentCategory = 'all';
+        this.totalPages = 1;
         this.isLoading = false;
         this.currentArticle = null;
         this.aiRequestInProgress = false;
@@ -314,11 +315,11 @@ class RetroNewsPortal {
             await this.loadNews('all', 1);
             
             console.log('✅ FIXED TERMINAL INTERFACE READY - ALL SYSTEMS OPERATIONAL');
-            this.showToast('System initialization complete', 'success');
+            this.showToast('Khởi tạo hệ thống hoàn tất', 'success');
             
         } catch (error) {
             console.error('❌ INITIALIZATION FAILED:', error);
-            this.showToast('System initialization failed: ' + error.message, 'error');
+            this.showToast('Khởi tạo hệ thống thất bại: ' + error.message, 'error');
         }
     }
 
@@ -350,6 +351,97 @@ class RetroNewsPortal {
             chatWidget.style.display = 'block';
             console.log('✅ Chat widget z-index fixed');
         }
+
+        // FIXED: Ensure pagination container exists
+        this.ensurePaginationContainer();
+    }
+
+    // FIXED: Ensure pagination container exists
+    ensurePaginationContainer() {
+        let paginationContainer = document.getElementById('paginationContainer');
+        if (!paginationContainer) {
+            paginationContainer = document.createElement('div');
+            paginationContainer.id = 'paginationContainer';
+            paginationContainer.className = 'pagination';
+            paginationContainer.style.display = 'none';
+            paginationContainer.setAttribute('role', 'navigation');
+            paginationContainer.setAttribute('aria-label', 'Phân trang');
+            
+            paginationContainer.innerHTML = `
+                <button id="prevPageBtn" aria-label="Trang trước">« TRƯỚC</button>
+                <div class="pagination-info" id="pageInfo">Trang 1 / 1</div>
+                <button id="nextPageBtn" aria-label="Trang sau">SAU »</button>
+            `;
+            
+            const newsContainer = document.querySelector('.news-container');
+            if (newsContainer) {
+                newsContainer.appendChild(paginationContainer);
+                console.log('✅ Pagination container created');
+            }
+        }
+        
+        // Bind pagination events
+        this.bindPaginationEvents();
+    }
+
+    // FIXED: Bind pagination events
+    bindPaginationEvents() {
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        
+        if (prevBtn) {
+            prevBtn.removeEventListener('click', this.handlePrevPage); // Remove existing
+            prevBtn.addEventListener('click', this.handlePrevPage.bind(this));
+        }
+        
+        if (nextBtn) {
+            nextBtn.removeEventListener('click', this.handleNextPage); // Remove existing
+            nextBtn.addEventListener('click', this.handleNextPage.bind(this));
+        }
+    }
+
+    // FIXED: Handle previous page
+    async handlePrevPage() {
+        if (this.currentPage > 1 && !this.isLoading) {
+            await this.loadNews(this.currentCategory, this.currentPage - 1);
+        }
+    }
+
+    // FIXED: Handle next page
+    async handleNextPage() {
+        if (this.currentPage < this.totalPages && !this.isLoading) {
+            await this.loadNews(this.currentCategory, this.currentPage + 1);
+        }
+    }
+
+    // FIXED: Update pagination display
+    updatePaginationDisplay(currentPage, totalPages) {
+        this.currentPage = currentPage;
+        this.totalPages = totalPages;
+        
+        const pageInfo = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const paginationContainer = document.getElementById('paginationContainer');
+        
+        if (pageInfo) {
+            pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+        }
+        
+        if (prevBtn) {
+            prevBtn.disabled = currentPage <= 1;
+        }
+        
+        if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages;
+        }
+        
+        // Show/hide pagination based on total pages
+        if (paginationContainer) {
+            paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+        
+        console.log(`✅ Pagination updated: ${currentPage}/${totalPages}`);
     }
 
     bindEvents() {
@@ -504,7 +596,7 @@ class RetroNewsPortal {
     handleBeforeUnload(e) {
         if (this.aiRequestInProgress) {
             e.preventDefault();
-            e.returnValue = 'AI request in progress. Are you sure you want to leave?';
+            e.returnValue = 'Yêu cầu AI đang xử lý. Bạn có chắc muốn rời khỏi?';
         }
     }
 
@@ -571,63 +663,63 @@ class RetroNewsPortal {
         if (this.commands.has(command)) {
             this.commands.get(command)(args);
         } else {
-            this.showTerminalResponse(`Command not found: ${command}. Type 'help' for available commands.`, 'error');
+            this.showTerminalResponse(`Lệnh không tìm thấy: ${command}. Gõ 'help' để xem các lệnh có sẵn.`, 'error');
         }
     }
 
     executeNewsCommand(args) {
         const category = args[0] || 'all';
-        this.showTerminalResponse(`Loading news feed: ${category.toUpperCase()}`);
+        this.showTerminalResponse(`Đang tải nguồn cấp tin tức: ${category.toUpperCase()}`);
         this.switchCategory(category);
     }
 
     executeAICommand(args) {
-        this.showTerminalResponse('Activating AI assistant...');
+        this.showTerminalResponse('Đang kích hoạt trợ lý AI...');
         this.openChatWindow();
     }
 
     executeStatusCommand(args) {
         const uptime = Math.floor((Date.now() - this.systemStats.uptime) / 1000);
         const response = `
-SYSTEM STATUS REPORT:
-├─ STATUS: ONLINE
-├─ UPTIME: ${uptime}s
+BÁO CÁO TRẠNG THÁI HỆ THỐNG:
+├─ TRẠNG_THÁI: TRỰC_TUYẾN
+├─ THỜI_GIAN_HOẠT_ĐỘNG: ${uptime}s
 ├─ CPU: ${this.systemStats.systemLoad}%
-├─ MEMORY: ${Math.floor(Math.random() * 200 + 200)}MB
-├─ ACTIVE_USERS: ${this.systemStats.activeUsers.toLocaleString()}
-├─ AI_QUERIES: ${this.systemStats.aiQueries.toLocaleString()}
-└─ NEWS_PARSED: ${this.systemStats.newsParsed.toLocaleString()}`;
+├─ BỘ_NHỚ: ${Math.floor(Math.random() * 200 + 200)}MB
+├─ NGƯỜI_DÙNG_HOẠT_ĐỘNG: ${this.systemStats.activeUsers.toLocaleString()}
+├─ CÂU_HỎI_AI: ${this.systemStats.aiQueries.toLocaleString()}
+└─ TIN_TỨC_PHÂN_TÍCH: ${this.systemStats.newsParsed.toLocaleString()}`;
         
         this.showTerminalResponse(response, 'success');
     }
 
     executeHelpCommand(args) {
         const response = `
-AVAILABLE COMMANDS:
-├─ news [category]  │ Load news feed (all, domestic, international, tech, crypto)
-├─ ai              │ Open AI assistant
-├─ status          │ System status
-├─ matrix          │ Activate matrix mode
-├─ glitch          │ Trigger glitch effect
-├─ clear           │ Clear terminal
-├─ refresh         │ Refresh data
-├─ theme [mode]    │ Change theme
-├─ stats           │ Performance stats
-└─ exit            │ Goodbye message
+CÁC LỆNH CÓ SẴN:
+├─ news [danh_mục]  │ Tải nguồn cấp tin tức (all, domestic, international, tech, crypto)
+├─ ai              │ Mở trợ lý AI
+├─ status          │ Trạng thái hệ thống
+├─ matrix          │ Kích hoạt chế độ matrix
+├─ glitch          │ Kích hoạt hiệu ứng glitch
+├─ clear           │ Xóa terminal
+├─ refresh         │ Làm mới dữ liệu
+├─ theme [chế_độ]  │ Thay đổi theme
+├─ stats           │ Thống kê hiệu suất
+└─ exit            │ Tin nhắn tạm biệt
 
-HOTKEYS: F1=Help, F4=Matrix, F5=Refresh, \`=Terminal, ESC=Close`;
+PHÍM TẮT: F1=Trợ giúp, F4=Matrix, F5=Làm mới, \`=Terminal, ESC=Đóng`;
         
         this.showTerminalResponse(response, 'info');
     }
 
     executeMatrixCommand(args) {
-        this.showTerminalResponse('Entering the Matrix... 🐰');
+        this.showTerminalResponse('Đang vào Matrix... 🐰');
         this.effectsManager.activateMatrixMode(5000);
     }
 
     executeGlitchCommand(args) {
         const intensity = args[0] || 'medium';
-        this.showTerminalResponse(`Triggering glitch effect: ${intensity.toUpperCase()}`);
+        this.showTerminalResponse(`Kích hoạt hiệu ứng glitch: ${intensity.toUpperCase()}`);
         this.effectsManager.triggerGlitch(intensity);
     }
 
@@ -635,17 +727,17 @@ HOTKEYS: F1=Help, F4=Matrix, F5=Refresh, \`=Terminal, ESC=Close`;
         // Clear any temporary displays
         const toasts = document.querySelectorAll('.toast');
         toasts.forEach(toast => toast.remove());
-        this.showTerminalResponse('Terminal cleared');
+        this.showTerminalResponse('Terminal đã được xóa');
     }
 
     executeRefreshCommand(args) {
-        this.showTerminalResponse('Refreshing all systems...');
+        this.showTerminalResponse('Đang làm mới tất cả hệ thống...');
         this.refreshNews();
         this.updateStats();
     }
 
     executeExitCommand(args) {
-        this.showTerminalResponse('Goodbye, user. Remember: There is no spoon. 🥄', 'info');
+        this.showTerminalResponse('Tạm biệt, người dùng. Hãy nhớ: Không có chiếc thìa nào cả. 🥄', 'info');
         setTimeout(() => {
             this.effectsManager.triggerGlitch('high');
         }, 1000);
@@ -653,20 +745,20 @@ HOTKEYS: F1=Help, F4=Matrix, F5=Refresh, \`=Terminal, ESC=Close`;
 
     executeThemeCommand(args) {
         const mode = args[0] || 'retro';
-        this.showTerminalResponse(`Theme switching to: ${mode.toUpperCase()}`);
+        this.showTerminalResponse(`Chuyển đổi theme sang: ${mode.toUpperCase()}`);
         // Implement theme switching logic here
     }
 
     executeStatsCommand(args) {
         const performance = this.getPerformanceStats();
         const response = `
-PERFORMANCE STATISTICS:
-├─ Cache Size: ${this.performanceManager.cache.size}
-├─ Chat Messages: ${this.chatMessages.length}
-├─ Current Category: ${this.currentCategory.toUpperCase()}
-├─ Page Load Time: ${performance.loadTime}ms
-├─ Memory Usage: ${performance.memoryUsage}MB
-└─ Active Observers: ${this.performanceManager.observers.size}`;
+THỐNG KÊ HIỆU SUẤT:
+├─ Kích thước Cache: ${this.performanceManager.cache.size}
+├─ Tin nhắn Chat: ${this.chatMessages.length}
+├─ Danh mục Hiện tại: ${this.currentCategory.toUpperCase()}
+├─ Thời gian Tải trang: ${performance.loadTime}ms
+├─ Sử dụng Bộ nhớ: ${performance.memoryUsage}MB
+└─ Observer Hoạt động: ${this.performanceManager.observers.size}`;
         
         this.showTerminalResponse(response, 'info');
     }
@@ -687,7 +779,7 @@ PERFORMANCE STATISTICS:
     }
 
     // ===============================
-    // FIXED: NEWS MANAGEMENT
+    // FIXED: NEWS MANAGEMENT WITH PAGINATION
     // ===============================
 
     async switchCategory(category) {
@@ -711,49 +803,74 @@ PERFORMANCE STATISTICS:
         }
 
         this.currentCategory = category;
-        await this.loadNews(category, 1);
+        await this.loadNews(category, 1); // Always start from page 1 when switching categories
     }
 
     async loadNews(category, page) {
-    this.showLoader();
-    this.elements.newsGrid.innerHTML = '';
-    try {
-        const response = await fetch(`/api/news/${category}?page=${page}`);
-
-        if (!response.ok) {
-            // Ném lỗi với thông điệp từ server nếu có
-            const errorText = await response.text();
-            throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+        if (this.isLoading) {
+            console.log('🔄 Already loading news, skipping...');
+            return;
         }
 
-        const data = await response.json();
+        this.isLoading = true;
+        this.currentPage = page;
 
-        if (data.articles && data.articles.length > 0) {
-            this.state.articles = this.state.articles.concat(data.articles);
-            this.state.totalPages = data.total_pages;
-            this.state.currentPage = data.current_page;
-            this.renderNews(data.articles);
-            this.renderPagination(data.total_pages, data.current_page);
-        } else {
-            this.elements.newsGrid.innerHTML = '<p class="info-message">Không tìm thấy bài viết nào trong chuyên mục này.</p>';
-            this.elements.paginationContainer.innerHTML = '';
+        // Check cache first
+        const cacheKey = `news-${category}-${page}`;
+        const cachedNews = this.performanceManager.getCache(cacheKey);
+        
+        if (cachedNews) {
+            console.log(`📋 Using cached news for ${category}`);
+            this.renderNews(cachedNews.news);
+            this.updatePaginationDisplay(cachedNews.page, cachedNews.total_pages);
+            this.isLoading = false;
+            return;
         }
 
-    } catch (error) {
-        console.error('❌ Lỗi khi tải tin tức:', error);
-        // Hiển thị lỗi trực tiếp trên giao diện
-        this.elements.newsGrid.innerHTML = `
-            <div class="error-message">
-                <h3>Rất tiếc, đã có lỗi xảy ra</h3>
-                <p>Không thể tải tin tức. Vui lòng thử lại sau.</p>
-                <p><small>Chi tiết: ${error.message}</small></p>
-            </div>
-        `;
-        this.elements.paginationContainer.innerHTML = '';
-    } finally {
-        this.hideLoader();
+        this.showLoading();
+        console.log(`🔄 Loading news for category: ${category}, page: ${page}`);
+
+        try {
+            // FIXED: Better URL construction with error handling
+            const url = `/api/news/${encodeURIComponent(category)}?page=${page}`;
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
+            if (!response.ok) {
+                // FIXED: Better error message for 400 errors
+                if (response.status === 400) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Lỗi yêu cầu: ${errorData.error || 'Danh mục không hợp lệ'}`);
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log(`✅ Received ${data.news?.length || 0} articles for ${category}`);
+            
+            // Cache the result
+            this.performanceManager.setCache(cacheKey, data);
+            
+            this.renderNews(data.news || []);
+            this.updatePaginationDisplay(data.page || 1, data.total_pages || 1);
+            
+            this.showToast(`✅ Đã tải ${data.news?.length || 0} bài viết cho ${category.toUpperCase()}`, 'success');
+
+        } catch (error) {
+            console.error('❌ News loading error:', error);
+            this.showToast(`Lỗi tải tin tức: ${error.message}`, 'error');
+            this.renderError();
+            // FIXED: Reset pagination on error
+            this.updatePaginationDisplay(1, 1);
+        } finally {
+            this.hideLoading();
+            this.isLoading = false;
+        }
     }
-}
 
     renderNews(newsItems) {
         const newsContainer = document.getElementById('newsContainer');
@@ -810,14 +927,14 @@ PERFORMANCE STATISTICS:
                 <div class="article-meta">
                     <span class="priority-tag priority-${this.getRandomPriority()}">[${this.getRandomPriority().toUpperCase()}]</span>
                     <span class="category-tag">[${(news.source || 'UNKNOWN').toUpperCase()}]</span>
-                    <span class="file-type">FILE_TYPE: ${this.getRandomFileType()}</span>
+                    <span class="file-type">LOẠI_FILE: ${this.getRandomFileType()}</span>
                 </div>
                 <div class="timestamp">${this.formatTimestamp(news.published)}</div>
             </div>
             <div class="article-content">
                 <div class="article-icon">${news.emoji || '📰'}</div>
                 <h2 class="article-title">${this.escapeHtml(news.title)}</h2>
-                <p class="article-preview">${this.escapeHtml(news.description || 'No description available.')}</p>
+                <p class="article-preview">${this.escapeHtml(news.description || 'Không có mô tả.')}</p>
                 <div class="article-tags">
                     ${this.generateRandomTags().map(tag => 
                         `<span class="tag">#${tag}</span>`
@@ -831,13 +948,13 @@ PERFORMANCE STATISTICS:
                     </div>
                     <div class="action-buttons">
                         <button class="btn btn-exec">[EXEC]</button>
-                        <button class="btn btn-share">[SHARE]</button>
-                        <button class="btn btn-save">[SAVE]</button>
+                        <button class="btn btn-share">[CHIA_SẺ]</button>
+                        <button class="btn btn-save">[LƯU]</button>
                     </div>
                 </div>
             </div>
             <div class="progress-bar">
-                <span class="progress-label">LOADING:</span>
+                <span class="progress-label">ĐANG_TẢI:</span>
                 <div class="progress-fill">
                     <div class="progress-bar-fill" style="width: ${stats.progress}%;"></div>
                 </div>
@@ -853,16 +970,16 @@ PERFORMANCE STATISTICS:
             <div style="text-align: center; padding: 4rem; color: var(--terminal-amber);">
                 <div style="font-size: 4rem; margin-bottom: 2rem;">🤖</div>
                 <h3 style="color: var(--terminal-green); margin-bottom: 1rem; font-family: var(--font-mono);">
-                    NO DATA STREAMS DETECTED
+                    KHÔNG PHÁT HIỆN DÒNG DỮ LIỆU
                 </h3>
                 <p style="color: var(--text-gray); font-family: var(--font-mono);">
-                    Neural networks are currently offline. Please try again later.
+                    Mạng neural hiện đang ngoại tuyến. Vui lòng thử lại sau.
                 </p>
                 <button onclick="retroNewsPortal.executeRefreshCommand()" 
                         style="background: var(--terminal-green); color: var(--bg-black); border: none; 
                                padding: 1rem 2rem; font-family: var(--font-mono); font-weight: bold; 
                                cursor: pointer; text-transform: uppercase; margin-top: 1rem;">
-                    🔄 RETRY CONNECTION
+                    🔄 THỬ LẠI KẾT NỐI
                 </button>
             </div>
         `;
@@ -876,16 +993,16 @@ PERFORMANCE STATISTICS:
             <div style="text-align: center; padding: 4rem;">
                 <div style="font-size: 4rem; margin-bottom: 2rem; color: var(--terminal-red);">❌</div>
                 <h3 style="color: var(--terminal-red); margin-bottom: 1rem; font-family: var(--font-mono);">
-                    SYSTEM ERROR: DATA_FETCH_FAILED
+                    LỖI HỆ THỐNG: DATA_FETCH_FAILED
                 </h3>
                 <p style="color: var(--text-gray); margin-bottom: 2rem; font-family: var(--font-mono);">
-                    Unable to establish connection with news servers.<br>
-                    Please check your network connection and try again.
+                    Không thể thiết lập kết nối với máy chủ tin tức.<br>
+                    Vui lòng kiểm tra kết nối mạng và thử lại.
                 </p>
                 <button onclick="retroNewsPortal.executeRefreshCommand()" 
                         style="background: var(--terminal-green); color: var(--bg-black); border: none; padding: 1rem 2rem; 
                                font-family: var(--font-mono); font-weight: bold; cursor: pointer; text-transform: uppercase;">
-                    🔄 RETRY CONNECTION
+                    🔄 THỬ LẠI KẾT NỐI
                 </button>
             </div>
         `;
@@ -904,8 +1021,8 @@ PERFORMANCE STATISTICS:
         if (!modal || !modalTitle || !modalBody) return;
 
         // Show modal with loading state
-        modalTitle.textContent = `LOADING ARTICLE_${articleId.padStart(4, '0')}.DAT`;
-        modalBody.innerHTML = this.createLoadingState('EXTRACTING ARTICLE DATA...');
+        modalTitle.textContent = `ĐANG_TẢI BÀI_VIẾT_${articleId.toString().padStart(4, '0')}.DAT`;
+        modalBody.innerHTML = this.createLoadingState('ĐANG TRÍCH XUẤT DỮ LIỆU BÀI VIẾT...');
         modal.style.display = 'flex';
         
         // FIXED: Ensure chat widget remains visible
@@ -922,19 +1039,19 @@ PERFORMANCE STATISTICS:
             this.currentArticle = article;
 
             // Update modal content
-            modalTitle.textContent = `ARTICLE_${articleId.padStart(4, '0')}.DAT`;
+            modalTitle.textContent = `BÀI_VIẾT_${articleId.toString().padStart(4, '0')}.DAT`;
             modalBody.innerHTML = this.formatArticleContent(article);
 
             // FIXED: Show chat with article context
             this.showChatWithArticleContext(article);
 
-            this.showToast('📰 Article loaded successfully - AI ready for analysis', 'success');
+            this.showToast('📰 Bài viết đã tải thành công - AI sẵn sàng phân tích', 'success');
 
         } catch (error) {
             console.error('❌ Article loading error:', error);
-            modalTitle.textContent = 'ERROR_LOADING_ARTICLE';
+            modalTitle.textContent = 'LỖI_TẢI_BÀI_VIẾT';
             modalBody.innerHTML = this.createErrorState(error.message);
-            this.showToast(`Error loading article: ${error.message}`, 'error');
+            this.showToast(`Lỗi tải bài viết: ${error.message}`, 'error');
         }
     }
 
@@ -966,7 +1083,7 @@ PERFORMANCE STATISTICS:
         const chatSubtitle = chatBubble?.querySelector('.chat-subtitle');
         
         if (chatSubtitle) {
-            chatSubtitle.textContent = 'Article loaded - Ready for AI analysis';
+            chatSubtitle.textContent = 'Bài viết đã tải - Sẵn sàng phân tích AI';
             chatSubtitle.style.color = 'var(--terminal-amber)';
         }
         
@@ -994,12 +1111,12 @@ PERFORMANCE STATISTICS:
                         ${this.escapeHtml(article.title)}
                     </h3>
                     <div style="display: flex; gap: 2rem; margin-bottom: 1rem; font-size: 0.9rem;">
-                        <span style="color: var(--terminal-amber);">SOURCE: ${this.escapeHtml(article.source)}</span>
-                        <span style="color: var(--terminal-purple);">TIME: ${this.escapeHtml(article.published)}</span>
+                        <span style="color: var(--terminal-amber);">NGUỒN: ${this.escapeHtml(article.source)}</span>
+                        <span style="color: var(--terminal-purple);">THỜI_GIAN: ${this.escapeHtml(article.published)}</span>
                     </div>
                     <a href="${article.link}" target="_blank" rel="noopener noreferrer" 
                        style="color: var(--terminal-green); text-decoration: none;">
-                        🔗 [ORIGINAL_LINK]
+                        🔗 [LINK_GỐC]
                     </a>
                 </div>
                 
@@ -1008,16 +1125,16 @@ PERFORMANCE STATISTICS:
                 </div>
                 
                 <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-dark); border: 1px solid var(--terminal-green);">
-                    <strong style="color: var(--terminal-amber);">SYSTEM_STATUS:</strong> Article loaded successfully<br>
-                    <strong style="color: var(--terminal-cyan);">AI_ANALYSIS:</strong> Available via chat interface<br>
-                    <strong style="color: var(--terminal-purple);">WORD_COUNT:</strong> ${this.countWords(article.content)} words
+                    <strong style="color: var(--terminal-amber);">TRẠNG_THÁI_HỆ_THỐNG:</strong> Bài viết đã tải thành công<br>
+                    <strong style="color: var(--terminal-cyan);">PHÂN_TÍCH_AI:</strong> Có sẵn qua giao diện chat<br>
+                    <strong style="color: var(--terminal-purple);">SỐ_TỪ:</strong> ${this.countWords(article.content)} từ
                 </div>
             </div>
         `;
     }
 
     formatArticleText(content) {
-        if (!content) return 'Content not available.';
+        if (!content) return 'Nội dung không có sẵn.';
         
         return content
             .split('\n')
@@ -1050,14 +1167,14 @@ PERFORMANCE STATISTICS:
             // Reset chat subtitle
             const chatSubtitle = document.querySelector('.chat-subtitle');
             if (chatSubtitle) {
-                chatSubtitle.textContent = 'Ready for queries...';
+                chatSubtitle.textContent = 'Sẵn sàng cho truy vấn...';
                 chatSubtitle.style.color = '';
             }
         }
     }
 
     // ===============================
-    // CHAT SYSTEM (Same as original but with fixes)
+    // CHAT SYSTEM (Vietnamese UI)
     // ===============================
 
     openChatWindow() {
@@ -1078,17 +1195,17 @@ PERFORMANCE STATISTICS:
 
     async handleSummaryRequest() {
         if (this.aiRequestInProgress) {
-            this.showToast('AI is processing another request...', 'warning');
+            this.showToast('AI đang xử lý yêu cầu khác...', 'warning');
             return;
         }
 
         if (!this.currentArticle) {
-            this.showToast('Please open an article first', 'error');
+            this.showToast('Vui lòng mở một bài viết trước', 'error');
             return;
         }
 
         this.aiRequestInProgress = true;
-        this.addChatMessage('📋 Analyzing article for summary...', 'user');
+        this.addChatMessage('📋 Đang phân tích bài viết để tóm tắt...', 'user');
         this.showAITyping();
 
         try {
@@ -1110,12 +1227,12 @@ PERFORMANCE STATISTICS:
 
             this.hideAITyping();
             this.addChatMessage(this.formatAIResponse(data.response), 'ai');
-            this.showToast('✅ Summary completed', 'success');
+            this.showToast('✅ Tóm tắt hoàn thành', 'success');
 
         } catch (error) {
             this.hideAITyping();
-            this.addChatMessage(`❌ Summary error: ${error.message}`, 'ai');
-            this.showToast('Error generating summary', 'error');
+            this.addChatMessage(`❌ Lỗi tóm tắt: ${error.message}`, 'ai');
+            this.showToast('Lỗi tạo tóm tắt', 'error');
         } finally {
             this.aiRequestInProgress = false;
         }
@@ -1123,17 +1240,17 @@ PERFORMANCE STATISTICS:
 
     async handleDebateRequest() {
         if (this.aiRequestInProgress) {
-            this.showToast('AI is processing another request...', 'warning');
+            this.showToast('AI đang xử lý yêu cầu khác...', 'warning');
             return;
         }
 
         if (!this.currentArticle) {
-            this.showToast('Please open an article first', 'error');
+            this.showToast('Vui lòng mở một bài viết trước', 'error');
             return;
         }
 
         this.aiRequestInProgress = true;
-        this.addChatMessage('🎭 Initializing multi-perspective debate...', 'user');
+        this.addChatMessage('🎭 Đang khởi tạo cuộc tranh luận đa quan điểm...', 'user');
         this.showAITyping();
 
         try {
@@ -1155,12 +1272,12 @@ PERFORMANCE STATISTICS:
 
             this.hideAITyping();
             this.displayDebateAsCharacters(data.response);
-            this.showToast('✅ Debate completed', 'success');
+            this.showToast('✅ Tranh luận hoàn thành', 'success');
 
         } catch (error) {
             this.hideAITyping();
-            this.addChatMessage(`❌ Debate error: ${error.message}`, 'ai');
-            this.showToast('Error generating debate', 'error');
+            this.addChatMessage(`❌ Lỗi tranh luận: ${error.message}`, 'ai');
+            this.showToast('Lỗi tạo tranh luận', 'error');
         } finally {
             this.aiRequestInProgress = false;
         }
@@ -1200,59 +1317,25 @@ PERFORMANCE STATISTICS:
 
         } catch (error) {
             this.hideAITyping();
-            this.addChatMessage(`❌ Error: ${error.message}`, 'ai');
+            this.addChatMessage(`❌ Lỗi: ${error.message}`, 'ai');
         } finally {
             this.aiRequestInProgress = false;
         }
     }
 
     displayDebateAsCharacters(debateText) {
-        const characters = [
-            { name: 'ECONOMIST_BOT', emoji: '🏦', color: 'var(--terminal-cyan)' },
-            { name: 'CRYPTO_MAXIMALIST', emoji: '₿', color: 'var(--terminal-amber)' },
-            { name: 'ACADEMIC_AI', emoji: '🎓', color: 'var(--terminal-blue)' },
-            { name: 'CORPORATE_DRONE', emoji: '💼', color: 'var(--terminal-purple)' },
-            { name: 'META_AI', emoji: '🤖', color: 'var(--terminal-green)' }
-        ];
-
-        // Simulate character responses with delays
-        characters.forEach((character, index) => {
-            setTimeout(() => {
-                const message = this.generateCharacterResponse(character, debateText);
-                this.addCharacterMessage(character, message);
-            }, (index + 1) * 1500);
-        });
-    }
-
-    generateCharacterResponse(character, context) {
-        // Simple character-based responses (in production, this would be parsed from AI response)
-        const responses = {
-            'ECONOMIST_BOT': 'Market fundamentals suggest a correction phase. Historical data supports recovery patterns.',
-            'CRYPTO_MAXIMALIST': 'This is why we need decentralized systems. Bitcoin fixes everything!',
-            'ACADEMIC_AI': 'Multiple variables indicate complex socioeconomic factors at play.',
-            'CORPORATE_DRONE': 'Quarterly projections remain optimized. Stakeholder value is our priority.',
-            'META_AI': 'All perspectives synthesized. Truth emerges from collaborative analysis.'
-        };
+        // FIXED: Parse character responses from debate text
+        const lines = debateText.split('\n').filter(line => line.trim());
         
-        return responses[character.name] || 'Processing perspective...';
-    }
-
-    addCharacterMessage(character, message) {
-        const messagesContainer = document.getElementById('chatMessages');
-        if (!messagesContainer) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message ai';
-        messageDiv.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                <span style="font-size: 1.2rem;">${character.emoji}</span>
-                <strong style="color: ${character.color}; font-size: 0.9rem;">${character.name}</strong>
-            </div>
-            <div>${message}</div>
-        `;
-
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        lines.forEach((line, index) => {
+            if (line.includes('🎓') || line.includes('📊') || line.includes('💼') || 
+                line.includes('😔') || line.includes('💰') || line.includes('🦈')) {
+                
+                setTimeout(() => {
+                    this.addChatMessage(line, 'ai');
+                }, (index + 1) * 1500);
+            }
+        });
     }
 
     addChatMessage(content, sender) {
@@ -1289,7 +1372,7 @@ PERFORMANCE STATISTICS:
         const typingDiv = document.createElement('div');
         typingDiv.id = 'typingIndicator';
         typingDiv.className = 'chat-message ai';
-        typingDiv.innerHTML = 'AI_CORE> Processing<span class="cursor">█</span>';
+        typingDiv.innerHTML = 'AI_CORE> Đang xử lý<span class="cursor">█</span>';
         
         const messagesContainer = document.getElementById('chatMessages');
         if (messagesContainer) {
@@ -1386,9 +1469,11 @@ PERFORMANCE STATISTICS:
     showLoading() {
         const loadingContainer = document.getElementById('loadingContainer');
         const newsContainer = document.getElementById('newsContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
         
         if (loadingContainer) loadingContainer.style.display = 'block';
         if (newsContainer) newsContainer.style.display = 'none';
+        if (paginationContainer) paginationContainer.style.display = 'none';
     }
 
     hideLoading() {
@@ -1397,11 +1482,6 @@ PERFORMANCE STATISTICS:
         
         if (loadingContainer) loadingContainer.style.display = 'none';
         if (newsContainer) newsContainer.style.display = 'block';
-    }
-
-    updatePagination(currentPage, totalPages) {
-        // Implementation for pagination if needed
-        console.log(`Pagination: ${currentPage}/${totalPages}`);
     }
 
     initializeIntersectionObservers() {
@@ -1487,7 +1567,7 @@ PERFORMANCE STATISTICS:
         this.showTerminalResponse(message, type);
     }
 
-    createLoadingState(message = 'Loading...') {
+    createLoadingState(message = 'Đang tải...') {
         return `
             <div class="loading">
                 <div class="spinner"></div>
@@ -1500,7 +1580,7 @@ PERFORMANCE STATISTICS:
         return `
             <div style="text-align: center; padding: 2rem; color: var(--terminal-red);">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">❌</div>
-                <h3 style="margin-bottom: 1rem;">SYSTEM ERROR</h3>
+                <h3 style="margin-bottom: 1rem;">LỖI HỆ THỐNG</h3>
                 <p style="font-family: var(--font-mono); font-size: 0.9rem;">${this.escapeHtml(message)}</p>
             </div>
         `;
@@ -1528,7 +1608,7 @@ PERFORMANCE STATISTICS:
     }
 
     formatTimestamp(published) {
-        if (!published) return 'UNKNOWN_TIME';
+        if (!published) return 'THỜI_GIAN_KHÔNG_XÁC_ĐỊNH';
         return published.replace(/[:\s]/g, '_').toUpperCase();
     }
 
@@ -1591,7 +1671,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('✅ FIXED Retro Brutalism News Portal initialized successfully!');
         console.log('🎨 Theme: Neo-brutalism + Terminal aesthetic');
         console.log('⚡ Features: AI chat, glitch effects, matrix mode, terminal commands');
-        console.log('🔧 Fixed: Navigation visibility, AI chat z-index, responsive design');
+        console.log('🔧 Fixed: Pagination, loading, Vietnamese UI, async bugs');
         
     } catch (error) {
         console.error('❌ Failed to initialize:', error);
@@ -1602,13 +1682,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         min-height: 100vh; text-align: center; padding: 2rem; background: var(--bg-black); 
                         color: var(--terminal-red); font-family: var(--font-mono);">
                 <div style="font-size: 4rem; margin-bottom: 1rem;">💀</div>
-                <h1 style="margin-bottom: 1rem;">SYSTEM FAILURE</h1>
+                <h1 style="margin-bottom: 1rem;">LỖI HỆ THỐNG</h1>
                 <p style="margin-bottom: 2rem; color: var(--text-gray);">${error.message}</p>
                 <button onclick="location.reload()" 
                         style="background: var(--terminal-green); color: var(--bg-black); border: none; 
                                padding: 1rem 2rem; font-family: var(--font-mono); font-weight: bold; 
                                cursor: pointer; text-transform: uppercase;">
-                    🔄 RESTART SYSTEM
+                    🔄 KHỞI ĐỘNG LẠI HỆ THỐNG
                 </button>
             </div>
         `;
@@ -1618,17 +1698,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // FIXED: Console branding
 console.log(`
 ╔══════════════════════════════════════════════════════════╗
-║              FIXED RETRO BRUTALISM NEWS PORTAL v2.024.4  ║
+║              FIXED RETRO BRUTALISM NEWS PORTAL v2.024.5  ║
 ║                        SYSTEM LOADED                     ║
 ║                                                          ║
 ║  🤖 AI-Powered Financial News Portal                    ║
 ║  🎮 Neo-brutalist Design + Terminal Interface           ║
 ║  ⚡ Modern Performance + Retro Aesthetics               ║
 ║  🔥 Matrix Mode + Glitch Effects                        ║
-║  🔧 FIXED: Navigation, Chat, Responsive Design          ║
+║  🔧 FIXED: Pagination, Loading, Vietnamese UI           ║
 ║                                                          ║
-║  Type 'help' in terminal for available commands          ║
-║  Press F4 for Matrix mode, F5 to refresh                 ║
+║  Gõ 'help' trong terminal để xem các lệnh có sẵn         ║
+║  Nhấn F4 cho chế độ Matrix, F5 để làm mới                ║
 ╚══════════════════════════════════════════════════════════╝
 `);
 
