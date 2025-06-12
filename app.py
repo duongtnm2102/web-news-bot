@@ -23,6 +23,8 @@ import time
 import logging
 import traceback
 from functools import wraps
+import concurrent.futures
+import threading
 
 # Enhanced libraries for better content extraction
 try:
@@ -50,6 +52,41 @@ try:
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
+
+# ===============================
+# ASYNCIO HELPER FUNCTIONS
+# ===============================
+
+def run_async(coro):
+    """
+    Helper function to run async coroutines in sync contexts
+    Works with both existing and new event loops
+    """
+    try:
+        # Try to get existing loop
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If loop is running, use thread pool
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(asyncio.run, coro)
+                return future.result()
+        else:
+            # If loop exists but not running
+            return loop.run_until_complete(coro)
+    except RuntimeError:
+        # No event loop exists, create new one
+        return asyncio.run(coro)
+
+def async_route(f):
+    """
+    Decorator to convert async routes to sync routes
+    Usage: @async_route instead of async def
+    """
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        coro = f(*args, **kwargs)
+        return run_async(coro)
+    return wrapper
 
 # ===============================
 # GLOBAL VARIABLES AND CONFIG
@@ -1489,7 +1526,7 @@ def create_app():
     create_debug_info_endpoint(app)
 
     # ===============================
-    # FLASK ROUTES
+    # FLASK ROUTES - FIXED ASYNC ISSUES
     # ===============================
 
     @app.route('/')
@@ -1539,6 +1576,7 @@ def create_app():
     @app.route('/api/news/<news_type>')
     @track_request
     @require_session
+    @async_route  # Using our custom decorator instead of async def
     async def get_news_api(news_type):
         """Enhanced API endpoint for getting news with better error handling"""
         try:
@@ -1624,6 +1662,7 @@ def create_app():
     @app.route('/api/article/<int:article_id>')
     @track_request
     @require_session
+    @async_route  # Using our custom decorator instead of async def
     async def get_article_detail(article_id):
         """Enhanced article detail with better content extraction"""
         try:
@@ -1687,6 +1726,7 @@ def create_app():
     @app.route('/api/ai/ask', methods=['POST'])
     @track_request
     @require_session
+    @async_route  # Using our custom decorator instead of async def
     async def ai_ask():
         """Enhanced AI ask endpoint with better context handling"""
         try:
@@ -1742,6 +1782,7 @@ def create_app():
     @app.route('/api/ai/debate', methods=['POST'])
     @track_request
     @require_session
+    @async_route  # Using our custom decorator instead of async def
     async def ai_debate():
         """Enhanced AI debate endpoint"""
         try:
@@ -1840,8 +1881,9 @@ if GEMINI_API_KEY and GEMINI_AVAILABLE:
     print("✅ Gemini AI configured successfully")
 
 # Initialize startup
-print("🚀 Retro Brutalism E-con News Backend:")
+print("🚀 Retro Brutalism E-con News Backend (FIXED ASYNC):")
 print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print(f"Terminal Commands: ✅ {len(terminal_processor.commands)} available")
+print(f"Async Support: ✅ Custom decorator implementation")
 print("=" * 60)
