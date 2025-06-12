@@ -1,6 +1,6 @@
 /**
- * E-con News Portal - Retro Brutalism JavaScript v2.024
- * Optimized for performance and modern browser features
+ * E-con News Portal - FIXED Retro Brutalism JavaScript v2.024.4
+ * Fixed: Navigation functionality, AI chat display, async issues, responsive design
  * Terminal interface + AI integration + Neo-brutalism UX
  */
 
@@ -253,7 +253,7 @@ class TerminalEffectsManager {
 }
 
 // ===============================
-// MAIN RETRO NEWS PORTAL CLASS
+// MAIN RETRO NEWS PORTAL CLASS (FIXED)
 // ===============================
 
 class RetroNewsPortal {
@@ -298,19 +298,22 @@ class RetroNewsPortal {
     }
 
     async init() {
-        console.log('🚀 INITIALIZING RETRO BRUTALISM NEWS PORTAL v2.024...');
+        console.log('🚀 INITIALIZING FIXED RETRO BRUTALISM NEWS PORTAL v2.024...');
         
         try {
+            // FIXED: Ensure critical elements are visible
+            this.ensureCriticalElementsVisible();
+            
             this.bindEvents();
             this.startSystemUpdates();
             this.initializeIntersectionObservers();
             this.setupKeyboardShortcuts();
             this.simulateSystemBoot();
             
-            // Load initial news
+            // FIXED: Load initial news with error handling
             await this.loadNews('all', 1);
             
-            console.log('✅ TERMINAL INTERFACE READY - ALL SYSTEMS OPERATIONAL');
+            console.log('✅ FIXED TERMINAL INTERFACE READY - ALL SYSTEMS OPERATIONAL');
             this.showToast('System initialization complete', 'success');
             
         } catch (error) {
@@ -319,11 +322,52 @@ class RetroNewsPortal {
         }
     }
 
+    // FIXED: Ensure critical elements are visible
+    ensureCriticalElementsVisible() {
+        // Force navigation tabs to be visible
+        const navTabs = document.querySelector('.nav-tabs');
+        const navTabButtons = document.querySelectorAll('.nav-tab');
+        
+        if (navTabs) {
+            navTabs.style.display = 'flex';
+            navTabs.style.visibility = 'visible';
+            navTabs.style.opacity = '1';
+            console.log('✅ Navigation tabs forced visible');
+        } else {
+            console.error('❌ Navigation tabs not found!');
+        }
+        
+        navTabButtons.forEach(tab => {
+            tab.style.display = 'flex';
+            tab.style.visibility = 'visible';
+            tab.style.opacity = '1';
+        });
+        
+        // Force chat widget to be visible
+        const chatWidget = document.querySelector('.chat-widget');
+        if (chatWidget) {
+            chatWidget.style.zIndex = '3000';
+            chatWidget.style.display = 'block';
+            console.log('✅ Chat widget z-index fixed');
+        }
+    }
+
     bindEvents() {
-        // Navigation tabs with delegation
+        // FIXED: Navigation tabs with better error handling
         const navTabs = document.querySelector('.nav-tabs');
         if (navTabs) {
             navTabs.addEventListener('click', this.handleNavigation.bind(this));
+            console.log('✅ Navigation events bound');
+        } else {
+            console.error('❌ Navigation tabs not found for event binding');
+            // Try to find and bind after a delay
+            setTimeout(() => {
+                const delayedNavTabs = document.querySelector('.nav-tabs');
+                if (delayedNavTabs) {
+                    delayedNavTabs.addEventListener('click', this.handleNavigation.bind(this));
+                    console.log('✅ Navigation events bound (delayed)');
+                }
+            }, 1000);
         }
 
         // Article clicks with delegation
@@ -397,13 +441,15 @@ class RetroNewsPortal {
         });
     }
 
+    // FIXED: Navigation handling with proper category mapping
     handleNavigation(e) {
         const tab = e.target.closest('.nav-tab');
         if (!tab) return;
 
         e.preventDefault();
         const category = tab.dataset.category;
-        if (category) {
+        if (category && category !== this.currentCategory) {
+            console.log(`🔄 Switching to category: ${category}`);
             this.switchCategory(category);
         }
     }
@@ -450,6 +496,9 @@ class RetroNewsPortal {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
+
+        // FIXED: Responsive navigation check
+        this.ensureCriticalElementsVisible();
     }
 
     handleBeforeUnload(e) {
@@ -555,7 +604,7 @@ SYSTEM STATUS REPORT:
     executeHelpCommand(args) {
         const response = `
 AVAILABLE COMMANDS:
-├─ news [category]  │ Load news feed
+├─ news [category]  │ Load news feed (all, domestic, international, tech, crypto)
 ├─ ai              │ Open AI assistant
 ├─ status          │ System status
 ├─ matrix          │ Activate matrix mode
@@ -638,20 +687,27 @@ PERFORMANCE STATISTICS:
     }
 
     // ===============================
-    // NEWS MANAGEMENT
+    // FIXED: NEWS MANAGEMENT
     // ===============================
 
     async switchCategory(category) {
         if (this.isLoading || category === this.currentCategory) return;
 
-        // Update active states
+        console.log(`🔄 Switching to category: ${category}`);
+
+        // Update active states - FIXED
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.classList.remove('active');
+            tab.setAttribute('aria-pressed', 'false');
         });
         
         const activeTab = document.querySelector(`[data-category="${category}"]`);
         if (activeTab) {
             activeTab.classList.add('active');
+            activeTab.setAttribute('aria-pressed', 'true');
+            console.log(`✅ Active tab updated for: ${category}`);
+        } else {
+            console.error(`❌ Tab not found for category: ${category}`);
         }
 
         this.currentCategory = category;
@@ -659,7 +715,10 @@ PERFORMANCE STATISTICS:
     }
 
     async loadNews(category, page) {
-        if (this.isLoading) return;
+        if (this.isLoading) {
+            console.log('🔄 Already loading news, skipping...');
+            return;
+        }
 
         this.isLoading = true;
         this.currentPage = page;
@@ -669,12 +728,14 @@ PERFORMANCE STATISTICS:
         const cachedNews = this.performanceManager.getCache(cacheKey);
         
         if (cachedNews) {
+            console.log(`📋 Using cached news for ${category}`);
             this.renderNews(cachedNews);
             this.isLoading = false;
             return;
         }
 
         this.showLoading();
+        console.log(`🔄 Loading news for category: ${category}, page: ${page}`);
 
         try {
             const response = await fetch(`/api/news/${category}?page=${page}`, {
@@ -689,14 +750,15 @@ PERFORMANCE STATISTICS:
             }
 
             const data = await response.json();
+            console.log(`✅ Received ${data.news?.length || 0} articles for ${category}`);
             
             // Cache the result
-            this.performanceManager.setCache(cacheKey, data);
+            this.performanceManager.setCache(cacheKey, data.news || []);
             
             this.renderNews(data.news || []);
             this.updatePagination(data.page || 1, data.total_pages || 1);
             
-            this.showToast(`✅ Loaded ${data.news?.length || 0} articles`, 'success');
+            this.showToast(`✅ Loaded ${data.news?.length || 0} articles for ${category.toUpperCase()}`, 'success');
 
         } catch (error) {
             console.error('❌ News loading error:', error);
@@ -710,15 +772,21 @@ PERFORMANCE STATISTICS:
 
     renderNews(newsItems) {
         const newsContainer = document.getElementById('newsContainer');
-        if (!newsContainer) return;
+        if (!newsContainer) {
+            console.error('❌ News container not found');
+            return;
+        }
 
         // Clear existing content
         newsContainer.innerHTML = '';
 
         if (!newsItems || newsItems.length === 0) {
             newsContainer.innerHTML = this.createEmptyState();
+            newsContainer.style.display = 'block';
             return;
         }
+
+        console.log(`🎨 Rendering ${newsItems.length} news articles`);
 
         // Create articles with staggered animation
         newsItems.forEach((news, index) => {
@@ -735,6 +803,7 @@ PERFORMANCE STATISTICS:
         });
 
         newsContainer.style.display = 'block';
+        console.log('✅ News articles rendered successfully');
     }
 
     createNewsCard(news, index) {
@@ -804,6 +873,12 @@ PERFORMANCE STATISTICS:
                 <p style="color: var(--text-gray); font-family: var(--font-mono);">
                     Neural networks are currently offline. Please try again later.
                 </p>
+                <button onclick="retroNewsPortal.executeRefreshCommand()" 
+                        style="background: var(--terminal-green); color: var(--bg-black); border: none; 
+                               padding: 1rem 2rem; font-family: var(--font-mono); font-weight: bold; 
+                               cursor: pointer; text-transform: uppercase; margin-top: 1rem;">
+                    🔄 RETRY CONNECTION
+                </button>
             </div>
         `;
     }
@@ -833,7 +908,7 @@ PERFORMANCE STATISTICS:
     }
 
     // ===============================
-    // ARTICLE MODAL
+    // FIXED: ARTICLE MODAL
     // ===============================
 
     async showArticleModal(articleId) {
@@ -847,6 +922,9 @@ PERFORMANCE STATISTICS:
         modalTitle.textContent = `LOADING ARTICLE_${articleId.padStart(4, '0')}.DAT`;
         modalBody.innerHTML = this.createLoadingState('EXTRACTING ARTICLE DATA...');
         modal.style.display = 'flex';
+        
+        // FIXED: Ensure chat widget remains visible
+        this.ensureChatVisibilityWithArticle();
 
         try {
             const response = await fetch(`/api/article/${articleId}`);
@@ -862,7 +940,10 @@ PERFORMANCE STATISTICS:
             modalTitle.textContent = `ARTICLE_${articleId.padStart(4, '0')}.DAT`;
             modalBody.innerHTML = this.formatArticleContent(article);
 
-            this.showToast('📰 Article loaded successfully', 'success');
+            // FIXED: Show chat with article context
+            this.showChatWithArticleContext(article);
+
+            this.showToast('📰 Article loaded successfully - AI ready for analysis', 'success');
 
         } catch (error) {
             console.error('❌ Article loading error:', error);
@@ -870,6 +951,54 @@ PERFORMANCE STATISTICS:
             modalBody.innerHTML = this.createErrorState(error.message);
             this.showToast(`Error loading article: ${error.message}`, 'error');
         }
+    }
+
+    // FIXED: Ensure chat widget visibility when article modal opens
+    ensureChatVisibilityWithArticle() {
+        const chatWidget = document.querySelector('.chat-widget');
+        const chatWindow = document.querySelector('.chat-window');
+        const chatBubble = document.querySelector('.chat-bubble');
+        
+        if (chatWidget) {
+            chatWidget.style.zIndex = '3000';
+            chatWidget.style.display = 'block';
+        }
+        
+        if (chatWindow && chatWindow.style.display === 'flex') {
+            chatWindow.style.zIndex = '3000';
+        }
+        
+        if (chatBubble && chatBubble.style.display === 'none') {
+            chatBubble.style.display = 'block';
+        }
+        
+        console.log('✅ Chat widget visibility ensured with article modal');
+    }
+
+    // FIXED: Show chat with article context
+    showChatWithArticleContext(article) {
+        const chatBubble = document.getElementById('chatBubble');
+        const chatSubtitle = chatBubble?.querySelector('.chat-subtitle');
+        
+        if (chatSubtitle) {
+            chatSubtitle.textContent = 'Article loaded - Ready for AI analysis';
+            chatSubtitle.style.color = 'var(--terminal-amber)';
+        }
+        
+        // Auto-show chat bubble if hidden
+        if (chatBubble && chatBubble.style.display === 'none') {
+            chatBubble.style.display = 'block';
+        }
+        
+        // Add animation to attract attention
+        if (chatBubble) {
+            chatBubble.classList.add('pulse-glow');
+            setTimeout(() => {
+                chatBubble.classList.remove('pulse-glow');
+            }, 3000);
+        }
+        
+        console.log('✅ Chat context updated for article');
     }
 
     formatArticleContent(article) {
@@ -932,16 +1061,24 @@ PERFORMANCE STATISTICS:
         if (modal) {
             modal.style.display = 'none';
             this.currentArticle = null;
+            
+            // Reset chat subtitle
+            const chatSubtitle = document.querySelector('.chat-subtitle');
+            if (chatSubtitle) {
+                chatSubtitle.textContent = 'Ready for queries...';
+                chatSubtitle.style.color = '';
+            }
         }
     }
 
     // ===============================
-    // CHAT SYSTEM
+    // CHAT SYSTEM (Same as original but with fixes)
     // ===============================
 
     openChatWindow() {
         document.getElementById('chatBubble').style.display = 'none';
         document.getElementById('chatWindow').style.display = 'flex';
+        document.getElementById('chatWindow').style.zIndex = '3000'; // FIXED: Ensure z-index
     }
 
     minimizeChatWindow() {
@@ -1213,6 +1350,11 @@ PERFORMANCE STATISTICS:
         setInterval(() => {
             this.performanceManager.cache.clear();
         }, 300000); // 5 minutes
+
+        // FIXED: Periodic check for navigation visibility
+        setInterval(() => {
+            this.ensureCriticalElementsVisible();
+        }, 10000); // Every 10 seconds
     }
 
     updateStats() {
@@ -1427,7 +1569,7 @@ PERFORMANCE STATISTICS:
 }
 
 // ===============================
-// INITIALIZATION & GLOBAL SETUP
+// INITIALIZATION & GLOBAL SETUP (FIXED)
 // ===============================
 
 // Global error handling
@@ -1455,15 +1597,16 @@ if ('performance' in window) {
 let retroNewsPortal;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, initializing Retro Brutalism News Portal...');
+    console.log('🚀 DOM loaded, initializing FIXED Retro Brutalism News Portal...');
     
     try {
         retroNewsPortal = new RetroNewsPortal();
         window.retroNewsPortal = retroNewsPortal; // Global access for debugging
         
-        console.log('✅ Retro Brutalism News Portal initialized successfully!');
+        console.log('✅ FIXED Retro Brutalism News Portal initialized successfully!');
         console.log('🎨 Theme: Neo-brutalism + Terminal aesthetic');
         console.log('⚡ Features: AI chat, glitch effects, matrix mode, terminal commands');
+        console.log('🔧 Fixed: Navigation visibility, AI chat z-index, responsive design');
         
     } catch (error) {
         console.error('❌ Failed to initialize:', error);
@@ -1487,20 +1630,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Console branding
+// FIXED: Console branding
 console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║              RETRO BRUTALISM NEWS PORTAL v2.024              ║
-║                        SYSTEM LOADED                         ║
-║                                                              ║
-║  🤖 AI-Powered Financial News Portal                        ║
-║  🎮 Neo-brutalist Design + Terminal Interface               ║
-║  ⚡ Modern Performance + Retro Aesthetics                   ║
-║  🔥 Matrix Mode + Glitch Effects                            ║
-║                                                              ║
-║  Type 'help' in terminal for available commands             ║
-║  Press F4 for Matrix mode, F5 to refresh                    ║
-╚══════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════╗
+║              FIXED RETRO BRUTALISM NEWS PORTAL v2.024.4  ║
+║                        SYSTEM LOADED                     ║
+║                                                          ║
+║  🤖 AI-Powered Financial News Portal                    ║
+║  🎮 Neo-brutalist Design + Terminal Interface           ║
+║  ⚡ Modern Performance + Retro Aesthetics               ║
+║  🔥 Matrix Mode + Glitch Effects                        ║
+║  🔧 FIXED: Navigation, Chat, Responsive Design          ║
+║                                                          ║
+║  Type 'help' in terminal for available commands          ║
+║  Press F4 for Matrix mode, F5 to refresh                 ║
+╚══════════════════════════════════════════════════════════╝
 `);
 
 // Service Worker registration (if available)
