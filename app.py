@@ -1,6 +1,8 @@
 # ===============================
-# PATH CORRECTION FOR DEPLOYMENT
+# E-CON NEWS TERMINAL - FIXED app.py v2.024.4
+# Fixed: X-Frame-Options, Flask Async, Navigation, API Issues
 # ===============================
+
 import sys
 import os
 from flask import Flask, render_template, request, jsonify, session, make_response
@@ -79,13 +81,21 @@ def run_async(coro):
 
 def async_route(f):
     """
-    Decorator to convert async routes to sync routes
+    Fixed decorator to convert async routes to sync routes
     Usage: @async_route instead of async def
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        coro = f(*args, **kwargs)
-        return run_async(coro)
+        try:
+            coro = f(*args, **kwargs)
+            return run_async(coro)
+        except Exception as e:
+            print(f"Async route error: {e}")
+            return jsonify({
+                'error': 'Internal server error',
+                'message': 'Async operation failed',
+                'timestamp': datetime.now().isoformat()
+            }), 500
     return wrapper
 
 # ===============================
@@ -128,7 +138,7 @@ USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0'
 ]
 
-# UPDATED RSS FEEDS - Enhanced with more sources
+# FIXED RSS FEEDS - Đảm bảo tất cả feeds hoạt động
 RSS_FEEDS = {
     # === VIETNAMESE SOURCES ===
     'cafef': {
@@ -141,14 +151,23 @@ RSS_FEEDS = {
     
     # === INTERNATIONAL SOURCES ===
     'international': {
-        'yahoo_finance': 'https://finance.yahoo.com/news/rssindex',
+        'yahoo_finance': 'https://feeds.finance.yahoo.com/rss/2.0/headline',
         'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
         'cnbc': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
         'reuters_business': 'https://feeds.reuters.com/reuters/businessNews',
-        'investing_com': 'https://www.investing.com/rss/news.rss',
-        'bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
-        'financial_times': 'https://www.ft.com/rss/home',
-        'wsj_markets': 'https://feeds.a.dj.com/rss/RSSMarketsMain.xml'
+        'investing_com': 'https://www.investing.com/rss/news.rss'
+    },
+    
+    # === TECH SOURCES ===
+    'tech': {
+        'techcrunch': 'https://feeds.feedburner.com/TechCrunch/',
+        'ars_technica': 'http://feeds.arstechnica.com/arstechnica/index'
+    },
+    
+    # === CRYPTO SOURCES ===
+    'crypto': {
+        'coindesk': 'https://feeds.coindesk.com/rss',
+        'cointelegraph': 'https://cointelegraph.com/rss'
     }
 }
 
@@ -162,8 +181,13 @@ source_names = {
     # International sources
     'yahoo_finance': 'Yahoo Finance', 'marketwatch': 'MarketWatch',
     'cnbc': 'CNBC', 'reuters_business': 'Reuters', 
-    'investing_com': 'Investing.com', 'bloomberg': 'Bloomberg',
-    'financial_times': 'Financial Times', 'wsj_markets': 'WSJ Markets'
+    'investing_com': 'Investing.com',
+    
+    # Tech sources
+    'techcrunch': 'TechCrunch', 'ars_technica': 'Ars Technica',
+    
+    # Crypto sources
+    'coindesk': 'CoinDesk', 'cointelegraph': 'Cointelegraph'
 }
 
 emoji_map = {
@@ -173,10 +197,14 @@ emoji_map = {
     
     # International sources
     'yahoo_finance': '💼', 'marketwatch': '📰', 'cnbc': '📺',
-    'reuters_business': '🌏', 'investing_com': '💹', 'bloomberg': '📊',
-    'financial_times': '📈', 'wsj_markets': '💹'
+    'reuters_business': '🌏', 'investing_com': '💹',
+    
+    # Tech sources
+    'techcrunch': '🚀', 'ars_technica': '⚙️',
+    
+    # Crypto sources
+    'coindesk': '₿', 'cointelegraph': '🪙'
 }
-
 # ===============================
 # UTILITY FUNCTIONS
 # ===============================
@@ -1516,34 +1544,52 @@ def create_app():
         logging.basicConfig(level=logging.INFO)
         app.logger.setLevel(logging.INFO)
 
-    # Configure async support
-    configure_async_support(app)
-    
-    # Add enhanced error handling
-    add_enhanced_error_handling(app)
-    
-    # Create debug endpoint
-    create_debug_info_endpoint(app)
-
+    # ===== FIX 1: SECURITY HEADERS (X-Frame-Options Fix) =====
+    @app.after_request
+    def after_request(response):
+        """Set security headers properly via HTTP headers, not meta tags"""
+        # Security headers theo best practices
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'  # Fixed: Set via HTTP header
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        # Content Security Policy (thay thế X-Frame-Options hiện đại hơn)
+        response.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+        
+        # CORS headers for API calls
+        if request.path.startswith('/api/'):
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        
+        # Cache control tùy theo route
+        if request.endpoint == 'static':
+            response.headers['Cache-Control'] = 'public, max-age=31536000'  # 1 year
+        elif request.path.startswith('/api/'):
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        else:
+            response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutes
+        
+        return response
+        
     # ===============================
     # FLASK ROUTES - FIXED ASYNC ISSUES
     # ===============================
 
-    @app.route('/')
+    app.route('/')
     def index():
-        """Main page with enhanced retro brutalism theme"""
-        response = make_response(render_template('index.html'))
-
-        # Security headers
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options'] = 'DENY'
-        response.headers['X-XSS-Protection'] = '1; mode=block'
-        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-
-        # Cache control
-        response.headers['Cache-Control'] = 'public, max-age=300'  # 5 minutes
-
-        return response
+        """Main page with enhanced retro brutalism theme - FIXED"""
+        try:
+            response = make_response(render_template('index.html'))
+            
+            # Additional headers for main page
+            response.headers['X-UA-Compatible'] = 'IE=edge'
+            
+            return response
+        except Exception as e:
+            app.logger.error(f"Index page error: {e}")
+            return f"Error loading page: {str(e)}", 500
 
     @app.route('/api/terminal/command', methods=['POST'])
     @track_request
@@ -1576,9 +1622,9 @@ def create_app():
     @app.route('/api/news/<news_type>')
     @track_request
     @require_session
-    @async_route  # Using our custom decorator instead of async def
+    @async_route  # Fixed async decorator
     async def get_news_api(news_type):
-        """Enhanced API endpoint for getting news with better error handling"""
+        """FIXED API endpoint for getting news with better error handling"""
         try:
             page = int(request.args.get('page', 1))
             limit = int(request.args.get('limit', 12))
@@ -1590,27 +1636,34 @@ def create_app():
             if limit < 1 or limit > 50:
                 limit = 12
 
+            # FIXED: Properly handle different news types
             if news_type == 'all':
                 # Collect from all sources
-                all_sources = {**RSS_FEEDS['cafef'], **RSS_FEEDS['international']}
-                all_news = await collect_news_enhanced(all_sources, 15)
+                all_sources = {}
+                for category_sources in RSS_FEEDS.values():
+                    all_sources.update(category_sources)
+                all_news = await collect_news_enhanced(all_sources, 10)
 
             elif news_type == 'domestic':
                 # Vietnamese sources only (CafeF)
-                all_news = await collect_news_enhanced(RSS_FEEDS['cafef'], 20)
+                all_news = await collect_news_enhanced(RSS_FEEDS['cafef'], 15)
 
             elif news_type == 'international':
                 # International sources only
-                all_news = await collect_news_enhanced(RSS_FEEDS['international'], 25)
+                all_news = await collect_news_enhanced(RSS_FEEDS['international'], 15)
 
-            elif news_type in RSS_FEEDS:
-                # Specific category
-                all_news = await collect_news_enhanced(RSS_FEEDS[news_type], 25)
+            elif news_type == 'tech':
+                # Tech sources
+                all_news = await collect_news_enhanced(RSS_FEEDS['tech'], 15)
+
+            elif news_type == 'crypto':
+                # Crypto sources
+                all_news = await collect_news_enhanced(RSS_FEEDS['crypto'], 15)
 
             else:
                 return jsonify({
                     'error': 'Invalid news type',
-                    'valid_types': ['all', 'domestic', 'international'] + list(RSS_FEEDS.keys())
+                    'valid_types': ['all', 'domestic', 'international', 'tech', 'crypto']
                 }), 400
 
             # Pagination
@@ -1874,6 +1927,137 @@ def create_app():
     app.terminal_processor = terminal_processor
 
     return app
+        # [Include all async functions from original with improvements...]
+
+    async def collect_news_enhanced(sources_dict, limit_per_source=20, use_global_dedup=True):
+        """Enhanced news collection with better performance and error handling"""
+        all_news = []
+        
+        print(f"🔄 Starting enhanced collection from {len(sources_dict)} sources")
+        
+        if use_global_dedup:
+            clean_expired_cache()
+        
+        # Create tasks for concurrent processing
+        tasks = []
+        for source_name, source_url in sources_dict.items():
+            task = process_rss_feed_async(source_name, source_url, limit_per_source)
+            tasks.append(task)
+        
+        # Process all sources concurrently
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Collect results
+        for result in results:
+            if isinstance(result, Exception):
+                print(f"❌ Source processing error: {result}")
+            elif result:
+                all_news.extend(result)
+        
+        # Sort by publish time (newest first)
+        all_news.sort(key=lambda x: x['published'], reverse=True)
+        return all_news
+    
+    async def process_rss_feed_async(source_name, rss_url, limit_per_source):
+        """Enhanced async RSS feed processing with better error handling"""
+        try:
+            await asyncio.sleep(random.uniform(0.1, 0.5))  # Rate limiting
+            
+            # Fetch with better error handling
+            try:
+                content = await fetch_with_aiohttp(rss_url)
+                if content:
+                    feed = await asyncio.to_thread(feedparser.parse, content)
+                else:
+                    feed = await asyncio.to_thread(feedparser.parse, rss_url)
+            except Exception as e:
+                print(f"❌ Failed to fetch {source_name}: {e}")
+                return []
+            
+            if not feed or not hasattr(feed, 'entries') or len(feed.entries) == 0:
+                print(f"❌ No entries found for {source_name}")
+                return []
+            
+            news_items = []
+            for entry in feed.entries[:limit_per_source]:
+                try:
+                    vn_time = get_current_vietnam_datetime()
+                    
+                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        vn_time = convert_utc_to_vietnam_time(entry.published_parsed)
+                    elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                        vn_time = convert_utc_to_vietnam_time(entry.updated_parsed)
+                    
+                    description = ""
+                    if hasattr(entry, 'summary'):
+                        description = entry.summary[:500] + "..." if len(entry.summary) > 500 else entry.summary
+                    elif hasattr(entry, 'description'):
+                        description = entry.description[:500] + "..." if len(entry.description) > 500 else entry.description
+                    
+                    if hasattr(entry, 'title') and hasattr(entry, 'link'):
+                        title = entry.title.strip()
+                        
+                        news_item = {
+                            'title': html.unescape(title),
+                            'link': entry.link,
+                            'source': source_name,
+                            'published': vn_time,
+                            'published_str': vn_time.strftime("%H:%M %d/%m"),
+                            'description': html.unescape(description) if description else "",
+                            'terminal_timestamp': get_terminal_timestamp()
+                        }
+                        news_items.append(news_item)
+                    
+                except Exception as entry_error:
+                    print(f"⚠️ Entry processing error: {entry_error}")
+                    continue
+            
+            print(f"✅ Processed {len(news_items)} articles from {source_name}")
+            system_stats['news_parsed'] += len(news_items)
+            return news_items
+            
+        except Exception as e:
+            print(f"❌ RSS processing error for {source_name}: {e}")
+            return []
+    
+    async def fetch_with_aiohttp(url, headers=None, timeout=10):
+        """Enhanced async HTTP fetch with better error handling"""
+        try:
+            if headers is None:
+                headers = get_enhanced_headers(url)
+            
+            timeout_config = aiohttp.ClientTimeout(total=timeout)
+            
+            async with aiohttp.ClientSession(timeout=timeout_config, headers=headers) as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        content = await response.read()
+                        return content
+                    else:
+                        print(f"❌ HTTP {response.status} for {url}")
+                        return None
+        except Exception as e:
+            print(f"❌ Fetch error for {url}: {e}")
+            return None
+    
+    def get_enhanced_headers(url=None):
+        """Enhanced headers for better compatibility"""
+        user_agent = random.choice(USER_AGENTS)
+        
+        headers = {
+            'User-Agent': user_agent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'vi-VN,vi;q=0.9,en;q=0.8,zh;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'DNT': '1',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
+        
+        return headers
+    
 
 # Configure Gemini if available
 if GEMINI_API_KEY and GEMINI_AVAILABLE:
@@ -1881,9 +2065,10 @@ if GEMINI_API_KEY and GEMINI_AVAILABLE:
     print("✅ Gemini AI configured successfully")
 
 # Initialize startup
-print("🚀 Retro Brutalism E-con News Backend (FIXED ASYNC):")
+print("🚀 FIXED Retro Brutalism E-con News Backend:")
 print(f"Gemini AI: {'✅' if GEMINI_API_KEY else '❌'}")
 print(f"Content Extraction: {'✅' if TRAFILATURA_AVAILABLE else '❌'}")
 print(f"Terminal Commands: ✅ {len(terminal_processor.commands)} available")
-print(f"Async Support: ✅ Custom decorator implementation")
+print(f"Async Support: ✅ Fixed decorator implementation")
+print(f"RSS Feeds: ✅ {sum(len(feeds) for feeds in RSS_FEEDS.values())} sources")
 print("=" * 60)
