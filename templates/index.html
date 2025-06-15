@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <title>📰 E-CON_NEWS.EXE - TERMINAL INTERFACE v2.024</title>
+    <title>📰 E-CON_NEWS.EXE - TERMINAL INTERFACE v2.024.10</title>
     
     <!-- SEO & Meta Tags -->
     <meta name="description" content="E-con News Terminal - AI-powered financial news portal with retro brutalism design. Real-time market analysis with terminal interface.">
@@ -12,426 +11,1116 @@
     <meta name="author" content="E-con News Protocol">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#00ff00">
-    <meta name="msapplication-navbutton-color" content="#00ff00">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="E-con News Terminal - AI Financial Analysis">
-    <meta property="og:description" content="Retro brutalism news portal with AI-powered financial analysis and terminal interface">
-    <meta property="og:image" content="/static/og-image.png">
-    <meta property="og:url" content="{{ request.url }}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="E-con News Terminal">
-    <meta name="twitter:description" content="AI-powered financial news with retro brutalism design">
-    
-    <!-- PWA Support -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="E-con News Terminal">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
     <!-- Fonts - Performance Optimized -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
-    <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000'/><text x='50' y='65' font-size='60' text-anchor='middle' fill='%2300ff00'>🖥️</text></svg>">
-    
-    <!-- Stylesheets with cache busting -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ range(1000, 9999) | random }}">
-    
-    <!-- Preload Critical Resources -->
-    <link rel="prefetch" href="{{ url_for('static', filename='script.js') }}" as="script">
-    
-    <!-- Performance Hints -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "E-con News Terminal",
-        "description": "AI-powered financial news portal with retro brutalism design",
-        "url": "{{ request.url_root }}",
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "{{ request.url_root }}?search={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
-    }
-    </script>
-    
-    <!-- Critical CSS for immediate rendering -->
     <style>
-        /* Critical CSS to prevent FOUC */
-        body {
+        /* FIXED: Complete CSS with all requested changes */
+        
+        /* === CSS CUSTOM PROPERTIES === */
+        :root {
+            /* Terminal Color Palette */
+            --terminal-green: #00ff00;
+            --terminal-amber: #ffb000;
+            --terminal-red: #ff0000;
+            --terminal-cyan: #00ffff;
+            --terminal-purple: #ff00ff;
+            --terminal-blue: #0080ff;
+            --terminal-white: #ffffff;
+            
+            /* FIXED: All backgrounds are now BLACK */
+            --bg-black: #000000;
+            --bg-dark: #000000;    /* Changed from #111111 to #000000 */
+            --bg-gray: #000000;    /* Changed from #333333 to #000000 */
+            --bg-matrix: #000000;  /* Changed from #001100 to #000000 */
+            
+            /* Border & Effects */
+            --border-green: #00ff00;
+            --shadow-glow: 0 0 10px currentColor;
+            --shadow-strong: 0 0 20px currentColor;
+            
+            /* Typography */
+            --font-mono: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
+            --font-size-xs: 10px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 20px;
+            --space-2xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease-out;
+            --transition-normal: 0.3s ease-out;
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Z-indexes for proper layering */
+            --z-scanline: 1000;
+            --z-modal: 2000;
+            --z-chat: 3000;
+            --z-toast: 2500;
+        }
+
+        /* === RESET & BASE === */
+        * {
             margin: 0;
             padding: 0;
-            background: #000000;
-            color: #00ff00;
-            font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
-            overflow-x: hidden;
+            box-sizing: border-box;
         }
-        
-        /* Ensure navigation is visible immediately */
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-black);
+            color: var(--terminal-green);
+            line-height: 1.4;
+            overflow-x: hidden;
+            cursor: default;
+            font-size: var(--font-size-base);
+            min-height: 100vh;
+        }
+
+        /* === SCANLINE EFFECT === */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--terminal-green), transparent);
+            opacity: 0.8;
+            animation: scanline 2s linear infinite;
+            z-index: var(--z-scanline);
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-2px); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* === GLITCH ANIMATIONS === */
+        .glitch {
+            animation: glitch-skew 0.3s, glitch-translate 0.2s 0.1s;
+        }
+
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); filter: hue-rotate(0deg); }
+            10% { transform: skew(-2deg); filter: hue-rotate(90deg); }
+            20% { transform: skew(2deg); filter: hue-rotate(180deg); }
+            30% { transform: skew(-1deg); filter: hue-rotate(270deg); }
+            40% { transform: skew(1deg); filter: hue-rotate(0deg); }
+            50% { transform: skew(0deg); filter: hue-rotate(90deg); }
+            100% { transform: skew(0deg); filter: hue-rotate(0deg); }
+        }
+
+        @keyframes glitch-translate {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* === TERMINAL WINDOWS === */
+        .terminal-window {
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);
+            box-shadow: var(--shadow-glow);
+            position: relative;
+        }
+
+        .terminal-header {
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-bottom: 1px solid var(--terminal-green);
+            padding: var(--space-sm) var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            min-height: 40px;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot.red { background: var(--terminal-red); }
+        .dot.amber { background: var(--terminal-amber); }
+        .dot.green { background: var(--terminal-green); }
+
+        .terminal-title {
+            font-size: var(--font-size-xs);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--terminal-green);
+            font-weight: 700;
+        }
+
+        /* === ASCII ART HEADER === */
+        .ascii-header {
+            background: var(--bg-black);
+            border-bottom: 2px solid var(--terminal-green);
+            padding: clamp(8px, 2vw, 20px);
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ascii-art {
+            font-family: var(--font-mono);
+            font-size: clamp(4px, 1.2vw, 10px);
+            line-height: 1;
+            color: var(--terminal-green);
+            white-space: pre;
+            display: inline-block;
+            text-shadow: 0 0 10px currentColor;
+            animation: typing 3s steps(100) 1s both;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            text-align: center;
+            width: 100%;
+            max-width: 100vw;
+        }
+
+        @keyframes typing {
+            from { 
+                width: 0; 
+                opacity: 0;
+            }
+            to { 
+                width: 100%; 
+                opacity: 1;
+            }
+        }
+
+        /* === STATUS BAR === */
+        .status-bar {
+            background: var(--terminal-red);
+            color: var(--terminal-white);
+            padding: var(--space-sm);
+            text-align: center;
+            font-weight: bold;
+            font-size: var(--font-size-sm);
+            animation: status-blink 2s infinite;
+            border-bottom: 2px solid var(--terminal-green);
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes status-blink {
+            0%, 70% { opacity: 1; }
+            71%, 100% { opacity: 0.7; }
+        }
+
+        /* === FIXED: SMALL STATS GRID (as requested) === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);  /* FIXED: Changed to 4 columns for compact */
+            gap: var(--space-sm);  /* FIXED: Reduced gap */
+            padding: var(--space-md);  /* FIXED: Reduced padding */
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-bottom: 2px solid var(--terminal-green);
+        }
+
+        .stat-box {
+            background: var(--bg-black);
+            border: 1px solid var(--terminal-cyan);  /* FIXED: Thinner border */
+            padding: var(--space-sm);  /* FIXED: Reduced padding */
+            text-align: center;
+            position: relative;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-1px);  /* FIXED: Reduced hover effect */
+            border-color: var(--terminal-amber);
+        }
+
+        .stat-emoji {
+            font-size: 16px;  /* FIXED: Reduced from 32px */
+            display: block;
+            margin-bottom: var(--space-xs);  /* FIXED: Reduced margin */
+        }
+
+        .stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--terminal-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: var(--font-size-base);  /* FIXED: Reduced from xl */
+            color: var(--terminal-green);
+            font-weight: bold;
+            margin: var(--space-xs) 0;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .stat-status {
+            font-size: var(--font-size-xs);
+            color: var(--terminal-amber);
+            font-weight: bold;
+        }
+
+        /* === FIXED: LARGE NAVIGATION TABS (as requested) === */
         .nav-tabs {
-            background: #000000;
-            border-bottom: 2px solid #00ff00;
-            padding: 12px;
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-bottom: 2px solid var(--terminal-green);
+            padding: var(--space-xl);  /* FIXED: Increased padding */
             display: flex !important;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: var(--space-lg);  /* FIXED: Increased gap */
             justify-content: center;
-            min-height: 60px;
+            min-height: 80px;  /* FIXED: Increased height */
             visibility: visible !important;
             opacity: 1 !important;
         }
-        
+
         .nav-tab {
-            background: #000000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 8px 16px;
-            font-family: inherit;
-            font-size: 10px;
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);  /* FIXED: Thicker border */
+            color: var(--terminal-green);
+            padding: var(--space-lg) var(--space-2xl);  /* FIXED: Increased padding */
+            font-family: var(--font-mono);
+            font-size: var(--font-size-base);  /* FIXED: Increased font size */
             text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.15s ease-out;
-            text-decoration: none;
-            display: inline-block;
-            letter-spacing: 1px;
-            min-width: 120px;
-            text-align: center;
+            transition: all var(--transition-fast);
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            min-height: 50px;  /* FIXED: Increased height */
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;  /* FIXED: Increased width */
         }
-        
-        .nav-tab:hover,
-        .nav-tab.active {
-            background: #00ff00;
-            color: #000000;
-            box-shadow: 0 0 10px #00ff00;
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transition: left var(--transition-normal);
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        .nav-tab:hover {
+            background: var(--terminal-green);
+            color: var(--bg-black);
+            box-shadow: var(--shadow-glow);
             transform: translateY(-1px);
         }
-        
-        /* Hide removed tabs immediately */
-        .nav-tab[data-category="technology"],
-        .nav-tab[data-category="blockchain"], 
-        .nav-tab[data-category="neural_ai"] {
-            display: none !important;
+
+        .nav-tab.active {
+            background: var(--terminal-amber);
+            color: var(--bg-black);
+            border-color: var(--terminal-amber);
+            box-shadow: 0 0 15px var(--terminal-amber);
         }
-        
-        .loading {
+
+        /* === FIXED: NEWS GRID LAYOUT (4 items per row) === */
+        .news-container {
+            padding: var(--space-xl);
+            background: var(--bg-black);  /* FIXED: Changed to black */
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);  /* FIXED: 4 items per row */
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        /* FIXED: Responsive grid */
+        @media (max-width: 1200px) {
+            .news-grid {
+                grid-template-columns: repeat(3, 1fr);  /* 3 items on medium screens */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);  /* 2 items on small screens */
+            }
+        }
+
+        @media (max-width: 600px) {
+            .news-grid {
+                grid-template-columns: 1fr;  /* 1 item on mobile */
+            }
+        }
+
+        .news-article {
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border: 2px solid var(--terminal-green);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;  /* FIXED: Consistent height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-article::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 255, 255, 0.1), 
+                transparent
+            );
+            transition: left var(--transition-slow);
+        }
+
+        .news-article:hover::before {
+            left: 100%;
+        }
+
+        .news-article:hover {
+            border-color: var(--terminal-cyan);
+            box-shadow: 0 0 20px var(--terminal-cyan);
+            transform: translateY(-4px);
+        }
+
+        .article-header {
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-bottom: 1px solid var(--terminal-green);
+            padding: var(--space-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-xs);
+            flex-wrap: wrap;
+        }
+
+        .priority-tag {
+            border: 1px solid;
+            padding: var(--space-xs);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: var(--font-size-xs);
+            letter-spacing: 0.5px;
+        }
+
+        .priority-critical {
+            color: var(--terminal-red);
+            border-color: var(--terminal-red);
+            background: rgba(255, 0, 0, 0.1);
+            animation: pulse-red 2s infinite;
+        }
+
+        .priority-urgent {
+            color: var(--terminal-amber);
+            border-color: var(--terminal-amber);
+            background: rgba(255, 176, 0, 0.1);
+        }
+
+        .priority-high {
+            color: var(--terminal-purple);
+            border-color: var(--terminal-purple);
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 0, 0, 0.7); }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+        }
+
+        .category-tag {
+            color: var(--terminal-cyan);
+            font-weight: bold;
+        }
+
+        .timestamp {
+            color: #aaa;
+            font-family: var(--font-mono);
+            font-size: var(--font-size-xs);
+        }
+
+        .article-content {
+            padding: var(--space-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-icon {
+            font-size: 24px;
+            float: left;
+            margin: 0 var(--space-md) var(--space-sm) 0;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .article-title {
+            font-size: var(--font-size-sm);
+            color: var(--terminal-green);
+            font-weight: bold;
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .article-preview {
+            color: #ccc;
+            font-size: var(--font-size-xs);
+            line-height: 1.6;
+            margin-bottom: var(--space-sm);
+            clear: both;
+            flex: 1;
+        }
+
+        .article-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border: 1px solid var(--terminal-green);
+            padding: var(--space-sm);
+            font-size: var(--font-size-xs);
+            margin-top: auto;
+        }
+
+        .stats-left {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-weight: bold;
+        }
+
+        .upvotes { color: var(--terminal-red); }
+        .comments { color: var(--terminal-blue); }
+        .views { color: var(--terminal-green); }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .btn {
+            padding: var(--space-xs) var(--space-sm);
+            border: none;
+            font-family: var(--font-mono);
+            font-size: var(--font-size-xs);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-exec {
+            background: var(--terminal-green);
+            color: var(--bg-black);
+        }
+
+        .btn-share {
+            background: var(--terminal-amber);
+            color: var(--bg-black);
+        }
+
+        .btn-save {
+            background: var(--terminal-red);
+            color: var(--terminal-white);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* === CHAT WIDGET === */
+        .chat-widget {
+            position: fixed;
+            bottom: var(--space-xl);
+            right: var(--space-xl);
+            z-index: var(--z-chat);
+        }
+
+        .chat-bubble {
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);
+            padding: var(--space-lg);
+            cursor: pointer;
+            box-shadow: var(--shadow-glow);
+            max-width: 280px;
+            animation: pulse-glow 3s infinite;
+            transition: all var(--transition-normal);
+        }
+
+        .chat-bubble:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-strong);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: var(--shadow-glow); }
+            50% { box-shadow: var(--shadow-strong); }
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+
+        .chat-avatar {
+            font-size: var(--space-xl);
+            animation: rotate-slow 8s linear infinite;
+        }
+
+        @keyframes rotate-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .chat-title {
+            font-weight: bold;
+            font-size: var(--font-size-sm);
+            color: var(--terminal-green);
+        }
+
+        .chat-subtitle {
+            font-size: var(--font-size-xs);
+            color: #aaa;
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: var(--space-xl);
+            right: var(--space-xl);
+            width: 420px;
+            height: 600px;
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);
+            box-shadow: var(--shadow-strong);
+            display: none;
+            flex-direction: column;
+            z-index: var(--z-chat);
+        }
+
+        .chat-window-header {
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-bottom: 1px solid var(--terminal-green);
+            padding: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-window-title {
+            font-size: var(--font-size-sm);
+            font-weight: bold;
+            color: var(--terminal-green);
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .chat-btn {
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--terminal-green);
+            background: var(--bg-black);
+            color: var(--terminal-green);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 50vh;
-            font-size: 18px;
-            color: #00ff00;
+            transition: all var(--transition-fast);
+            font-weight: bold;
         }
-        
-        .news-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            padding: 12px 0;
+
+        .chat-btn:hover {
+            background: var(--terminal-green);
+            color: var(--bg-black);
         }
-        
-        @media (max-width: 1200px) {
-            .news-container {
-                grid-template-columns: repeat(3, 1fr);
+
+        .chat-messages {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            scrollbar-width: thin;
+            scrollbar-color: var(--terminal-green) var(--bg-black);
+        }
+
+        .chat-message {
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md);
+            border: 1px solid;
+            font-size: var(--font-size-sm);
+            line-height: 1.5;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .chat-message.user {
+            background: var(--bg-black);
+            border-color: var(--terminal-cyan);
+            color: var(--terminal-cyan);
+            margin-left: var(--space-xl);
+        }
+
+        .chat-message.ai {
+            background: var(--bg-black);
+            border-color: var(--terminal-green);
+            color: var(--terminal-green);
+            margin-right: var(--space-xl);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        
-        @media (max-width: 900px) {
-            .news-container {
+
+        .chat-input-area {
+            border-top: 1px solid var(--terminal-green);
+            padding: var(--space-lg);
+            background: var(--bg-black);  /* FIXED: Changed to black */
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .quick-btn {
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid;
+            background: var(--bg-black);
+            font-family: var(--font-mono);
+            font-size: var(--font-size-xs);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            letter-spacing: 0.5px;
+        }
+
+        .quick-btn.summary {
+            color: var(--terminal-amber);
+            border-color: var(--terminal-amber);
+        }
+
+        .quick-btn.debate {
+            color: var(--terminal-purple);
+            border-color: var(--terminal-purple);
+        }
+
+        .quick-btn:hover {
+            background: currentColor;
+            color: var(--bg-black);
+            transform: translateY(-1px);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-black);
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: var(--space-sm);
+            font-family: var(--font-mono);
+            font-size: var(--font-size-sm);
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+
+        .chat-input:focus {
+            border-color: var(--terminal-cyan);
+            box-shadow: 0 0 10px var(--terminal-cyan);
+        }
+
+        .send-btn {
+            background: var(--terminal-green);
+            border: none;
+            color: var(--bg-black);
+            padding: var(--space-sm) var(--space-lg);
+            font-family: var(--font-mono);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-transform: uppercase;
+            font-size: var(--font-size-xs);
+            letter-spacing: 0.5px;
+        }
+
+        .send-btn:hover {
+            background: var(--terminal-cyan);
+            transform: scale(1.05);
+        }
+
+        /* === LOADING STATES === */
+        .loading {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--terminal-green);
+        }
+
+        .loading-text {
+            margin-top: var(--space-xl);
+            font-size: var(--font-size-base);
+            font-weight: bold;
+            letter-spacing: 1px;
+            animation: pulse-text 2s infinite;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--bg-black);  /* FIXED: Changed to black */
+            border-top: 3px solid var(--terminal-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* === MODAL === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: var(--z-modal);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);
+            max-width: calc(90vw - 450px);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-strong);
+            animation: modal-appear 0.5s ease-out;
+            margin-right: 450px;
+        }
+
+        @keyframes modal-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-bottom: 1px solid var(--terminal-green);
+            padding: var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: var(--font-size-lg);
+            font-weight: bold;
+            color: var(--terminal-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .close-btn {
+            background: var(--terminal-red);
+            color: var(--terminal-white);
+            border: none;
+            width: 36px;
+            height: 36px;
+            font-size: var(--font-size-lg);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .close-btn:hover {
+            background: var(--terminal-white);
+            color: var(--terminal-red);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: var(--space-xl);
+            color: var(--terminal-green);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+        }
+
+        .modal-body h3 {
+            color: var(--terminal-cyan);
+            margin: var(--space-lg) 0 var(--space-md) 0;
+            font-size: var(--font-size-lg);
+        }
+
+        .modal-body p {
+            margin-bottom: var(--space-lg);
+        }
+
+        .modal-body strong {
+            color: var(--terminal-amber);
+            font-weight: bold;
+        }
+
+        /* === PAGINATION === */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-xl);
+            background: var(--bg-black);  /* FIXED: Changed to black */
+            border-top: 2px solid var(--terminal-green);
+            font-family: var(--font-mono);
+        }
+
+        .pagination button {
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: var(--space-sm) var(--space-lg);
+            font-family: inherit;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--terminal-green);
+            color: var(--bg-black);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--terminal-green);
+            font-size: var(--font-size-sm);
+            font-weight: bold;
+        }
+
+        /* === TOAST NOTIFICATIONS === */
+        .toast-container {
+            position: fixed;
+            top: var(--space-xl);
+            right: var(--space-xl);
+            z-index: var(--z-toast);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .toast {
+            background: var(--bg-black);
+            border: 2px solid var(--terminal-green);
+            padding: var(--space-lg);
+            max-width: 350px;
+            font-family: var(--font-mono);
+            font-size: var(--font-size-sm);
+            animation: toast-slide-in 0.5s ease-out;
+            box-shadow: var(--shadow-glow);
+        }
+
+        @keyframes toast-slide-in {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.success { border-color: var(--terminal-green); color: var(--terminal-green); }
+        .toast.error { border-color: var(--terminal-red); color: var(--terminal-red); }
+        .toast.warning { border-color: var(--terminal-amber); color: var(--terminal-amber); }
+        .toast.info { border-color: var(--terminal-cyan); color: var(--terminal-cyan); }
+
+        /* === RESPONSIVE DESIGN === */
+        @media (max-width: 1024px) {
+            .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+                padding: var(--space-lg);
             }
-        }
-        
-        @media (max-width: 600px) {
-            .news-container {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <!-- Scanline Effect -->
-    <div class="scanline" aria-hidden="true"></div>
-
-    <!-- Header -->
-    <header class="header" role="banner">
-        <div class="header-content">
-            <div class="logo" aria-label="E-con News Terminal Logo">
-                📰 E-CON_NEWS.EXE
-            </div>
-            <div class="header-info" role="status" aria-label="Header information">
-                <span>v2.024.11</span>
-                <span>🌍 HỒ_CHÍ_MINH</span>
-                <span id="headerTime">00:00:00</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- Warning Banner -->
-    <div class="warning-banner" role="alert">
-        ⚠️ HỆ THỐNG CẢNH BÁO: REALITY.EXE ĐANG GẶP LỖI NGHIÊM TRỌNG - HÃY THẬN TRỌNG ⚠️
-    </div>
-
-    <!-- Navigation - FIXED: Removed 3 tabs as requested -->
-    <nav class="nav-tabs" role="navigation" aria-label="Danh mục tin tức">
-        <a href="#" class="nav-tab active" data-category="all" tabindex="0" role="button" aria-pressed="true">
-            [TẤT_CẢ_TIN_TỨC]
-        </a>
-        <a href="#" class="nav-tab" data-category="domestic" tabindex="0" role="button" aria-pressed="false">
-            [TIN_NỘI_ĐỊA]
-        </a>
-        <a href="#" class="nav-tab" data-category="international" tabindex="0" role="button" aria-pressed="false">
-            [TIN_TOÀN_CẦU]
-        </a>
-        <!-- FIXED: Removed technology, blockchain, neural_ai tabs -->
-    </nav>
-
-    <!-- Main Container - FIXED: New layout structure -->
-    <main class="main-container" role="main">
-        <!-- FIXED: Sidebar with user info, AI panel, news analysis, system load (smaller) -->
-        <aside class="sidebar" role="complementary" aria-label="Thông tin hệ thống">
-            <!-- User Info Panel -->
-            <section class="user-info" aria-labelledby="user-info-title">
-                <h3 id="user-info-title">👤 THÔNG TIN NGƯỜI DÙNG</h3>
-                <div class="user-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">ID Phiên:</span>
-                        <span class="stat-value">#{{ session.get('user_id', 'GUEST') }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Trạng thái:</span>
-                        <span class="stat-value">TRỰC_TUYẾN</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Bài đọc:</span>
-                        <span class="stat-value">{{ session.get('articles_read', 0) }}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">AI Queries:</span>
-                        <span class="stat-value">{{ session.get('ai_queries', 0) }}</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- AI Panel -->
-            <section class="ai-panel" aria-labelledby="ai-panel-title">
-                <h3 id="ai-panel-title">🤖 CÂU HỎI AI</h3>
-                <div class="ai-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Engine:</span>
-                        <span class="stat-value">GEMINI_2.0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Trạng thái:</span>
-                        <span class="stat-value">SẴN_SÀNG</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Tóm tắt:</span>
-                        <span class="stat-value">100-200 từ</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Tranh luận:</span>
-                        <span class="stat-value">6 NHÂN VẬT</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- News Analysis Panel -->
-            <section class="news-analysis" aria-labelledby="analysis-title">
-                <h3 id="analysis-title">📊 TIN TỨC PHÂN TÍCH</h3>
-                <div class="analysis-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Nguồn:</span>
-                        <span class="stat-value">15+ FEEDS</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Cập nhật:</span>
-                        <span class="stat-value">REAL-TIME</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Tin mới:</span>
-                        <span class="stat-value" id="newsCount">Đang tải...</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Lần cuối:</span>
-                        <span class="stat-value" id="lastUpdate">--:--:--</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- System Load Panel -->
-            <section class="system-load" aria-labelledby="system-title">
-                <h3 id="system-title">⚡ TẢI HỆ THỐNG</h3>
-                <div class="load-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">CPU:</span>
-                        <span class="stat-value">69%</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">RAM:</span>
-                        <span class="stat-value">420MB</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Users:</span>
-                        <span class="stat-value">1.337M</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Uptime:</span>
-                        <span class="stat-value">99.9%</span>
-                    </div>
-                </div>
-            </section>
-        </aside>
-
-        <!-- FIXED: Content Area (larger news panel) -->
-        <section class="content-area" role="region" aria-labelledby="content-title">
-            <div class="content-header">
-                <h2 class="content-title" id="content-title">📡 LUỒNG TIN TỨC TRỰC TIẾP</h2>
-                <div class="content-controls">
-                    <button class="control-btn" onclick="window.econ?.loadNews(window.econ?.currentPage)" aria-label="Làm mới tin tức">
-                        🔄 LÀM MỚI
-                    </button>
-                    <button class="control-btn" onclick="window.econ?.openChatWindow()" aria-label="Mở chat AI">
-                        🤖 AI CHAT
-                    </button>
-                </div>
-            </div>
-
-            <!-- FIXED: News Container with 4-column grid -->
-            <div class="news-container" id="newsContainer" role="feed" aria-label="Tin tức mới nhất" aria-live="polite">
-                <div class="loading">
-                    🔄 ĐANG TẢI TIN TỨC...
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Chat Bubble -->
-    <div class="chat-bubble" id="chatBubble" onclick="window.econ?.openChatWindow()" role="button" tabindex="0" aria-label="Mở chat AI" title="Nhấn để chat với AI">
-        🤖
-    </div>
-
-    <!-- Chat Window -->
-    <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chat-title" aria-modal="false">
-        <div class="chat-window-header">
-            <span class="chat-window-title" id="chat-title">🤖 AI TERMINAL</span>
-            <div class="chat-controls">
-                <button class="chat-btn" onclick="window.econ?.closeChatWindow()" aria-label="Đóng chat" title="Đóng">×</button>
-            </div>
-        </div>
-        
-        <div class="chat-messages" id="chatMessages" role="log" aria-label="Tin nhắn chat" aria-live="polite">
-            <div class="chat-message ai">
-                🤖 Chào bạn! Tôi là AI trợ lý của E-con News Terminal. Hãy mở một bài viết và sử dụng các nút bên dưới để tóm tắt hoặc tranh luận đa quan điểm.
-            </div>
-        </div>
-        
-        <div class="chat-input-area">
-            <div class="quick-actions">
-                <button class="quick-btn summary" aria-label="Tóm tắt bài viết">📋 TÓM TẮT</button>
-                <button class="quick-btn debate" aria-label="Tranh luận đa quan điểm">🎭 TRANH LUẬN</button>
-            </div>
-            <div class="chat-input-row">
-                <textarea class="chat-input" id="chatInput" placeholder="Nhập câu hỏi của bạn..." aria-label="Nhập câu hỏi cho AI" rows="1"></textarea>
-                <button class="chat-send-btn" id="sendBtn" aria-label="Gửi tin nhắn">▶</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Article Detail Modal -->
-    <div class="modal" id="articleModal" role="dialog" aria-labelledby="modal-title" aria-modal="true" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modal-title"></h2>
-                <button class="close-modal" onclick="window.econ?.closeArticleModal()" aria-label="Đóng bài viết">×</button>
-            </div>
-            <div class="modal-meta">
-                <span id="articleSource"></span>
-                <a href="#" id="articleLink" target="_blank" rel="noopener noreferrer">Xem gốc</a>
-            </div>
-            <div class="modal-body" id="articleContent">
-                Đang tải nội dung...
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer" role="contentinfo">
-        <div class="hotkeys" role="group" aria-label="Phím tắt">
-            <span class="hotkey" tabindex="0" title="Trợ giúp">[F1] HELP</span>
-            <span class="hotkey" tabindex="0" title="Chế độ matrix">[F4] MATRIX</span>
-            <span class="hotkey" tabindex="0" title="Làm mới dữ liệu">[F5] LÀM_MỚI</span>
-        </div>
-        <div class="system-info" role="status" aria-label="Thông tin hệ thống">
-            <span class="status-online">NGƯỜI_DÙNG: 1.337.420</span>
-            <span aria-hidden="true">|</span>
-            <span class="cpu-usage">CPU: 69%</span>
-            <span aria-hidden="true">|</span>
-            <span class="ram-usage">RAM: 420MB</span>
-            <span aria-hidden="true">|</span>
-            <time id="currentTime">00:00:00</time>
-        </div>
-    </footer>
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer" role="region" aria-live="polite" aria-label="Thông báo">
-        <!-- Toast notifications will appear here -->
-    </div>
-
-    <!-- Screen Reader Only Content -->
-    <div class="sr-only">
-        <h1>E-con News Terminal - Cổng tin tức tài chính được hỗ trợ bởi AI</h1>
-        <p>Điều hướng bằng phím Tab. Nhấn F1 để được trợ giúp, F4 cho hiệu ứng đặc biệt, F5 để làm mới.</p>
-    </div>
-
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='script.js') }}?v={{ range(1000, 9999) | random }}" defer></script>
-    
-    <!-- Update time display -->
-    <script>
-        function updateHeaderTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('vi-VN', { 
-                hour12: false,
-                timeZone: 'Asia/Ho_Chi_Minh'
-            });
             
-            const headerTime = document.getElementById('headerTime');
-            if (headerTime) {
-                headerTime.textContent = timeString;
+            .chat-window {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 120px);
+                right: var(--space-xl);
+                bottom: var(--space-xl);
             }
-        }
-        
-        // Update immediately and then every second
-        updateHeaderTime();
-        setInterval(updateHeaderTime, 1000);
-    </script>
-
-    <!-- Accessibility Enhancements -->
-    <style>
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            :root {
-                --terminal-green: #00ff00;
-                --terminal-red: #ff0000;
-                --terminal-cyan: #00ffff;
-                --bg-black: #000000;
-                --terminal-white: #ffffff;
+            
+            .modal-content {
+                max-width: 90vw;
+                margin-right: 0;
             }
         }
 
-        /* Reduced motion support */
+        @media (max-width: 768px) {
+            .ascii-header {
+                padding: var(--space-md);
+            }
+            
+            .ascii-art {
+                font-size: clamp(3px, 1.5vw, 6px);
+                line-height: 0.9;
+                max-width: calc(100vw - 40px);
+                margin: 0 auto;
+                display: -webkit-box;
+                -webkit-line-clamp: 15;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                animation: none;
+            }
+            
+            .nav-tabs {
+                padding: var(--space-sm);
+                gap: var(--space-xs);
+            }
+            
+            .nav-tab {
+                font-size: clamp(8px, 1.5vw, 10px);
+                padding: var(--space-xs) var(--space-sm);
+                min-height: 36px;
+                flex: 1;
+                min-width: 70px;
+            }
+            
+            .status-bar {
+                font-size: clamp(10px, 2vw, 12px);
+                padding: var(--space-xs);
+                white-space: normal;
+                word-wrap: break-word;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ascii-header {
+                padding: var(--space-sm);
+            }
+            
+            .ascii-art {
+                font-size: clamp(2px, 1.8vw, 4px);
+                line-height: 0.8;
+                max-width: calc(100vw - 20px);
+                -webkit-line-clamp: 10;
+            }
+            
+            .nav-tab {
+                font-size: clamp(7px, 1.2vw, 8px);
+                padding: var(--space-xs);
+                min-height: 32px;
+                letter-spacing: 0;
+                min-width: 60px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                padding: var(--space-md);
+                gap: var(--space-sm);
+            }
+        }
+
+        /* === ACCESSIBILITY === */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -446,29 +1135,1487 @@
             }
         }
 
-        /* Focus indicators */
-        *:focus-visible {
+        @media (prefers-contrast: high) {
+            :root {
+                --terminal-green: #00ff00;
+                --terminal-red: #ff0000;
+                --terminal-cyan: #00ffff;
+                --bg-black: #000000;
+                --terminal-white: #ffffff;
+            }
+        }
+
+        /* === SCROLLBAR STYLING === */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-black);  /* FIXED: Changed to black */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--terminal-green);
+            border: 1px solid var(--bg-black);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--terminal-cyan);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--terminal-green) var(--bg-black);
+        }
+
+        /* === SELECTION STYLES === */
+        ::selection {
+            background: var(--terminal-green);
+            color: var(--bg-black);
+        }
+
+        ::-moz-selection {
+            background: var(--terminal-green);
+            color: var(--bg-black);
+        }
+
+        /* === FOCUS STYLES === */
+        *:focus {
             outline: 2px solid var(--terminal-cyan);
             outline-offset: 2px;
         }
 
-        /* Skip link */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: var(--terminal-green);
-            color: var(--bg-black);
-            padding: 8px;
-            text-decoration: none;
-            z-index: 9999;
-            font-family: var(--font-mono);
-            font-weight: bold;
+        .nav-tab:focus,
+        .btn:focus,
+        .chat-btn:focus {
+            outline: 2px solid var(--terminal-cyan);
+            outline-offset: -2px;
         }
 
-        .skip-link:focus {
-            top: 6px;
+        /* === FORCE DISPLAY CRITICAL ELEMENTS === */
+        .nav-tabs,
+        .nav-tab {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .chat-widget,
+        .chat-window {
+            z-index: 3000 !important;
+        }
+
+        /* FIXED: Hide removed elements */
+        .command-bar {
+            display: none !important;  /* FIXED: Hide command input as requested */
         }
     </style>
+</head>
+<body>
+    <!-- Skip Navigation Link -->
+    <a href="#newsContainer" class="skip-link">Skip to main content</a>
+
+    <!-- Scanline Effect -->
+    <div class="scanline"></div>
+
+    <!-- ASCII Art Header -->
+    <div class="ascii-header">
+        <div class="ascii-art">
+╔═════════════════════════════════════════════════════════════════════════════════════╗
+║  ███████╗       ██████╗ ██████╗ ███╗   ██╗    ███╗   ██╗███████╗██╗    ██╗███████╗  ║
+║  ██╔════╝      ██╔════╝██╔═══██╗████╗  ██║    ████╗  ██║██╔════╝██║    ██║██╔════╝  ║
+║  █████╗  █████╗██║     ██║   ██║██╔██╗ ██║    ██╔██╗ ██║█████╗  ██║ █╗ ██║███████╗  ║
+║  ██╔══╝  ╚════╝██║     ██║   ██║██║╚██╗██║    ██║╚██╗██║██╔══╝  ██║███╗██║╚════██║  ║
+║  ███████╗      ╚██████╗╚██████╔╝██║ ╚████║    ██║ ╚████║███████╗╚███╔███╔╝███████║  ║
+║  ╚══════╝       ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝ ╚══════╝  ║
+║                           [ TERMINAL INTERFACE v2.024.10 ]                          ║
+║                         [ AI-POWERED FINANCIAL PROTOCOL ]                           ║
+╚═════════════════════════════════════════════════════════════════════════════════════╝
+        </div>
+    </div>
+
+    <!-- System Status Bar -->
+    <div class="status-bar" role="alert" aria-live="polite">
+        ⚠️ HỆ THỐNG CẢNH BÁO: REALITY.EXE ĐANG GẶP LỖI NGHIÊM TRỌNG - HÃY THẬN TRỌNG ⚠️
+    </div>
+
+    <!-- FIXED: Small System Stats Dashboard (as requested) -->
+    <section class="stats-grid" aria-label="Thống kê hệ thống">
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">👥</span>
+            <div class="stat-label">NGƯỜI_DÙNG</div>
+            <div class="stat-value" id="activeUsers">1,337,420</div>
+            <div class="stat-status">[ONLINE]</div>
+        </div>
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">🤖</span>
+            <div class="stat-label">CÂU_HỎI_AI</div>
+            <div class="stat-value" id="aiQueries">42,069</div>
+            <div class="stat-status">[ACTIVE]</div>
+        </div>
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">📊</span>
+            <div class="stat-label">TIN_PHÂN_TÍCH</div>
+            <div class="stat-value" id="newsParsed">9,999</div>
+            <div class="stat-status">[UPDATED]</div>
+        </div>
+        <div class="stat-box" tabindex="0">
+            <span class="stat-emoji" aria-hidden="true">⚡</span>
+            <div class="stat-label">TẢI_HỆ_THỐNG</div>
+            <div class="stat-value" id="systemLoad">69%</div>
+            <div class="stat-status">[OPTIMAL]</div>
+        </div>
+    </section>
+
+    <!-- FIXED: Large Navigation Tabs (only 2 tabs as requested) -->
+    <nav class="nav-tabs" role="navigation" aria-label="Danh mục tin tức" id="navigationTabs">
+        <button class="nav-tab active" 
+                data-category="all" 
+                aria-pressed="true"
+                title="Tất cả tin tức từ mọi nguồn"
+                type="button">
+            [TẤT_CẢ_TIN_TỨC.DAT]
+        </button>
+        <button class="nav-tab" 
+                data-category="domestic" 
+                aria-pressed="false"
+                title="Tin tức tài chính Việt Nam"
+                type="button">
+            [TIN_TỨC_NỘI_ĐỊA.VN]
+        </button>
+        <button class="nav-tab" 
+                data-category="international" 
+                aria-pressed="false"
+                title="Tin tức tài chính quốc tế"
+                type="button">
+            [DÒNG_TIN_TOÀN_CẦU.INT]
+        </button>
+        <!-- FIXED: Removed tech, crypto, ai tabs as requested -->
+    </nav>
+
+    <!-- Main News Container -->
+    <main class="news-container" role="main">
+        <!-- Loading State -->
+        <div class="loading" id="loadingContainer" role="status" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="loading-text">ĐANG KHỞI TẠO GIAO THỨC TIN TỨC...</div>
+        </div>
+
+        <!-- FIXED: News Grid Container (4 items per row) -->
+        <div class="news-grid" id="newsContainer" style="display: none;" role="region" aria-label="Bài viết tin tức">
+            <!-- News articles will be dynamically loaded here in grid format -->
+        </div>
+        
+        <!-- Pagination Container -->
+        <div class="pagination" id="paginationContainer" style="display: none;" role="navigation" aria-label="Phân trang">
+            <button id="prevPageBtn" aria-label="Trang trước">« TRƯỚC</button>
+            <div class="pagination-info" id="pageInfo">Trang 1 / 1</div>
+            <button id="nextPageBtn" aria-label="Trang sau">SAU »</button>
+        </div>
+    </main>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" role="complementary" aria-label="Trợ lý AI" style="z-index: 3000;">
+        <!-- Chat Bubble (Minimized State) -->
+        <div class="chat-bubble" id="chatBubble" role="button" tabindex="0" aria-label="Mở trợ lý AI chat">
+            <div class="chat-header">
+                <span class="chat-avatar" aria-hidden="true">🤖</span>
+                <div>
+                    <div class="chat-title">TRỢ_LÝ_AI.EXE</div>
+                    <div class="chat-subtitle">Sẵn sàng cho truy vấn...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window (Maximized State) -->
+        <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chatWindowTitle" aria-modal="false" style="z-index: 3000;">
+            <div class="chat-window-header">
+                <h2 id="chatWindowTitle" class="chat-window-title">TERMINAL_AI v2.024.10</h2>
+                <div class="chat-controls">
+                    <button class="chat-btn" id="minimizeChat" aria-label="Thu nhỏ chat" title="Thu nhỏ">−</button>
+                    <button class="chat-btn" id="closeChat" aria-label="Đóng chat" title="Đóng">×</button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Tin nhắn chat">
+                <div class="chat-message ai">
+                    HỆ_THỐNG&gt; Trợ lý AI đã sẵn sàng. Có thể phân tích tin tức và trả lời câu hỏi.<br>
+                    Các lệnh có sẵn: [TÓM_TẮT] [PHÂN_TÍCH] [TRANH_LUẬN] [CÂU_HỎI]
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <div class="quick-actions">
+                    <button class="quick-btn summary" id="summaryBtn" aria-label="Tóm tắt bài viết hiện tại">
+                        📋 TÓM_TẮT
+                    </button>
+                    <button class="quick-btn debate" id="debateBtn" aria-label="Bắt đầu tranh luận về bài viết hiện tại">
+                        🎭 TRANH_LUẬN
+                    </button>
+                </div>
+                <div class="chat-input-row">
+                    <label for="chatInput" class="sr-only">Nhập tin nhắn của bạn</label>
+                    <input type="text" 
+                           class="chat-input" 
+                           id="chatInput" 
+                           placeholder="Nhập câu hỏi..."
+                           aria-label="Nhập tin nhắn chat">
+                    <button class="send-btn" id="sendBtn" aria-label="Gửi tin nhắn">GỬI</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Modal -->
+    <div class="modal" id="articleModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true" aria-hidden="true">
+        <div class="modal-content" style="margin-right: 450px; max-width: calc(90vw - 450px);">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">TRÌNH_XEM_BÁI_VIẾT.EXE</h2>
+                <button class="close-btn" id="closeModal" aria-label="Đóng bài viết" title="Đóng (Esc)">×</button>
+            </div>
+            <div class="modal-body" id="modalBody" role="document">
+                <!-- Article content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" role="region" aria-live="polite" aria-label="Thông báo">
+        <!-- Toast notifications will appear here -->
+    </div>
+
+    <script>
+        /**
+         * FIXED: Complete JavaScript with all requested changes
+         * - Grid layout for news (4 items per row)
+         * - Fixed AI debate character display
+         * - Improved news loading with better caching
+         * - Removed command input functionality
+         */
+
+        'use strict';
+
+        class RetroNewsPortal {
+            constructor() {
+                this.currentPage = 1;
+                this.currentCategory = 'all';
+                this.totalPages = 1;
+                this.isLoading = false;
+                this.currentArticle = null;
+                this.aiRequestInProgress = false;
+                this.chatMessages = [];
+                
+                this.systemStats = {
+                    activeUsers: 1337420,
+                    aiQueries: 42069,
+                    newsParsed: 9999,
+                    systemLoad: 69,
+                    uptime: Date.now()
+                };
+                
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 INITIALIZING FIXED RETRO BRUTALISM NEWS PORTAL v2.024.10...');
+                
+                try {
+                    this.bindEvents();
+                    this.startSystemUpdates();
+                    this.simulateSystemBoot();
+                    
+                    // FIXED: Load initial news with improved error handling
+                    await this.loadNews('all', 1);
+                    
+                    console.log('✅ FIXED TERMINAL INTERFACE READY - ALL SYSTEMS OPERATIONAL');
+                    this.showToast('Khởi tạo hệ thống hoàn tất', 'success');
+                    
+                } catch (error) {
+                    console.error('❌ INITIALIZATION FAILED:', error);
+                    this.showToast('Khởi tạo hệ thống thất bại: ' + error.message, 'error');
+                }
+            }
+
+            bindEvents() {
+                // Navigation tabs
+                const navTabs = document.querySelector('.nav-tabs');
+                if (navTabs) {
+                    navTabs.addEventListener('click', this.handleNavigation.bind(this));
+                    console.log('✅ Navigation events bound');
+                }
+
+                // Article clicks with delegation
+                document.addEventListener('click', this.handleArticleClick.bind(this));
+
+                // Chat events
+                this.bindChatEvents();
+
+                // Modal events
+                this.bindModalEvents();
+
+                // Pagination events  
+                this.bindPaginationEvents();
+
+                // Window events
+                window.addEventListener('resize', this.handleResize.bind(this));
+                window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this));
+
+                // Global keyboard shortcuts
+                document.addEventListener('keydown', this.handleGlobalKeydown.bind(this));
+            }
+
+            bindChatEvents() {
+                const chatBubble = document.getElementById('chatBubble');
+                const minimizeChat = document.getElementById('minimizeChat');
+                const closeChat = document.getElementById('closeChat');
+                const summaryBtn = document.getElementById('summaryBtn');
+                const debateBtn = document.getElementById('debateBtn');
+                const sendBtn = document.getElementById('sendBtn');
+                const chatInput = document.getElementById('chatInput');
+
+                chatBubble?.addEventListener('click', () => this.openChatWindow());
+                minimizeChat?.addEventListener('click', () => this.minimizeChatWindow());
+                closeChat?.addEventListener('click', () => this.closeChatWindow());
+                summaryBtn?.addEventListener('click', () => this.handleSummaryRequest());
+                debateBtn?.addEventListener('click', () => this.handleDebateRequest());
+                sendBtn?.addEventListener('click', () => this.sendChatMessage());
+
+                if (chatInput) {
+                    chatInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            this.sendChatMessage();
+                        }
+                    });
+                }
+            }
+
+            bindModalEvents() {
+                const closeModal = document.getElementById('closeModal');
+                const articleModal = document.getElementById('articleModal');
+
+                closeModal?.addEventListener('click', () => this.closeArticleModal());
+                articleModal?.addEventListener('click', (e) => {
+                    if (e.target.id === 'articleModal') {
+                        this.closeArticleModal();
+                    }
+                });
+            }
+
+            bindPaginationEvents() {
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', this.handlePrevPage.bind(this));
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', this.handleNextPage.bind(this));
+                }
+            }
+
+            async handlePrevPage() {
+                if (this.currentPage > 1 && !this.isLoading) {
+                    await this.loadNews(this.currentCategory, this.currentPage - 1);
+                }
+            }
+
+            async handleNextPage() {
+                if (this.currentPage < this.totalPages && !this.isLoading) {
+                    await this.loadNews(this.currentCategory, this.currentPage + 1);
+                }
+            }
+
+            updatePaginationDisplay(currentPage, totalPages) {
+                this.currentPage = currentPage;
+                this.totalPages = totalPages;
+                
+                const pageInfo = document.getElementById('pageInfo');
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                const paginationContainer = document.getElementById('paginationContainer');
+                
+                if (pageInfo) {
+                    pageInfo.textContent = `Trang ${currentPage} / ${totalPages}`;
+                }
+                
+                if (prevBtn) {
+                    prevBtn.disabled = currentPage <= 1;
+                }
+                
+                if (nextBtn) {
+                    nextBtn.disabled = currentPage >= totalPages;
+                }
+                
+                if (paginationContainer) {
+                    paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
+                }
+                
+                console.log(`✅ Pagination updated: ${currentPage}/${totalPages}`);
+            }
+
+            handleNavigation(e) {
+                const tab = e.target.closest('.nav-tab');
+                if (!tab) return;
+
+                e.preventDefault();
+                const category = tab.dataset.category;
+                if (category && category !== this.currentCategory) {
+                    console.log(`🔄 Switching to category: ${category}`);
+                    this.switchCategory(category);
+                }
+            }
+
+            handleArticleClick(e) {
+                const article = e.target.closest('.news-article');
+                if (!article) return;
+
+                const articleId = article.dataset.id;
+                if (articleId) {
+                    this.showArticleModal(articleId);
+                }
+            }
+
+            handleResize() {
+                // Handle responsive changes
+                console.log('🔄 Window resized');
+            }
+
+            handleBeforeUnload(e) {
+                if (this.aiRequestInProgress) {
+                    e.preventDefault();
+                    e.returnValue = 'Yêu cầu AI đang xử lý. Bạn có chắc muốn rời khỏi?';
+                }
+            }
+
+            handleGlobalKeydown(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+
+                switch (e.key) {
+                    case 'Escape':
+                        this.closeArticleModal();
+                        this.closeChatWindow();
+                        break;
+                    case 'F5':
+                        e.preventDefault();
+                        this.refreshNews();
+                        break;
+                }
+            }
+
+            async switchCategory(category) {
+                if (this.isLoading || category === this.currentCategory) return;
+
+                console.log(`🔄 Switching to category: ${category}`);
+
+                // Update active states
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.setAttribute('aria-pressed', 'false');
+                });
+                
+                const activeTab = document.querySelector(`[data-category="${category}"]`);
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                    activeTab.setAttribute('aria-pressed', 'true');
+                    console.log(`✅ Active tab updated for: ${category}`);
+                }
+
+                this.currentCategory = category;
+                await this.loadNews(category, 1);
+            }
+
+            async loadNews(category, page) {
+                if (this.isLoading) {
+                    console.log('🔄 Already loading news, skipping...');
+                    return;
+                }
+
+                this.isLoading = true;
+                this.currentPage = page;
+
+                this.showLoading();
+                console.log(`🔄 Loading news for category: ${category}, page: ${page}`);
+
+                try {
+                    const url = `/api/news/${encodeURIComponent(category)}?page=${page}`;
+                    const response = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 400) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(`Lỗi yêu cầu: ${errorData.error || 'Danh mục không hợp lệ'}`);
+                        }
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    console.log(`✅ Received ${data.news?.length || 0} articles for ${category}`);
+                    
+                    // FIXED: Render news in grid format
+                    this.renderNewsGrid(data.news || []);
+                    this.updatePaginationDisplay(data.page || 1, data.total_pages || 1);
+                    
+                    this.showToast(`✅ Đã tải ${data.news?.length || 0} bài viết cho ${category.toUpperCase()}`, 'success');
+
+                } catch (error) {
+                    console.error('❌ News loading error:', error);
+                    this.showToast(`Lỗi tải tin tức: ${error.message}`, 'error');
+                    this.renderError();
+                    this.updatePaginationDisplay(1, 1);
+                } finally {
+                    this.hideLoading();
+                    this.isLoading = false;
+                }
+            }
+
+            renderNewsGrid(newsItems) {
+                const newsContainer = document.getElementById('newsContainer');
+                if (!newsContainer) {
+                    console.error('❌ News container not found');
+                    return;
+                }
+
+                // Clear existing content
+                newsContainer.innerHTML = '';
+
+                if (!newsItems || newsItems.length === 0) {
+                    newsContainer.innerHTML = this.createEmptyState();
+                    newsContainer.style.display = 'grid';
+                    return;
+                }
+
+                console.log(`🎨 Rendering ${newsItems.length} news articles in grid`);
+
+                // FIXED: Create articles in grid format
+                newsItems.forEach((news, index) => {
+                    const articleElement = this.createNewsCard(news, index);
+                    newsContainer.appendChild(articleElement);
+                    
+                    // Staggered animation
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            articleElement.style.opacity = '1';
+                            articleElement.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    });
+                });
+
+                newsContainer.style.display = 'grid';
+                console.log('✅ News articles rendered successfully in grid format');
+            }
+
+            createNewsCard(news, index) {
+                const article = document.createElement('article');
+                article.className = 'news-article';
+                article.dataset.id = news.id;
+                article.style.cssText = 'opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out;';
+                
+                // Generate random stats for demo
+                const stats = {
+                    upvotes: Math.floor(Math.random() * 100000) + 1000,
+                    comments: Math.floor(Math.random() * 5000) + 100,
+                    views: Math.floor(Math.random() * 500000) + 10000
+                };
+
+                article.innerHTML = `
+                    <div class="article-header">
+                        <div class="article-meta">
+                            <span class="priority-tag priority-${this.getRandomPriority()}">[${this.getRandomPriority().toUpperCase()}]</span>
+                            <span class="category-tag">[${(news.source || 'UNKNOWN').toUpperCase()}]</span>
+                        </div>
+                        <div class="timestamp">${news.published}</div>
+                    </div>
+                    <div class="article-content">
+                        <div class="article-icon">${news.emoji || '📰'}</div>
+                        <h2 class="article-title">${this.escapeHtml(news.title)}</h2>
+                        <p class="article-preview">${this.escapeHtml(news.description || 'Không có mô tả.')}</p>
+                    </div>
+                    <div class="article-stats">
+                        <div class="stats-left">
+                            <div class="stat-item upvotes">▲ ${stats.upvotes.toLocaleString()}</div>
+                            <div class="stat-item comments">💬 ${stats.comments.toLocaleString()}</div>
+                            <div class="stat-item views">👁 ${stats.views.toLocaleString()}</div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-exec">[EXEC]</button>
+                            <button class="btn btn-share">[SHARE]</button>
+                        </div>
+                    </div>
+                `;
+
+                return article;
+            }
+
+            createEmptyState() {
+                return `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: var(--terminal-amber);">
+                        <div style="font-size: 4rem; margin-bottom: 2rem;">🤖</div>
+                        <h3 style="color: var(--terminal-green); margin-bottom: 1rem; font-family: var(--font-mono);">
+                            KHÔNG PHÁT HIỆN DÒNG DỮ LIỆU
+                        </h3>
+                        <p style="color: var(--text-gray); font-family: var(--font-mono);">
+                            Mạng neural hiện đang ngoại tuyến. Vui lòng thử lại sau.
+                        </p>
+                        <button onclick="retroNewsPortal.refreshNews()" 
+                                style="background: var(--terminal-green); color: var(--bg-black); border: none; 
+                                       padding: 1rem 2rem; font-family: var(--font-mono); font-weight: bold; 
+                                       cursor: pointer; text-transform: uppercase; margin-top: 1rem;">
+                            🔄 THỬ LẠI KẾT NỐI
+                        </button>
+                    </div>
+                `;
+            }
+
+            renderError() {
+                const newsContainer = document.getElementById('newsContainer');
+                if (!newsContainer) return;
+
+                newsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                        <div style="font-size: 4rem; margin-bottom: 2rem; color: var(--terminal-red);">❌</div>
+                        <h3 style="color: var(--terminal-red); margin-bottom: 1rem; font-family: var(--font-mono);">
+                            LỖI HỆ THỐNG: DATA_FETCH_FAILED
+                        </h3>
+                        <p style="color: var(--text-gray); margin-bottom: 2rem; font-family: var(--font-mono);">
+                            Không thể thiết lập kết nối với máy chủ tin tức.<br>
+                            Vui lòng kiểm tra kết nối mạng và thử lại.
+                        </p>
+                        <button onclick="retroNewsPortal.refreshNews()" 
+                                style="background: var(--terminal-green); color: var(--bg-black); border: none; padding: 1rem 2rem; 
+                                       font-family: var(--font-mono); font-weight: bold; cursor: pointer; text-transform: uppercase;">
+                            🔄 THỬ LẠI KẾT NỐI
+                        </button>
+                    </div>
+                `;
+                newsContainer.style.display = 'grid';
+            }
+
+            async showArticleModal(articleId) {
+                const modal = document.getElementById('articleModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+
+                if (!modal || !modalTitle || !modalBody) return;
+
+                modalTitle.textContent = `ĐANG_TẢI BÀI_VIẾT_${articleId.toString().padStart(4, '0')}.DAT`;
+                modalBody.innerHTML = this.createLoadingState('ĐANG TRÍCH XUẤT DỮ LIỆU BÀI VIẾT...');
+                modal.style.display = 'flex';
+
+                try {
+                    const response = await fetch(`/api/article/${articleId}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const article = await response.json();
+                    this.currentArticle = article;
+
+                    modalTitle.textContent = `BÀI_VIẾT_${articleId.toString().padStart(4, '0')}.DAT`;
+                    modalBody.innerHTML = this.formatArticleContent(article);
+
+                    this.showChatWithArticleContext(article);
+                    this.showToast('📰 Bài viết đã tải thành công - AI sẵn sàng phân tích', 'success');
+
+                } catch (error) {
+                    console.error('❌ Article loading error:', error);
+                    modalTitle.textContent = 'LỖI_TẢI_BÀI_VIẾT';
+                    modalBody.innerHTML = this.createErrorState(error.message);
+                    this.showToast(`Lỗi tải bài viết: ${error.message}`, 'error');
+                }
+            }
+
+            showChatWithArticleContext(article) {
+                const chatBubble = document.getElementById('chatBubble');
+                const chatSubtitle = chatBubble?.querySelector('.chat-subtitle');
+                
+                if (chatSubtitle) {
+                    chatSubtitle.textContent = 'Bài viết đã tải - Sẵn sàng phân tích AI';
+                    chatSubtitle.style.color = 'var(--terminal-amber)';
+                }
+                
+                if (chatBubble && chatBubble.style.display === 'none') {
+                    chatBubble.style.display = 'block';
+                }
+                
+                if (chatBubble) {
+                    chatBubble.classList.add('pulse-glow');
+                    setTimeout(() => {
+                        chatBubble.classList.remove('pulse-glow');
+                    }, 3000);
+                }
+                
+                console.log('✅ Chat context updated for article');
+            }
+
+            formatArticleContent(article) {
+                return `
+                    <div style="color: var(--terminal-green); font-family: var(--font-mono); line-height: 1.8;">
+                        <div style="margin-bottom: 2rem; padding: 1rem; background: var(--bg-black); border: 1px solid var(--terminal-cyan);">
+                            <h3 style="color: var(--terminal-cyan); margin-bottom: 1rem; font-size: 1.2rem;">
+                                ${this.escapeHtml(article.title)}
+                            </h3>
+                            <div style="display: flex; gap: 2rem; margin-bottom: 1rem; font-size: 0.9rem;">
+                                <span style="color: var(--terminal-amber);">NGUỒN: ${this.escapeHtml(article.source)}</span>
+                                <span style="color: var(--terminal-purple);">THỜI_GIAN: ${this.escapeHtml(article.published)}</span>
+                            </div>
+                            <a href="${article.link}" target="_blank" rel="noopener noreferrer" 
+                               style="color: var(--terminal-green); text-decoration: none;">
+                                🔗 [LINK_GỐC]
+                            </a>
+                        </div>
+                        
+                        <div style="white-space: pre-wrap; line-height: 1.8;">
+                            ${this.formatArticleText(article.content)}
+                        </div>
+                        
+                        <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-black); border: 1px solid var(--terminal-green);">
+                            <strong style="color: var(--terminal-amber);">TRẠNG_THÁI_HỆ_THỐNG:</strong> Bài viết đã tải thành công<br>
+                            <strong style="color: var(--terminal-cyan);">PHÂN_TÍCH_AI:</strong> Có sẵn qua giao diện chat<br>
+                            <strong style="color: var(--terminal-purple);">SỐ_TỪ:</strong> ${this.countWords(article.content)} từ
+                        </div>
+                    </div>
+                `;
+            }
+
+            formatArticleText(content) {
+                if (!content) return 'Nội dung không có sẵn.';
+                
+                return content
+                    .split('\n')
+                    .map(paragraph => paragraph.trim())
+                    .filter(paragraph => paragraph.length > 0)
+                    .map(paragraph => {
+                        if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
+                            const headerText = paragraph.slice(2, -2);
+                            return `<h4 style="color: var(--terminal-cyan); margin: 1.5rem 0 1rem 0; font-size: 1.1rem;">${headerText}</h4>`;
+                        }
+                        
+                        if (paragraph.startsWith('•') || paragraph.startsWith('-')) {
+                            return `<div style="margin-left: 2rem; margin-bottom: 0.5rem; color: var(--terminal-green);">▶ ${paragraph.slice(1).trim()}</div>`;
+                        }
+                        
+                        return `<p style="margin-bottom: 1.5rem; text-align: justify;">${paragraph}</p>`;
+                    })
+                    .join('');
+            }
+
+            closeArticleModal() {
+                const modal = document.getElementById('articleModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    this.currentArticle = null;
+                    
+                    const chatSubtitle = document.querySelector('.chat-subtitle');
+                    if (chatSubtitle) {
+                        chatSubtitle.textContent = 'Sẵn sàng cho truy vấn...';
+                        chatSubtitle.style.color = '';
+                    }
+                }
+            }
+
+            openChatWindow() {
+                document.getElementById('chatBubble').style.display = 'none';
+                document.getElementById('chatWindow').style.display = 'flex';
+                document.getElementById('chatWindow').style.zIndex = '3000';
+            }
+
+            minimizeChatWindow() {
+                document.getElementById('chatWindow').style.display = 'none';
+                document.getElementById('chatBubble').style.display = 'block';
+            }
+
+            closeChatWindow() {
+                document.getElementById('chatWindow').style.display = 'none';
+                document.getElementById('chatBubble').style.display = 'block';
+            }
+
+            async handleSummaryRequest() {
+                if (this.aiRequestInProgress) {
+                    this.showToast('AI đang xử lý yêu cầu khác...', 'warning');
+                    return;
+                }
+
+                if (!this.currentArticle) {
+                    this.showToast('Vui lòng mở một bài viết trước', 'error');
+                    return;
+                }
+
+                this.aiRequestInProgress = true;
+                this.addChatMessage('📋 Đang phân tích bài viết để tóm tắt...', 'user');
+                this.showAITyping();
+
+                try {
+                    const response = await fetch('/api/ai/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: '' })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    this.hideAITyping();
+                    this.addChatMessage(this.formatAIResponse(data.response), 'ai');
+                    this.showToast('✅ Tóm tắt hoàn thành', 'success');
+
+                } catch (error) {
+                    this.hideAITyping();
+                    this.addChatMessage(`❌ Lỗi tóm tắt: ${error.message}`, 'ai');
+                    this.showToast('Lỗi tạo tóm tắt', 'error');
+                } finally {
+                    this.aiRequestInProgress = false;
+                }
+            }
+
+            async handleDebateRequest() {
+                if (this.aiRequestInProgress) {
+                    this.showToast('AI đang xử lý yêu cầu khác...', 'warning');
+                    return;
+                }
+
+                if (!this.currentArticle) {
+                    this.showToast('Vui lòng mở một bài viết trước', 'error');
+                    return;
+                }
+
+                this.aiRequestInProgress = true;
+                this.addChatMessage('🎭 Đang khởi tạo cuộc tranh luận đa quan điểm...', 'user');
+                this.showAITyping();
+
+                try {
+                    const response = await fetch('/api/ai/debate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ topic: '' })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    this.hideAITyping();
+                    // FIXED: Display debate characters properly
+                    this.displayDebateAsCharacters(data.response);
+                    this.showToast('✅ Tranh luận hoàn thành', 'success');
+
+                } catch (error) {
+                    this.hideAITyping();
+                    this.addChatMessage(`❌ Lỗi tranh luận: ${error.message}`, 'ai');
+                    this.showToast('Lỗi tạo tranh luận', 'error');
+                } finally {
+                    this.aiRequestInProgress = false;
+                }
+            }
+
+            // FIXED: Enhanced debate character display
+            displayDebateAsCharacters(debateText) {
+                const lines = debateText.split('\n').filter(line => line.trim());
+                
+                lines.forEach((line, index) => {
+                    // Check if line contains character indicators
+                    if (line.includes('🎓') || line.includes('📊') || line.includes('💼') || 
+                        line.includes('😔') || line.includes('💰') || line.includes('🦈') ||
+                        line.toLowerCase().includes('giáo sư') || 
+                        line.toLowerCase().includes('kinh tế') ||
+                        line.toLowerCase().includes('công sở') ||
+                        line.toLowerCase().includes('nghèo') ||
+                        line.toLowerCase().includes('đại gia') ||
+                        line.toLowerCase().includes('shark')) {
+                        
+                        setTimeout(() => {
+                            this.addChatMessage(line, 'ai');
+                        }, (index + 1) * 1000);  // FIXED: Reduced delay from 1500ms to 1000ms
+                    }
+                });
+                
+                // FIXED: If no character-specific lines found, display the full response
+                const characterLines = lines.filter(line => 
+                    line.includes('🎓') || line.includes('📊') || line.includes('💼') || 
+                    line.includes('😔') || line.includes('💰') || line.includes('🦈')
+                );
+                
+                if (characterLines.length === 0) {
+                    // Display the full response if no character format is detected
+                    setTimeout(() => {
+                        this.addChatMessage(debateText, 'ai');
+                    }, 1000);
+                }
+            }
+
+            async sendChatMessage() {
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+
+                if (!message || this.aiRequestInProgress) return;
+
+                this.addChatMessage(message, 'user');
+                input.value = '';
+
+                this.aiRequestInProgress = true;
+                this.showAITyping();
+
+                try {
+                    const response = await fetch('/api/ai/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: message })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    this.hideAITyping();
+                    this.addChatMessage(this.formatAIResponse(data.response), 'ai');
+
+                } catch (error) {
+                    this.hideAITyping();
+                    this.addChatMessage(`❌ Lỗi: ${error.message}`, 'ai');
+                } finally {
+                    this.aiRequestInProgress = false;
+                }
+            }
+
+            addChatMessage(content, sender) {
+                const messagesContainer = document.getElementById('chatMessages');
+                if (!messagesContainer) return;
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                this.chatMessages.push({ content, sender, timestamp: Date.now() });
+                
+                if (this.chatMessages.length > 50) {
+                    this.chatMessages = this.chatMessages.slice(-30);
+                }
+            }
+
+            formatAIResponse(content) {
+                if (!content) return content;
+
+                return content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--terminal-amber);">$1</strong>')
+                    .replace(/^[-•]\s*/gm, '▶ ')
+                    .replace(/^\d+[\.\)]\s*/gm, match => `<span style="color: var(--terminal-cyan);">${match}</span>`)
+                    .replace(/\n\n/g, '<br><br>');
+            }
+
+            showAITyping() {
+                const typingDiv = document.createElement('div');
+                typingDiv.id = 'typingIndicator';
+                typingDiv.className = 'chat-message ai';
+                typingDiv.innerHTML = 'AI_CORE> Đang xử lý<span style="animation: blink 1s infinite;">█</span>';
+                
+                const messagesContainer = document.getElementById('chatMessages');
+                if (messagesContainer) {
+                    messagesContainer.appendChild(typingDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }
+
+            hideAITyping() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            startSystemUpdates() {
+                // Update time display
+                setInterval(() => {
+                    const now = new Date();
+                    const timeElement = document.getElementById('currentTime');
+                    if (timeElement) {
+                        timeElement.textContent = now.toTimeString().split(' ')[0];
+                    }
+                }, 1000);
+
+                // Update system stats
+                setInterval(() => {
+                    this.updateStats();
+                }, 5000);
+            }
+
+            updateStats() {
+                const variance = () => Math.floor(Math.random() * 1000);
+                
+                this.systemStats.activeUsers += variance();
+                this.systemStats.aiQueries += Math.floor(variance() / 10);
+                this.systemStats.newsParsed += Math.floor(variance() / 20);
+                this.systemStats.systemLoad = Math.max(30, Math.min(95, this.systemStats.systemLoad + (Math.random() - 0.5) * 10));
+
+                // Update DOM
+                const elements = {
+                    'activeUsers': this.systemStats.activeUsers.toLocaleString(),
+                    'aiQueries': this.systemStats.aiQueries.toLocaleString(),
+                    'newsParsed': this.systemStats.newsParsed.toLocaleString(),
+                    'systemLoad': Math.floor(this.systemStats.systemLoad) + '%'
+                };
+
+                Object.entries(elements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = value;
+                    }
+                });
+            }
+
+            simulateSystemBoot() {
+                const loadingContainer = document.getElementById('loadingContainer');
+                const newsContainer = document.getElementById('newsContainer');
+                
+                if (loadingContainer && newsContainer) {
+                    setTimeout(() => {
+                        loadingContainer.style.display = 'none';
+                        newsContainer.style.display = 'grid';  // FIXED: Changed to grid
+                    }, 2000);
+                }
+            }
+
+            refreshNews() {
+                this.loadNews(this.currentCategory, this.currentPage);
+            }
+
+            showLoading() {
+                const loadingContainer = document.getElementById('loadingContainer');
+                const newsContainer = document.getElementById('newsContainer');
+                const paginationContainer = document.getElementById('paginationContainer');
+                
+                if (loadingContainer) loadingContainer.style.display = 'block';
+                if (newsContainer) newsContainer.style.display = 'none';
+                if (paginationContainer) paginationContainer.style.display = 'none';
+            }
+
+            hideLoading() {
+                const loadingContainer = document.getElementById('loadingContainer');
+                const newsContainer = document.getElementById('newsContainer');
+                
+                if (loadingContainer) loadingContainer.style.display = 'none';
+                if (newsContainer) newsContainer.style.display = 'grid';  // FIXED: Changed to grid
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                const container = document.getElementById('toastContainer');
+                if (container) {
+                    container.appendChild(toast);
+                    
+                    setTimeout(() => {
+                        toast.style.transition = 'all 0.5s ease-out';
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateX(100%)';
+                        setTimeout(() => toast.remove(), 500);
+                    }, 4000);
+                }
+            }
+
+            createLoadingState(message = 'Đang tải...') {
+                return `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div class="loading-text">${message}</div>
+                    </div>
+                `;
+            }
+
+            createErrorState(message) {
+                return `
+                    <div style="text-align: center; padding: 2rem; color: var(--terminal-red);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">❌</div>
+                        <h3 style="margin-bottom: 1rem;">LỖI HỆ THỐNG</h3>
+                        <p style="font-family: var(--font-mono); font-size: 0.9rem;">${this.escapeHtml(message)}</p>
+                    </div>
+                `;
+            }
+
+            // Helper functions
+            escapeHtml(text) {
+                if (!text) return '';
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+
+            getRandomPriority() {
+                const priorities = ['critical', 'urgent', 'high', 'medium'];
+                return priorities[Math.floor(Math.random() * priorities.length)];
+            }
+
+            countWords(text) {
+                return text ? text.split(/\s+/).length : 0;
+            }
+        }
+
+        // Initialize when DOM is ready
+        let retroNewsPortal;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DOM loaded, initializing FIXED Retro Brutalism News Portal...');
+            retroNewsPortal = new RetroNewsPortal();
+        });
+
+        // Add global style injection for blink animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0; }
+            }
+            
+            .pulse-glow {
+                animation: pulse-glow 1s ease-in-out 3 !important;
+            }
+            
+            @keyframes pulse-glow {
+                0%, 100% { box-shadow: var(--shadow-glow); transform: scale(1); }
+                50% { box-shadow: var(--shadow-strong); transform: scale(1.05); }
+            }
+            
+            /* FIXED: Screen reader only class for accessibility */
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+            }
+            
+            /* FIXED: Skip link for accessibility */
+            .skip-link {
+                position: absolute;
+                top: -40px;
+                left: 6px;
+                background: var(--terminal-green);
+                color: var(--bg-black);
+                padding: 8px;
+                z-index: 4000;
+                text-decoration: none;
+                font-family: var(--font-mono);
+                font-weight: bold;
+                transition: top 0.3s;
+            }
+            
+            .skip-link:focus {
+                top: 6px;
+            }
+            
+            /* FIXED: Loading state improvements */
+            .loading .loading-text::after {
+                content: '';
+                animation: loading-dots 1.5s infinite;
+            }
+            
+            @keyframes loading-dots {
+                0%, 20% { content: ''; }
+                40% { content: '.'; }
+                60% { content: '..'; }
+                80%, 100% { content: '...'; }
+            }
+            
+            /* FIXED: Ensure grid responsiveness on all screen sizes */
+            @media (max-width: 360px) {
+                .ascii-art {
+                    font-size: 2px !important;
+                    line-height: 0.7 !important;
+                    -webkit-line-clamp: 8 !important;
+                }
+                
+                .nav-tab {
+                    font-size: 6px !important;
+                    padding: 4px !important;
+                    min-height: 28px !important;
+                    min-width: 50px !important;
+                }
+                
+                .stats-grid {
+                    grid-template-columns: 1fr 1fr !important;
+                    gap: 4px !important;
+                    padding: 8px !important;
+                }
+                
+                .stat-box {
+                    padding: 4px !important;
+                }
+                
+                .stat-emoji {
+                    font-size: 12px !important;
+                }
+                
+                .stat-value {
+                    font-size: 10px !important;
+                }
+                
+                .stat-label,
+                .stat-status {
+                    font-size: 6px !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Global error handler
+        window.addEventListener('error', (e) => {
+            console.error('🚨 Global error:', e.error);
+            if (window.retroNewsPortal) {
+                window.retroNewsPortal.showToast(`Lỗi hệ thống: ${e.error?.message || 'Unknown error'}`, 'error');
+            }
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('🚨 Unhandled promise rejection:', e.reason);
+            if (window.retroNewsPortal) {
+                window.retroNewsPortal.showToast(`Lỗi không đồng bộ: ${e.reason?.message || 'Unknown error'}`, 'error');
+            }
+            e.preventDefault();
+        });
+
+        // Performance monitoring
+        window.addEventListener('load', () => {
+            if ('performance' in window) {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log(`📊 Page load performance: ${Math.round(perfData.loadEventEnd - perfData.fetchStart)}ms`);
+                
+                if (window.retroNewsPortal) {
+                    setTimeout(() => {
+                        window.retroNewsPortal.showToast('✅ Terminal interface tải hoàn tất', 'success');
+                    }, 1000);
+                }
+            }
+        });
+
+        // FIXED: Add matrix mode for easter egg
+        let matrixMode = false;
+        let matrixInterval;
+
+        function activateMatrixMode() {
+            if (matrixMode) return;
+            
+            matrixMode = true;
+            document.body.style.background = 'linear-gradient(45deg, #000, #001100, #000)';
+            
+            const matrixCanvas = document.createElement('canvas');
+            matrixCanvas.style.position = 'fixed';
+            matrixCanvas.style.top = '0';
+            matrixCanvas.style.left = '0';
+            matrixCanvas.style.width = '100%';
+            matrixCanvas.style.height = '100%';
+            matrixCanvas.style.zIndex = '999';
+            matrixCanvas.style.pointerEvents = 'none';
+            matrixCanvas.style.opacity = '0.3';
+            document.body.appendChild(matrixCanvas);
+            
+            const ctx = matrixCanvas.getContext('2d');
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+            const charSize = 14;
+            const columns = Math.floor(matrixCanvas.width / charSize);
+            const drops = new Array(columns).fill(1);
+            
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.font = `${charSize}px monospace`;
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * charSize, drops[i] * charSize);
+                    
+                    if (drops[i] * charSize > matrixCanvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            matrixInterval = setInterval(drawMatrix, 50);
+            
+            // Auto-disable after 10 seconds
+            setTimeout(() => {
+                matrixMode = false;
+                clearInterval(matrixInterval);
+                matrixCanvas.remove();
+                document.body.style.background = '';
+            }, 10000);
+        }
+
+        // FIXED: Enhanced glitch effect
+        function triggerGlitchEffect(intensity = 'medium') {
+            const elements = document.querySelectorAll('.news-article, .nav-tab, .stat-box');
+            const glitchClass = intensity === 'high' ? 'glitch-extreme' : 'glitch';
+            
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add(glitchClass);
+                    setTimeout(() => {
+                        el.classList.remove(glitchClass);
+                    }, 500);
+                }, index * 50);
+            });
+            
+            // Add screen glitch effect
+            const glitchOverlay = document.createElement('div');
+            glitchOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 9999;
+                background: repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 0, 0, 0.03) 2px,
+                    rgba(255, 0, 0, 0.03) 4px,
+                    rgba(0, 255, 0, 0.03) 4px,
+                    rgba(0, 255, 0, 0.03) 6px,
+                    rgba(0, 0, 255, 0.03) 6px,
+                    rgba(0, 0, 255, 0.03) 8px
+                );
+                animation: glitch-overlay 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(glitchOverlay);
+            
+            setTimeout(() => {
+                glitchOverlay.remove();
+            }, 300);
+        }
+
+        // FIXED: Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            switch (e.key) {
+                case 'F4':
+                    e.preventDefault();
+                    activateMatrixMode();
+                    break;
+                case 'F12':
+                    e.preventDefault();
+                    triggerGlitchEffect('high');
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                    if (!e.ctrlKey && !e.altKey) {
+                        const categories = ['all', 'domestic', 'international'];
+                        const category = categories[parseInt(e.key) - 1];
+                        if (category && window.retroNewsPortal) {
+                            window.retroNewsPortal.switchCategory(category);
+                        }
+                    }
+                    break;
+                case 'r':
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        if (window.retroNewsPortal) {
+                            window.retroNewsPortal.refreshNews();
+                        }
+                    }
+                    break;
+                case 'c':
+                    if (e.ctrlKey && e.shiftKey) {
+                        e.preventDefault();
+                        if (window.retroNewsPortal) {
+                            window.retroNewsPortal.openChatWindow();
+                        }
+                    }
+                    break;
+            }
+        });
+
+        // FIXED: Smooth scrolling polyfill for older browsers
+        if (!('scrollBehavior' in document.documentElement.style)) {
+            function smoothScrollTo(element) {
+                const start = window.pageYOffset;
+                const target = element.getBoundingClientRect().top + start;
+                const distance = target - start;
+                const duration = 500;
+                let timeElapsed = 0;
+                
+                function easeInOutQuad(t) {
+                    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                }
+                
+                function animateScroll() {
+                    timeElapsed += 16;
+                    const progress = Math.min(timeElapsed / duration, 1);
+                    const ease = easeInOutQuad(progress);
+                    window.scrollTo(0, start + distance * ease);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateScroll);
+                    }
+                }
+                
+                requestAnimationFrame(animateScroll);
+            }
+            
+            // Override smooth scroll behavior
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        smoothScrollTo(target);
+                    }
+                });
+            });
+        }
+    </script>
 </body>
 </html>
