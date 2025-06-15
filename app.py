@@ -3239,3 +3239,14 @@ print(f"Session Management: ✅ Enhanced error handling (FIXED)")
 print(f"News Loading: ✅ Better error recovery (FIXED)")
 print(f"RSS Feeds: ✅ {sum(len(feeds) for feeds in RSS_FEEDS.values())} sources")
 print("=" * 60)
+
+# Create app instance
+app = create_app()
+
+if __name__ == '__main__':
+    app.run(
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', 5000)),
+        debug=DEBUG_MODE,
+        threaded=True
+    )
