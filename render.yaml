@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: e-con-news-terminal-fixed
+    env: python
+    region: singapore  # Closest to Vietnam for better latency
+    plan: starter      # Free tier compatible
+    
+    # Build configuration
+    buildCommand: |
+      echo "🚀 Building E-con News Terminal Fixed v2.024.11"
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      echo "✅ Build completed successfully"
+    
+    # Start command with optimizations
+    startCommand: |
+      echo "🌐 Starting E-con News Terminal..."
+      gunicorn app:app \
+        --host 0.0.0.0 \
+        --port $PORT \
+        --workers 1 \
+        --worker-class sync \
+        --timeout 120 \
+        --max-requests 1000 \
+        --max-requests-jitter 50 \
+        --preload \
+        --access-logfile - \
+        --error-logfile - \
+        --log-level info
+    
+    # Environment variables (set these in Render dashboard)
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually in dashboard
+      - key: SECRET_KEY  
+        generateValue: true  # Auto-generate secure key
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: false
+      - key: PORT
+        value: 8080
+        
+    # Health check configuration
+    healthCheckPath: /api/system/stats
+    
+    # Auto-deploy settings
+    autoDeploy: true
+    branch: main
