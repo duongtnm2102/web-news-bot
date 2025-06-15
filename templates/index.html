@@ -31,9 +31,6 @@
     <meta name="apple-mobile-web-app-title" content="E-con News Terminal">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
-    <!-- REMOVED: CSP meta tag (frame-ancestors không hoạt động trong meta) -->
-    <!-- CSP sẽ được xử lý qua HTTP header trong Flask -->
-    
     <!-- Fonts - Performance Optimized -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,10 +40,10 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
     <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000'/><text x='50' y='65' font-size='60' text-anchor='middle' fill='%2300ff00'>🖥️</text></svg>">
     
-    <!-- FIXED: Stylesheets with proper url_for -->
+    <!-- Stylesheets with cache busting -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ range(1000, 9999) | random }}">
     
-    <!-- FIXED: Preload Critical Resources với proper attributes -->
+    <!-- Preload Critical Resources -->
     <link rel="prefetch" href="{{ url_for('static', filename='script.js') }}" as="script">
     
     <!-- Performance Hints -->
@@ -69,7 +66,7 @@
     }
     </script>
     
-    <!-- FIXED: Critical CSS for immediate rendering -->
+    <!-- Critical CSS for immediate rendering -->
     <style>
         /* Critical CSS to prevent FOUC */
         body {
@@ -83,7 +80,7 @@
         
         /* Ensure navigation is visible immediately */
         .nav-tabs {
-            background: #333333;
+            background: #000000;
             border-bottom: 2px solid #00ff00;
             padding: 12px;
             display: flex !important;
@@ -105,318 +102,279 @@
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.15s ease-out;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-            min-height: 36px;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
+            text-decoration: none;
+            display: inline-block;
+            letter-spacing: 1px;
+            min-width: 120px;
+            text-align: center;
         }
         
-        .nav-tab:hover {
+        .nav-tab:hover,
+        .nav-tab.active {
             background: #00ff00;
             color: #000000;
             box-shadow: 0 0 10px #00ff00;
             transform: translateY(-1px);
         }
         
-        .nav-tab.active {
-            background: #ffb000;
-            color: #000000;
-            border-color: #ffb000;
-            box-shadow: 0 0 15px #ffb000;
+        /* Hide removed tabs immediately */
+        .nav-tab[data-category="technology"],
+        .nav-tab[data-category="blockchain"], 
+        .nav-tab[data-category="neural_ai"] {
+            display: none !important;
         }
         
-        /* FIXED: Pagination styles */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            padding: 20px;
-            background: #111111;
-            border-top: 2px solid #00ff00;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .pagination button {
-            background: #000000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 8px 16px;
-            font-family: inherit;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.15s ease-out;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        
-        .pagination button:hover:not(:disabled) {
-            background: #00ff00;
-            color: #000000;
-            box-shadow: 0 0 10px #00ff00;
-        }
-        
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .pagination button.active {
-            background: #ffb000;
-            color: #000000;
-            border-color: #ffb000;
-        }
-        
-        .pagination-info {
-            color: #00ff00;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        /* Loading indicator */
         .loading {
-            text-align: center;
-            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50vh;
+            font-size: 18px;
             color: #00ff00;
         }
         
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #333333;
-            border-top: 3px solid #00ff00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+        .news-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 12px 0;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @media (max-width: 1200px) {
+            .news-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .news-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .news-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- Skip Navigation Link -->
-    <a href="#newsContainer" class="skip-link">Skip to main content</a>
-
     <!-- Scanline Effect -->
-    <div class="scanline"></div>
+    <div class="scanline" aria-hidden="true"></div>
 
-    <!-- ASCII Art Header - FIXED Responsive -->
-    <div class="ascii-header">
-        <div class="ascii-art">
-╔═════════════════════════════════════════════════════════════════════════════════════╗
-║  ███████╗       ██████╗ ██████╗ ███╗   ██╗    ███╗   ██╗███████╗██╗    ██╗███████╗  ║
-║  ██╔════╝      ██╔════╝██╔═══██╗████╗  ██║    ████╗  ██║██╔════╝██║    ██║██╔════╝  ║
-║  █████╗  █████╗██║     ██║   ██║██╔██╗ ██║    ██╔██╗ ██║█████╗  ██║ █╗ ██║███████╗  ║
-║  ██╔══╝  ╚════╝██║     ██║   ██║██║╚██╗██║    ██║╚██╗██║██╔══╝  ██║███╗██║╚════██║  ║
-║  ███████╗      ╚██████╗╚██████╔╝██║ ╚████║    ██║ ╚████║███████╗╚███╔███╔╝███████║  ║
-║  ╚══════╝       ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝ ╚══════╝  ║
-║                           [ TERMINAL INTERFACE v2.024 ]                             ║
-║                         [ AI-POWERED FINANCIAL PROTOCOL ]                           ║
-╚═════════════════════════════════════════════════════════════════════════════════════╝
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="header-content">
+            <div class="logo" aria-label="E-con News Terminal Logo">
+                📰 E-CON_NEWS.EXE
+            </div>
+            <div class="header-info" role="status" aria-label="Header information">
+                <span>v2.024.11</span>
+                <span>🌍 HỒ_CHÍ_MINH</span>
+                <span id="headerTime">00:00:00</span>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <!-- System Status Bar -->
-    <div class="status-bar" role="alert" aria-live="polite">
+    <!-- Warning Banner -->
+    <div class="warning-banner" role="alert">
         ⚠️ HỆ THỐNG CẢNH BÁO: REALITY.EXE ĐANG GẶP LỖI NGHIÊM TRỌNG - HÃY THẬN TRỌNG ⚠️
     </div>
 
-    <!-- Command Bar -->
-    <div class="command-bar">
-        <div class="command-prompt">
-            <label for="commandInput" class="prompt-text">root@econews:~#</label>
-            <input type="text" 
-                   class="command-input" 
-                   id="commandInput"
-                   placeholder="Nhập lệnh..." 
-                   autocomplete="off"
-                   aria-label="Terminal command input"
-                   title="Gõ lệnh như 'help', 'news', 'ai', v.v.">
-            <span class="cursor" aria-hidden="true">█</span>
-        </div>
-        <div class="command-help">
-            &gt; Các lệnh có sẵn: [NEWS] [SEARCH] [AI] [STATUS] [HELP] [MATRIX] [EXIT]
-        </div>
-    </div>
-
-    <!-- FIXED: Navigation Tabs with Enhanced Structure -->
-    <nav class="nav-tabs" role="navigation" aria-label="Danh mục tin tức" id="navigationTabs">
-        <button class="nav-tab active" 
-                data-category="all" 
-                aria-pressed="true"
-                title="Tất cả tin tức từ mọi nguồn"
-                type="button">
-            [TẤT_CẢ_TIN_TỨC.DAT]
-        </button>
-        <button class="nav-tab" 
-                data-category="domestic" 
-                aria-pressed="false"
-                title="Tin tức tài chính Việt Nam"
-                type="button">
-            [TIN_TỨC_NỘI_ĐỊA.VN]
-        </button>
-        <button class="nav-tab" 
-                data-category="international" 
-                aria-pressed="false"
-                title="Tin tức tài chính quốc tế"
-                type="button">
-            [DÒNG_TIN_TOÀN_CẦU.INT]
-        </button>
-        <button class="nav-tab" 
-                data-category="tech" 
-                aria-pressed="false"
-                title="Tin tức công nghệ"
-                type="button">
-            [CÔNG_NGHỆ.JS]
-        </button>
-        <button class="nav-tab" 
-                data-category="crypto" 
-                aria-pressed="false"
-                title="Tin tức tiền mã hóa"
-                type="button">
-            [BLOCKCHAIN.BTC]
-        </button>
-        <button class="nav-tab" 
-                data-category="ai" 
-                aria-pressed="false"
-                title="Tin tức AI và học máy"
-                type="button">
-            [MẠNG_NEURAL.AI]
-        </button>
+    <!-- Navigation - FIXED: Removed 3 tabs as requested -->
+    <nav class="nav-tabs" role="navigation" aria-label="Danh mục tin tức">
+        <a href="#" class="nav-tab active" data-category="all" tabindex="0" role="button" aria-pressed="true">
+            [TẤT_CẢ_TIN_TỨC]
+        </a>
+        <a href="#" class="nav-tab" data-category="domestic" tabindex="0" role="button" aria-pressed="false">
+            [TIN_NỘI_ĐỊA]
+        </a>
+        <a href="#" class="nav-tab" data-category="international" tabindex="0" role="button" aria-pressed="false">
+            [TIN_TOÀN_CẦU]
+        </a>
+        <!-- FIXED: Removed technology, blockchain, neural_ai tabs -->
     </nav>
 
-    <!-- System Stats Dashboard -->
-    <section class="stats-grid" aria-label="Thống kê hệ thống">
-        <div class="stat-box" tabindex="0">
-            <span class="stat-emoji" aria-hidden="true">👥</span>
-            <div class="stat-label">NGƯỜI_DÙNG_HOẠT_ĐỘNG</div>
-            <div class="stat-value" id="activeUsers">1,337,420</div>
-            <div class="stat-status">[TRỰC_TUYẾN]</div>
-        </div>
-        <div class="stat-box" tabindex="0">
-            <span class="stat-emoji" aria-hidden="true">🤖</span>
-            <div class="stat-label">CÂU_HỎI_AI</div>
-            <div class="stat-value" id="aiQueries">42,069</div>
-            <div class="stat-status">[ĐANG_XỬ_LÝ]</div>
-        </div>
-        <div class="stat-box" tabindex="0">
-            <span class="stat-emoji" aria-hidden="true">📊</span>
-            <div class="stat-label">TIN_TỨC_PHÂN_TÍCH</div>
-            <div class="stat-value" id="newsParsed">9,999</div>
-            <div class="stat-status">[ĐÃ_CẬP_NHẬT]</div>
-        </div>
-        <div class="stat-box" tabindex="0">
-            <span class="stat-emoji" aria-hidden="true">⚡</span>
-            <div class="stat-label">TẢI_HỆ_THỐNG</div>
-            <div class="stat-value" id="systemLoad">69%</div>
-            <div class="stat-status">[TỐI_ƯU]</div>
-        </div>
-    </section>
+    <!-- Main Container - FIXED: New layout structure -->
+    <main class="main-container" role="main">
+        <!-- FIXED: Sidebar with user info, AI panel, news analysis, system load (smaller) -->
+        <aside class="sidebar" role="complementary" aria-label="Thông tin hệ thống">
+            <!-- User Info Panel -->
+            <section class="user-info" aria-labelledby="user-info-title">
+                <h3 id="user-info-title">👤 THÔNG TIN NGƯỜI DÙNG</h3>
+                <div class="user-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">ID Phiên:</span>
+                        <span class="stat-value">#{{ session.get('user_id', 'GUEST') }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Trạng thái:</span>
+                        <span class="stat-value">TRỰC_TUYẾN</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Bài đọc:</span>
+                        <span class="stat-value">{{ session.get('articles_read', 0) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">AI Queries:</span>
+                        <span class="stat-value">{{ session.get('ai_queries', 0) }}</span>
+                    </div>
+                </div>
+            </section>
 
-    <!-- Main News Container -->
-    <main class="news-container" role="main">
-        <!-- Loading State -->
-        <div class="loading" id="loadingContainer" role="status" aria-live="polite">
-            <div class="spinner" aria-hidden="true"></div>
-            <div class="loading-text">ĐANG KHỞI TẠO GIAO THỨC TIN TỨC...</div>
-        </div>
+            <!-- AI Panel -->
+            <section class="ai-panel" aria-labelledby="ai-panel-title">
+                <h3 id="ai-panel-title">🤖 CÂU HỎI AI</h3>
+                <div class="ai-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Engine:</span>
+                        <span class="stat-value">GEMINI_2.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Trạng thái:</span>
+                        <span class="stat-value">SẴN_SÀNG</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Tóm tắt:</span>
+                        <span class="stat-value">100-200 từ</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Tranh luận:</span>
+                        <span class="stat-value">6 NHÂN VẬT</span>
+                    </div>
+                </div>
+            </section>
 
-        <!-- News Articles Container -->
-        <div id="newsContainer" style="display: none;" role="region" aria-label="Bài viết tin tức">
-            <!-- News articles will be dynamically loaded here -->
-        </div>
-        
-        <!-- FIXED: Pagination Container -->
-        <div class="pagination" id="paginationContainer" style="display: none;" role="navigation" aria-label="Phân trang">
-            <button id="prevPageBtn" aria-label="Trang trước">« TRƯỚC</button>
-            <div class="pagination-info" id="pageInfo">Trang 1 / 1</div>
-            <button id="nextPageBtn" aria-label="Trang sau">SAU »</button>
-        </div>
+            <!-- News Analysis Panel -->
+            <section class="news-analysis" aria-labelledby="analysis-title">
+                <h3 id="analysis-title">📊 TIN TỨC PHÂN TÍCH</h3>
+                <div class="analysis-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Nguồn:</span>
+                        <span class="stat-value">15+ FEEDS</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Cập nhật:</span>
+                        <span class="stat-value">REAL-TIME</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Tin mới:</span>
+                        <span class="stat-value" id="newsCount">Đang tải...</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Lần cuối:</span>
+                        <span class="stat-value" id="lastUpdate">--:--:--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Load Panel -->
+            <section class="system-load" aria-labelledby="system-title">
+                <h3 id="system-title">⚡ TẢI HỆ THỐNG</h3>
+                <div class="load-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">CPU:</span>
+                        <span class="stat-value">69%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">RAM:</span>
+                        <span class="stat-value">420MB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Users:</span>
+                        <span class="stat-value">1.337M</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Uptime:</span>
+                        <span class="stat-value">99.9%</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- FIXED: Content Area (larger news panel) -->
+        <section class="content-area" role="region" aria-labelledby="content-title">
+            <div class="content-header">
+                <h2 class="content-title" id="content-title">📡 LUỒNG TIN TỨC TRỰC TIẾP</h2>
+                <div class="content-controls">
+                    <button class="control-btn" onclick="window.econ?.loadNews(window.econ?.currentPage)" aria-label="Làm mới tin tức">
+                        🔄 LÀM MỚI
+                    </button>
+                    <button class="control-btn" onclick="window.econ?.openChatWindow()" aria-label="Mở chat AI">
+                        🤖 AI CHAT
+                    </button>
+                </div>
+            </div>
+
+            <!-- FIXED: News Container with 4-column grid -->
+            <div class="news-container" id="newsContainer" role="feed" aria-label="Tin tức mới nhất" aria-live="polite">
+                <div class="loading">
+                    🔄 ĐANG TẢI TIN TỨC...
+                </div>
+            </div>
+        </section>
     </main>
 
-    <!-- FIXED: Chat Widget with Higher Z-Index -->
-    <div class="chat-widget" role="complementary" aria-label="Trợ lý AI" style="z-index: 3000;">
-        <!-- Chat Bubble (Minimized State) -->
-        <div class="chat-bubble" id="chatBubble" role="button" tabindex="0" aria-label="Mở trợ lý AI chat">
-            <div class="chat-header">
-                <span class="chat-avatar" aria-hidden="true">🤖</span>
-                <div>
-                    <div class="chat-title">TRỢ_LÝ_AI.EXE</div>
-                    <div class="chat-subtitle">Sẵn sàng cho truy vấn...</div>
-                </div>
+    <!-- Chat Bubble -->
+    <div class="chat-bubble" id="chatBubble" onclick="window.econ?.openChatWindow()" role="button" tabindex="0" aria-label="Mở chat AI" title="Nhấn để chat với AI">
+        🤖
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chat-title" aria-modal="false">
+        <div class="chat-window-header">
+            <span class="chat-window-title" id="chat-title">🤖 AI TERMINAL</span>
+            <div class="chat-controls">
+                <button class="chat-btn" onclick="window.econ?.closeChatWindow()" aria-label="Đóng chat" title="Đóng">×</button>
             </div>
         </div>
-
-        <!-- Chat Window (Maximized State) -->
-        <div class="chat-window" id="chatWindow" role="dialog" aria-labelledby="chatWindowTitle" aria-modal="false" style="z-index: 3000;">
-            <div class="chat-window-header">
-                <h2 id="chatWindowTitle" class="chat-window-title">TERMINAL_AI v2.024</h2>
-                <div class="chat-controls">
-                    <button class="chat-btn" id="minimizeChat" aria-label="Thu nhỏ chat" title="Thu nhỏ">−</button>
-                    <button class="chat-btn" id="closeChat" aria-label="Đóng chat" title="Đóng">×</button>
-                </div>
+        
+        <div class="chat-messages" id="chatMessages" role="log" aria-label="Tin nhắn chat" aria-live="polite">
+            <div class="chat-message ai">
+                🤖 Chào bạn! Tôi là AI trợ lý của E-con News Terminal. Hãy mở một bài viết và sử dụng các nút bên dưới để tóm tắt hoặc tranh luận đa quan điểm.
             </div>
-            
-            <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Tin nhắn chat">
-                <div class="chat-message ai">
-                    HỆ_THỐNG&gt; Trợ lý AI đã sẵn sàng. Có thể phân tích tin tức và trả lời câu hỏi.<br>
-                    Các lệnh có sẵn: [TÓM_TẮT] [PHÂN_TÍCH] [TRANH_LUẬN] [CÂU_HỎI]
-                </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <div class="quick-actions">
+                <button class="quick-btn summary" aria-label="Tóm tắt bài viết">📋 TÓM TẮT</button>
+                <button class="quick-btn debate" aria-label="Tranh luận đa quan điểm">🎭 TRANH LUẬN</button>
             </div>
-            
-            <div class="chat-input-area">
-                <div class="quick-actions">
-                    <button class="quick-btn summary" id="summaryBtn" aria-label="Tóm tắt bài viết hiện tại">
-                        📋 TÓM_TẮT
-                    </button>
-                    <button class="quick-btn debate" id="debateBtn" aria-label="Bắt đầu tranh luận về bài viết hiện tại">
-                        🎭 TRANH_LUẬN
-                    </button>
-                </div>
-                <div class="chat-input-row">
-                    <label for="chatInput" class="sr-only">Nhập tin nhắn của bạn</label>
-                    <input type="text" 
-                           class="chat-input" 
-                           id="chatInput" 
-                           placeholder="Nhập câu hỏi..."
-                           aria-label="Nhập tin nhắn chat">
-                    <button class="send-btn" id="sendBtn" aria-label="Gửi tin nhắn">GỬI</button>
-                </div>
+            <div class="chat-input-row">
+                <textarea class="chat-input" id="chatInput" placeholder="Nhập câu hỏi của bạn..." aria-label="Nhập câu hỏi cho AI" rows="1"></textarea>
+                <button class="chat-send-btn" id="sendBtn" aria-label="Gửi tin nhắn">▶</button>
             </div>
         </div>
     </div>
 
-    <!-- FIXED: Article Modal with proper spacing for chat -->
-    <div class="modal" id="articleModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true" aria-hidden="true">
-        <div class="modal-content" style="margin-right: 450px; max-width: calc(90vw - 450px);">
+    <!-- Article Detail Modal -->
+    <div class="modal" id="articleModal" role="dialog" aria-labelledby="modal-title" aria-modal="true" aria-hidden="true">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">TRÌNH_XEM_BÁI_VIẾT.EXE</h2>
-                <button class="close-btn" id="closeModal" aria-label="Đóng bài viết" title="Đóng (Esc)">×</button>
+                <h2 class="modal-title" id="modal-title"></h2>
+                <button class="close-modal" onclick="window.econ?.closeArticleModal()" aria-label="Đóng bài viết">×</button>
             </div>
-            <div class="modal-body" id="modalBody" role="document">
-                <!-- Article content will be loaded here -->
+            <div class="modal-meta">
+                <span id="articleSource"></span>
+                <a href="#" id="articleLink" target="_blank" rel="noopener noreferrer">Xem gốc</a>
+            </div>
+            <div class="modal-body" id="articleContent">
+                Đang tải nội dung...
             </div>
         </div>
     </div>
 
-    <!-- Bottom Command Bar -->
-    <footer class="bottom-bar" role="contentinfo">
-        <div class="hotkeys" role="navigation" aria-label="Phím tắt">
-            <span class="hotkey" tabindex="0" title="Hiển thị trợ giúp">[F1] TRỢ_GIÚP</span>
-            <span class="hotkey" tabindex="0" title="Lưu trạng thái hiện tại">[F2] LƯU</span>
-            <span class="hotkey" tabindex="0" title="Thoát ứng dụng">[F3] THOÁT</span>
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="hotkeys" role="group" aria-label="Phím tắt">
+            <span class="hotkey" tabindex="0" title="Trợ giúp">[F1] HELP</span>
             <span class="hotkey" tabindex="0" title="Chế độ matrix">[F4] MATRIX</span>
             <span class="hotkey" tabindex="0" title="Làm mới dữ liệu">[F5] LÀM_MỚI</span>
         </div>
         <div class="system-info" role="status" aria-label="Thông tin hệ thống">
-            <span class="status-online">TRẠNG_THÁI: TRỰC_TUYẾN</span>
+            <span class="status-online">NGƯỜI_DÙNG: 1.337.420</span>
             <span aria-hidden="true">|</span>
             <span class="cpu-usage">CPU: 69%</span>
             <span aria-hidden="true">|</span>
@@ -437,20 +395,31 @@
         <p>Điều hướng bằng phím Tab. Nhấn F1 để được trợ giúp, F4 cho hiệu ứng đặc biệt, F5 để làm mới.</p>
     </div>
 
-    <!-- FIXED: Accessibility Styles -->
-    <style>
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='script.js') }}?v={{ range(1000, 9999) | random }}" defer></script>
+    
+    <!-- Update time display -->
+    <script>
+        function updateHeaderTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN', { 
+                hour12: false,
+                timeZone: 'Asia/Ho_Chi_Minh'
+            });
+            
+            const headerTime = document.getElementById('headerTime');
+            if (headerTime) {
+                headerTime.textContent = timeString;
+            }
         }
+        
+        // Update immediately and then every second
+        updateHeaderTime();
+        setInterval(updateHeaderTime, 1000);
+    </script>
 
+    <!-- Accessibility Enhancements -->
+    <style>
         /* High contrast mode support */
         @media (prefers-contrast: high) {
             :root {
@@ -500,161 +469,6 @@
         .skip-link:focus {
             top: 6px;
         }
-
-        /* FIXED: Mobile responsive navigation */
-        @media (max-width: 768px) {
-            .nav-tabs {
-                padding: 8px;
-                gap: 2px;
-            }
-            
-            .nav-tab {
-                font-size: 8px;
-                padding: 6px 8px;
-                min-height: 32px;
-                flex: 1;
-                min-width: 80px;
-            }
-            
-            .modal-content {
-                margin-right: 0 !important;
-                max-width: 90vw !important;
-            }
-            
-            .chat-window {
-                width: calc(100vw - 40px) !important;
-                height: 50vh !important;
-                bottom: 80px !important;
-            }
-            
-            .pagination {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-tab {
-                font-size: 7px;
-                padding: 4px 6px;
-                min-height: 28px;
-                letter-spacing: 0;
-            }
-        }
     </style>
-
-    <!-- FIXED: Error Boundary and Performance Monitoring -->
-    <script>
-        // Global error handling
-        window.addEventListener('error', function(e) {
-            console.error('🚨 Lỗi ứng dụng:', e.error);
-            
-            // Show user-friendly error message
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: var(--bg-black, #000);
-                border: 2px solid var(--terminal-red, #ff0000);
-                color: var(--terminal-red, #ff0000);
-                padding: 2rem;
-                font-family: var(--font-mono, monospace);
-                text-align: center;
-                z-index: 10000;
-                max-width: 400px;
-            `;
-            errorDiv.innerHTML = `
-                <h3>LỖI HỆ THỐNG</h3>
-                <p style="margin: 1rem 0;">Đã xảy ra lỗi không mong muốn.</p>
-                <button onclick="location.reload()" style="background: var(--terminal-red, #ff0000); color: white; border: none; padding: 0.5rem 1rem; font-family: var(--font-mono, monospace); cursor: pointer;">
-                    KHỞI ĐỘNG LẠI HỆ THỐNG
-                </button>
-            `;
-            document.body.appendChild(errorDiv);
-        });
-
-        // FIXED: Performance monitoring
-        window.addEventListener('load', function() {
-            if ('performance' in window) {
-                const perfData = performance.getEntriesByType('navigation')[0];
-                console.log('📊 Báo cáo hiệu suất:', {
-                    loadTime: Math.round(performance.now()),
-                    domContentLoaded: Math.round(perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart),
-                    firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 'N/A'
-                });
-            }
-            
-            // FIXED: Check if navigation is visible
-            const navTabs = document.querySelector('.nav-tabs');
-            if (navTabs) {
-                const computedStyle = window.getComputedStyle(navTabs);
-                if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-                    console.error('🚨 Các tab điều hướng không hiển thị! Kiểm tra việc tải CSS.');
-                } else {
-                    console.log('✅ Các tab điều hướng đã tải thành công');
-                }
-            }
-        });
-
-        // Service Worker registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('{{ url_for("static", filename="sw.js") }}')
-                    .then(function(registration) {
-                        console.log('✅ SW đã đăng ký:', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('❌ Đăng ký SW thất bại:', error);
-                    });
-            });
-        }
-
-        // Dark mode detection
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-
-        // Handle viewport changes for mobile
-        function handleViewportChanges() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-
-        window.addEventListener('resize', handleViewportChanges);
-        window.addEventListener('orientationchange', function() {
-            setTimeout(handleViewportChanges, 100);
-        });
-        handleViewportChanges();
-
-        // Connection status monitoring
-        function updateConnectionStatus() {
-            const statusElement = document.querySelector('.status-online');
-            if (statusElement) {
-                statusElement.textContent = navigator.onLine ? 'TRẠNG_THÁI: TRỰC_TUYẾN' : 'TRẠNG_THÁI: NGOẠI_TUYẾN';
-                statusElement.style.color = navigator.onLine ? 'var(--terminal-green)' : 'var(--terminal-red)';
-            }
-        }
-
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
-
-        console.log('🚀 Giao diện terminal đã sửa lỗi đang tải...');
-    </script>
-
-    <!-- Main Application Script -->
-    <script src="{{ url_for('static', filename='script.js') }}?v={{ range(1000, 9999) | random }}" defer></script>
-
-    <!-- Analytics & Monitoring (if needed) -->
-    {% if config.get('ANALYTICS_ID') %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.ANALYTICS_ID }}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ config.ANALYTICS_ID }}');
-    </script>
-    {% endif %}
 </body>
 </html>
